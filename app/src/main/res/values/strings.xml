@@ -1,6 +1,18 @@
 <resources>
     <string name="app_name">Bekado Online</string>
+
+    <!--    toast-->
+    <string name="no_internet_connection">Tidak ada koneksi internet</string>
+
+    <!--    button-->
+    <string name="lupa_password">Lupa password?</string>
+    <string name="masuk">Masuk</string>
+    <string name="daftar_baru">Daftar akun baru</string>
+
     <string name="title_beranda">Beranda</string>
     <string name="title_transaksi">Transaksi</string>
     <string name="title_profil">Profil</string>
+    <string name="atau">atau masuk dengan</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
 </resources>
