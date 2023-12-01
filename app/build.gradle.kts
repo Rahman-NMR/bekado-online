@@ -12,7 +12,11 @@ android {
         minSdk = 23
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0.1"
+//        big update
+//        feature
+//        stable
+//        tester, bug fixing,
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
