@@ -8,11 +8,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bekado.bekadoonline.LoginActivity
-import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.RegisterActivity
 import com.bekado.bekadoonline.databinding.FragmentTransaksiBinding
+import com.bekado.bekadoonline.helper.HelperAuth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 
 class TransaksiFragment : Fragment() {
@@ -29,18 +29,12 @@ class TransaksiFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)).requestEmail().requestId()
-            .requestProfile().build()
-        googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
-
         auth = FirebaseAuth.getInstance()
-        binding.login.setOnClickListener {
-//            if (auth.currentUser != null) {
-//                Toast.makeText(context, "Anda Sudah Login", Toast.LENGTH_SHORT).show()
-//            } else
-                startActivity(Intent(context, LoginActivity::class.java))
-        }
+        googleSignInClient = GoogleSignIn.getClient(requireContext(), HelperAuth.clientGoogle(requireContext()))
+
+
+        binding.login.setOnClickListener { startActivity(Intent(context, LoginActivity::class.java)) }
+        binding.register.setOnClickListener { startActivity(Intent(context, RegisterActivity::class.java)) }
         binding.logout.setOnClickListener {
             if (auth.currentUser != null) {
                 auth.signOut()

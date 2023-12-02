@@ -3,20 +3,29 @@ package com.bekado.bekadoonline
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import com.bekado.bekadoonline.databinding.ActivityLoginBinding
+import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseDatabase
     private lateinit var googleSignInClient: GoogleSignInClient
 
     companion object {
@@ -30,14 +39,64 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.hide()
+        db = FirebaseDatabase.getInstance()
         auth = FirebaseAuth.getInstance()
+        googleSignInClient = GoogleSignIn.getClient(this, HelperAuth.clientGoogle(this))
 
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)).requestEmail().build()
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
+        with(binding) {
+            emailLogin.addTextChangedListener(loginTextWatcher)
+            passwordLogin.addTextChangedListener(loginTextWatcher)
 
-        binding.googleAutoLogin.setOnClickListener {
-            if (HelperConnection.isConnected(this)) startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
+            btnDaftar.setOnClickListener { startActivity(Intent(this@LoginActivity, RegisterActivity::class.java)) }
+            btnMasuk.setOnClickListener {
+                val email = binding.emailLogin.text.toString().trim()
+                val password = binding.passwordLogin.text.toString()
+                if (HelperConnection.isConnected(this@LoginActivity)) {
+                    if (binding.outlineEmailLogin.helperText == null && binding.outlinePasswordLogin.helperText == null)
+                        loginAuthManual(email, password)
+                    else {
+                        val snackbar = Snackbar.make(binding.root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
+                        snackbar.setAction("Oke") { snackbar.dismiss() }.show()
+                    }
+                }
+            }
+            googleAutoLogin.setOnClickListener {
+                if (HelperConnection.isConnected(this@LoginActivity)) startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
+            }
+        }
+    }
+
+    private fun loginAuthManual(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) {
+            if (it.isSuccessful) finish()
+            else Toast.makeText(this, getString(R.string.email_pass_salah), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val loginTextWatcher: TextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            val emailInput = binding.emailLogin.text.toString().trim { it <= ' ' }
+            val passwordInput = binding.passwordLogin.text.toString().trim { it <= ' ' }
+            binding.btnMasuk.isEnabled = emailInput.isNotEmpty() && passwordInput.isNotEmpty()
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+            if (s == binding.emailLogin.text) {
+                if (binding.emailLogin.text.isNullOrEmpty()) binding.outlineEmailLogin.helperText = null
+                else {
+                    if (!Patterns.EMAIL_ADDRESS.matcher(s.toString()).matches())
+                        binding.outlineEmailLogin.helperText = getString(R.string.email_invalid)
+                    else binding.outlineEmailLogin.helperText = null
+                }
+            } else if (s == binding.passwordLogin.text) {
+                if (binding.passwordLogin.text.isNullOrEmpty()) binding.outlinePasswordLogin.helperText = null
+                else {
+                    if (binding.passwordLogin.length() < 8) binding.outlinePasswordLogin.helperText = getString(R.string.min_8_char)
+                    else binding.outlinePasswordLogin.helperText = null
+                }
+            }
         }
     }
 
@@ -50,8 +109,7 @@ class LoginActivity : AppCompatActivity() {
             if (task.isSuccessful) {
                 try {
                     val account = task.getResult(ApiException::class.java)
-                    Log.d(TAG, "firebaseAuthWithGoogle:" + account.id)
-                    firebaseAuthWithGoogle(account.idToken)
+                    loginAuthWithGoogle(account.idToken)
                 } catch (e: ApiException) {
                     Log.d(TAG, "Google Sign In Failed:", e)
                 }
@@ -59,31 +117,28 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun firebaseAuthWithGoogle(idToken: String?) {
+    private fun loginAuthWithGoogle(idToken: String?) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener(this) {
             if (it.isSuccessful) {
-                Log.d(TAG, "SignInBerhasil :: SUCCESS")
+                val currentUser = auth.currentUser
+                val uidAkun = currentUser?.uid.toString()
+                val userRef = db.getReference("akun/$uidAkun")
 
-//                val currentUser = auth.currentUser
-//                val uidAkun = currentUser?.uid.toString()
-//                val userRef = db.getReference("akun").child(uidAkun)
-//                userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//                    override fun onDataChange(snapshot: DataSnapshot) {
-//                        if (snapshot.exists()) {
-//                            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-//                            finish()
-//                        } else {
-//                            startActivity(Intent(this@LoginActivity, RegisterGoogleActivity::class.java))
-//                            finish()
-//                        }
-//                    }
-//
-//                    override fun onCancelled(error: DatabaseError) {}
-//                })
-                finish()
-                Toast.makeText(this, "Berhasil Login", Toast.LENGTH_SHORT).show()
-            } else Log.w(TAG, "SignInWithCredential :: Failure", it.exception)
+                userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) {
+                            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                            finish()
+                        } else {
+                            startActivity(Intent(this@LoginActivity, RegisterGoogleActivity::class.java))
+                            finish()
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+            }
         }
     }
 

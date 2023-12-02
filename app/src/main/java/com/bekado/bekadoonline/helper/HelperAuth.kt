@@ -1,0 +1,26 @@
+package com.bekado.bekadoonline.helper
+
+import android.content.Context
+import com.bekado.bekadoonline.R
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.database.FirebaseDatabase
+
+object HelperAuth {
+    fun clientGoogle(context: Context): GoogleSignInOptions {
+        return GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(context.getString(R.string.default_web_client_id)).requestEmail().build()
+    }
+
+    fun registerAkun(uidAkun: String, db: FirebaseDatabase, email: String, nama: String, noHp: String) {
+        val userRef = db.getReference("akun/$uidAkun")
+        val user = HashMap<String, Any>()
+        user["email"] = email
+        user["fotoProfil"] = ""
+        user["nama"] = nama
+        user["noHp"] = noHp
+        user["statusAdmin"] = false
+        user["betaTester"] = false
+        user["uid"] = uidAkun
+        userRef.setValue(user)
+    }
+}

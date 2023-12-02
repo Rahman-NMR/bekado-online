@@ -3,11 +3,24 @@
 
     <!--    toast-->
     <string name="no_internet_connection">Tidak ada koneksi internet</string>
+    <string name="email_pass_salah">Email atau Password salah</string>
+    <string name="gagal_daftar_akun">Gagal mendaftarkan akun</string>
 
     <!--    button-->
     <string name="lupa_password">Lupa password?</string>
     <string name="masuk">Masuk</string>
     <string name="daftar_baru">Daftar akun baru</string>
+    <string name="daftar">Daftar</string>
+    <string name="batalkan">Batalkan</string>
+
+    <!--    helper text-->
+    <string name="email_invalid">Email tidak sesuai format</string>
+    <string name="min_8_char">Minimal 8 karakter</string>
+    <string name="min_9_angka">Minimal 9 angka</string>
+    <string name="password_berbeda">Password berbeda</string>
+
+    <!--    snackbar-->
+    <string name="pastikan_no_error">Pastikan tidak ada pesan error</string>
 
     <string name="title_beranda">Beranda</string>
     <string name="title_transaksi">Transaksi</string>
@@ -15,4 +28,8 @@
     <string name="atau">atau masuk dengan</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
+    <string name="daftar_akun">Daftar Akun</string>
+    <string name="nama">Nama</string>
+    <string name="nomor_telepon_optional">Nomor telepon (Optional)</string>
+    <string name="konfirmasi_password">Konfirmasi password</string>
 </resources>

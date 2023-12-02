@@ -21,6 +21,14 @@
         <item name="cornerRadius">99dp</item>
     </style>
 
+    <style name="materialOutlinedButton.red" parent="materialOutlinedButton">
+        <item name="materialThemeOverlay">@style/color.red</item>
+    </style>
+
+    <style name="color.red" parent="">
+        <item name="colorPrimary">#EA4545</item>
+    </style>
+
     <!--    text only-->
     <style name="materialbutton.text" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:layout_gravity">center</item>
