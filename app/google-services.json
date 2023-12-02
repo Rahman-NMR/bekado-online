@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "765309966455",
+    "firebase_url": "https://bekado-online-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "bekado-online",
     "storage_bucket": "bekado-online.appspot.com"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.bekado.bekadoonline"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "765309966455-t564r4hu8tf48m8hn86i9jrc5ej3selh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bekado.bekadoonline",
+            "certificate_hash": "4ec62fa3f9edb6c504288931566014677fc081d1"
+          }
+        },
+        {
+          "client_id": "765309966455-1vl653tpvu0nhnkh5kbs9dn0ho257ur9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCwKaMIu6WV4vpWfb3ATgXa6JGeNT7RoIk"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "765309966455-1vl653tpvu0nhnkh5kbs9dn0ho257ur9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
