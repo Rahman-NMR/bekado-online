@@ -15,4 +15,12 @@
     <color name="white_bg">#EBF1F4</color>
     <color name="line">#79303030</color>
     <color name="helper_text">#CF3C31</color>
+    <!--    primary-->
+    <!--    secondary-->
+    <!--    tertiary-->
+    <!--    surface/surface container-->
+    <!--    error-->
+    <!--    outline-->
+
+    <color name="shimmer_color">#BDBDBD</color> <!--Grey 400-->
 </resources>
