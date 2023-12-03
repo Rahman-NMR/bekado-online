@@ -22,9 +22,20 @@
     <!--    snackbar-->
     <string name="pastikan_no_error">Pastikan tidak ada pesan error</string>
 
+    <!--    sort-->
+    <string name="rekomendasi">Random</string>
+    <string name="sortir_a_z">Sortir A-Z</string>
+    <string name="sortir_z_a">Sortir Z-A</string>
+    <string name="harga_tertinggi">Harga Tertinggi</string>
+    <string name="harga_terendah">Harga Terendah</string>
+
+    <!--    title-->
     <string name="title_beranda">Beranda</string>
     <string name="title_transaksi">Transaksi</string>
     <string name="title_profil">Profil</string>
+    <string name="title_keranjang">Keranjang</string>
+    <string name="urutkan_berdasarkan">Urutkan Berdasarkan</string>
+
     <string name="atau">atau masuk dengan</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
