@@ -79,7 +79,9 @@ class RegisterGoogleActivity : AppCompatActivity() {
         currentUser.updatePassword(binding.passwordDaftar.text.toString()).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 registerAkunRtdb()
-                startActivity(Intent(this, MainActivity::class.java))
+                val flag = Intent(this@RegisterGoogleActivity, MainActivity::class.java)
+                flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                startActivity(flag)
                 finish()
             }
         }
@@ -143,8 +145,8 @@ class RegisterGoogleActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        googleSignInClient.signOut()
-        auth.signOut()
         super.onDestroy()
+        auth.signOut()
+        googleSignInClient.signOut()
     }
 }

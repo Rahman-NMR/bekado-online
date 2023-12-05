@@ -68,8 +68,12 @@ class LoginActivity : AppCompatActivity() {
 
     private fun loginAuthManual(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) {
-            if (it.isSuccessful) finish()
-            else Toast.makeText(this, getString(R.string.email_pass_salah), Toast.LENGTH_SHORT).show()
+            if (it.isSuccessful) {
+                val flag = Intent(this@LoginActivity, MainActivity::class.java)
+                flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                startActivity(flag)
+                finish()
+            } else Toast.makeText(this, getString(R.string.email_pass_salah), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -128,7 +132,9 @@ class LoginActivity : AppCompatActivity() {
                 userRef.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
-                            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                            val flag = Intent(this@LoginActivity, MainActivity::class.java)
+                            flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            startActivity(flag)
                             finish()
                         } else {
                             startActivity(Intent(this@LoginActivity, RegisterGoogleActivity::class.java))

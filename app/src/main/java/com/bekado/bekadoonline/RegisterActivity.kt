@@ -84,7 +84,9 @@ class RegisterActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this) {
             if (it.isSuccessful) {
                 registerAkunRtdb()
-                startActivity(Intent(this@RegisterActivity, MainActivity::class.java))
+                val flag = Intent(this@RegisterActivity, MainActivity::class.java)
+                flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                startActivity(flag)
                 finish()
             } else Toast.makeText(this, getString(R.string.gagal_daftar_akun), Toast.LENGTH_SHORT).show()
         }
@@ -158,7 +160,9 @@ class RegisterActivity : AppCompatActivity() {
                 userRef.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
-                            startActivity(Intent(this@RegisterActivity, MainActivity::class.java))
+                            val flag = Intent(this@RegisterActivity, MainActivity::class.java)
+                            flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            startActivity(flag)
                             finish()
                         } else {
                             startActivity(Intent(this@RegisterActivity, RegisterGoogleActivity::class.java))
