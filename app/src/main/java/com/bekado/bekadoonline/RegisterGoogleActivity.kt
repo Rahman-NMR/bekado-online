@@ -46,7 +46,7 @@ class RegisterGoogleActivity : AppCompatActivity() {
             passwordDaftar.addTextChangedListener(daftarTextWatcher)
             konfirmasiPasswordDaftar.addTextChangedListener(daftarTextWatcher)
 
-            btnDaftar.setOnClickListener {
+            btnRegister.setOnClickListener {
                 if (HelperConnection.isConnected(this@RegisterGoogleActivity)) {
                     if (binding.outlineNamaDaftar.helperText == null
                         && binding.outlineNohpDaftar.helperText == null
@@ -113,7 +113,7 @@ class RegisterGoogleActivity : AppCompatActivity() {
             val namaInput = binding.namaDaftar.text.toString().trim { it <= ' ' }
             val passwordInput = binding.passwordDaftar.text.toString().trim { it <= ' ' }
             val konfirmPasswordInput = binding.konfirmasiPasswordDaftar.text.toString().trim { it <= ' ' }
-            binding.btnDaftar.isEnabled = namaInput.isNotEmpty() && passwordInput.isNotEmpty() && konfirmPasswordInput.isNotEmpty()
+            binding.btnRegister.isEnabled = namaInput.isNotEmpty() && passwordInput.isNotEmpty() && konfirmPasswordInput.isNotEmpty()
         }
 
         override fun afterTextChanged(s: Editable?) {

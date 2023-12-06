@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/pure_white"
+    android:background="@color/white"
     tools:context=".LoginActivity">
 
-    <ScrollView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_max="500dp">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="500dp">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_daftar"
+                android:id="@+id/btn_daftar_baru"
                 style="@style/materialOutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -37,6 +37,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginHorizontal="32dp"
                 android:fontFamily="@font/roboto_black_italic"
                 android:gravity="center"
@@ -48,8 +49,9 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginHorizontal="32dp"
-                app:cardBackgroundColor="@color/pure_white"
+                app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="16dp">
 
                 <LinearLayout
@@ -102,13 +104,13 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_masuk"
-                        style="@style/materialbutton"
+                        android:id="@+id/btn_login"
+                        style="@style/materialbutton.this"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="28dp"
                         android:enabled="false"
-                        android:text="@string/masuk"
+                        android:text="@string/login"
                         android:textColor="@color/white"
                         android:textSize="14sp" />
 
@@ -127,6 +129,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginHorizontal="32dp"
                 android:layout_marginVertical="24dp"
                 android:gravity="center"
@@ -136,7 +139,7 @@
                     android:layout_width="0dp"
                     android:layout_height="0.5dp"
                     android:layout_weight="1"
-                    android:background="@color/line" />
+                    android:background="@color/outline" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -149,7 +152,7 @@
                     android:layout_width="0dp"
                     android:layout_height="0.5dp"
                     android:layout_weight="1"
-                    android:background="@color/line" />
+                    android:background="@color/outline" />
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -161,8 +164,8 @@
                 app:cornerRadius="16dp"
                 app:icon="@drawable/googleg_standard_color_18"
                 app:iconSize="24dp"
-                app:iconTint="@color/pure_white"
+                app:iconTint="@color/white"
                 app:iconTintMode="multiply" />
         </LinearLayout>
-    </ScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

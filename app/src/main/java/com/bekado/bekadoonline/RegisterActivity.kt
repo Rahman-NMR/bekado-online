@@ -50,7 +50,7 @@ class RegisterActivity : AppCompatActivity() {
             passwordDaftar.addTextChangedListener(daftarTextWatcher)
             konfirmasiPasswordDaftar.addTextChangedListener(daftarTextWatcher)
 
-            btnDaftar.setOnClickListener {
+            btnRegister.setOnClickListener {
                 val email = binding.emailDaftar.text.toString().trim()
                 val password = binding.passwordDaftar.text.toString()
 
@@ -109,7 +109,7 @@ class RegisterActivity : AppCompatActivity() {
             val emailInput = binding.emailDaftar.text.toString().trim { it <= ' ' }
             val passwordInput = binding.passwordDaftar.text.toString().trim { it <= ' ' }
             val konfirmPasswordInput = binding.konfirmasiPasswordDaftar.text.toString().trim { it <= ' ' }
-            binding.btnDaftar.isEnabled =
+            binding.btnRegister.isEnabled =
                 namaInput.isNotEmpty() && emailInput.isNotEmpty() && passwordInput.isNotEmpty() && konfirmPasswordInput.isNotEmpty()
         }
 

@@ -47,8 +47,8 @@ class LoginActivity : AppCompatActivity() {
             emailLogin.addTextChangedListener(loginTextWatcher)
             passwordLogin.addTextChangedListener(loginTextWatcher)
 
-            btnDaftar.setOnClickListener { startActivity(Intent(this@LoginActivity, RegisterActivity::class.java)) }
-            btnMasuk.setOnClickListener {
+            btnDaftarBaru.setOnClickListener { startActivity(Intent(this@LoginActivity, RegisterActivity::class.java)) }
+            btnLogin.setOnClickListener {
                 val email = binding.emailLogin.text.toString().trim()
                 val password = binding.passwordLogin.text.toString()
                 if (HelperConnection.isConnected(this@LoginActivity)) {
@@ -83,7 +83,7 @@ class LoginActivity : AppCompatActivity() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             val emailInput = binding.emailLogin.text.toString().trim { it <= ' ' }
             val passwordInput = binding.passwordLogin.text.toString().trim { it <= ' ' }
-            binding.btnMasuk.isEnabled = emailInput.isNotEmpty() && passwordInput.isNotEmpty()
+            binding.btnLogin.isEnabled = emailInput.isNotEmpty() && passwordInput.isNotEmpty()
         }
 
         override fun afterTextChanged(s: Editable?) {
