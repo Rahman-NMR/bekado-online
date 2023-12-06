@@ -1,13 +1,16 @@
 package com.bekado.bekadoonline.ui.beranda
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bekado.bekadoonline.ui.KeranjangActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterButton
 import com.bekado.bekadoonline.adapter.AdapterProduk
@@ -64,11 +67,18 @@ class BerandaFragment : Fragment() {
         val lmButton = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         val lmShimmer = GridLayoutManager(context, calculateSpanCount(requireContext()))
 
+        searchProduk()
         getDataAllProduk()
         fabScrollToTop()
         HelperConnection.shimmerProduk(lmShimmer, binding.rvProdukShimmer, padding, dataShimmer)
 
         with(binding) {
+            appBar.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.menu_keranjang -> requireContext().startActivity(Intent(context, KeranjangActivity::class.java))
+                }
+                true
+            }
             swipeRefresh.setOnRefreshListener {
                 if (HelperConnection.isConnected(requireContext())) getDataAllProduk()
                 binding.swipeRefresh.isRefreshing = false
@@ -92,7 +102,7 @@ class BerandaFragment : Fragment() {
 
         sortBottomSheet.dialog.setOnDismissListener {
             sortFilter = sortBottomSheet.sortFilter
-            getDataAllProduk()
+            if (HelperConnection.isConnected(requireContext())) getDataAllProduk()
         }
     }
 
@@ -180,5 +190,42 @@ class BerandaFragment : Fragment() {
             }
         }
         produkRef.addListenerForSingleValueEvent(produkListener)
+    }
+
+    private fun searchProduk() {
+        val search = object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                val searchText = newText ?: ""
+                val searchList = dataProduk.filter { data ->
+                    val textToSearch = searchText.lowercase()
+
+                    data.namaProduk.toString().contains(textToSearch, ignoreCase = true) ||
+                            data.hargaProduk.toString().contains(textToSearch, ignoreCase = true)
+                } as ArrayList<ProdukModel>
+
+                if (searchList.isEmpty()) {
+                    binding.rvProduk.visibility = View.GONE
+                } else {
+                    binding.rvProduk.visibility = View.VISIBLE
+                    adapterProduk.onApplySearch(searchList)
+                }
+
+//                if (newText.isNullOrBlank()) {
+//                    dataProduk.clear()
+//                    getDataAllProduk()
+////                    adapterProduk.notifyDataSetChanged()
+//                }
+                return true
+            }
+        }
+
+        binding.searchProduk.setOnQueryTextFocusChangeListener { _, focus ->
+            binding.filterNKategori.visibility = if (focus) View.GONE else View.VISIBLE
+        }
+        binding.searchProduk.setOnQueryTextListener(search)
     }
 }
