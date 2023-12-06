@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">Bekado Online</string>
+    <string name="administrator">Administrator</string>
+
+    <!--    child db-->
+    <string name="key_antrian">antrian</string>
+    <string name="key_proses">proses</string>
+    <string name="key_selesai">selesai</string>
 
     <!--    toast-->
     <string name="no_internet_connection">Tidak ada koneksi internet</string>
@@ -7,11 +13,12 @@
     <string name="gagal_daftar_akun">Gagal mendaftarkan akun</string>
 
     <!--    button-->
+    <string name="login">Login</string>
     <string name="lupa_password">Lupa password?</string>
-    <string name="masuk">Masuk</string>
     <string name="daftar_baru">Daftar akun baru</string>
-    <string name="daftar">Daftar</string>
+    <string name="register">Register</string>
     <string name="batalkan">Batalkan</string>
+    <string name="logout">Logout</string>
 
     <!--    helper text-->
     <string name="email_invalid">Email tidak sesuai format</string>
@@ -36,11 +43,30 @@
     <string name="title_keranjang">Keranjang</string>
     <string name="urutkan_berdasarkan">Urutkan Berdasarkan</string>
 
-    <string name="atau">atau masuk dengan</string>
+    <!--    button -> title-->
+    <string name="akun_saya">Akun Saya</string>
+    <string name="ubah_alamat">Ubah Alamat</string>
+    <string name="ubah_password">Ubah Password</string>
+    <string name="kategori_produk">Kategori/Produk</string>
+    <string name="pengiriman">Pengiriman</string>
+    <string name="tentang_kami">Tentang Kami</string>
+
+    <string name="atau">Atau masuk dengan</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="daftar_akun">Daftar Akun</string>
     <string name="nama">Nama</string>
+    <string name="nomor_telepon">Nomor telepon</string>
     <string name="nomor_telepon_optional">Nomor telepon (Optional)</string>
+    <string name="alamat">Alamat</string>
     <string name="konfirmasi_password">Konfirmasi password</string>
+    <string name="default_angka">0</string>
+    <string name="default_text">null</string>
+    <string name="antrian">Antrian</string>
+    <string name="proses">Proses</string>
+    <string name="selesai">Selesai</string>
+    <string name="login_dulu">Silahkan login atau register untuk dapat mengakses halaman ini</string>
+    <string name="masukkan_nomor_telepon_anda">Masukkan nomor telepon Anda</string>
+    <string name="masukkan_nama_anda">Masukkan nama Anda</string>
+    <string name="tidak_ada_data">Tidak ada data</string>
 </resources>
