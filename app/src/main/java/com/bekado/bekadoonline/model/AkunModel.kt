@@ -1,0 +1,48 @@
+package com.bekado.bekadoonline.model
+
+import android.os.Parcel
+import android.os.Parcelable
+
+data class AkunModel(
+    val email: String? = "",
+    val fotoProfil: String? = "",
+    val nama: String? = "",
+    val noHp: String? = "",
+    val statusAdmin: Boolean = false,
+    val uid: String? = "",
+    val betaTester: Boolean = false
+) : Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readByte() != 0.toByte(),
+        parcel.readString(),
+        parcel.readByte() != 0.toByte()
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(email)
+        parcel.writeString(fotoProfil)
+        parcel.writeString(nama)
+        parcel.writeString(noHp)
+        parcel.writeByte(if (statusAdmin) 1 else 0)
+        parcel.writeString(uid)
+        parcel.writeByte(if (betaTester) 1 else 0)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<AkunModel> {
+        override fun createFromParcel(parcel: Parcel): AkunModel {
+            return AkunModel(parcel)
+        }
+
+        override fun newArray(size: Int): Array<AkunModel?> {
+            return arrayOfNulls(size)
+        }
+    }
+}

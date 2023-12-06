@@ -5,24 +5,29 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bekado.bekadoonline.LoginActivity
+import com.bekado.bekadoonline.MainActivity
 import com.bekado.bekadoonline.RegisterActivity
 import com.bekado.bekadoonline.databinding.FragmentTransaksiBinding
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class TransaksiFragment : Fragment() {
-    private var _binding: FragmentTransaksiBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentTransaksiBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var db: FirebaseDatabase
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentTransaksiBinding.inflate(inflater, container, false)
+        binding = FragmentTransaksiBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -31,21 +36,42 @@ class TransaksiFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
         googleSignInClient = GoogleSignIn.getClient(requireContext(), HelperAuth.clientGoogle(requireContext()))
+        db = FirebaseDatabase.getInstance()
 
+        val currentUser = auth.currentUser
+        getRealtimeDataAkun(currentUser)
 
-        binding.login.setOnClickListener { startActivity(Intent(context, LoginActivity::class.java)) }
-        binding.register.setOnClickListener { startActivity(Intent(context, RegisterActivity::class.java)) }
-        binding.logout.setOnClickListener {
-            if (auth.currentUser != null) {
-                auth.signOut()
-                googleSignInClient.signOut()
-                Toast.makeText(context, "Berhasil Logout", Toast.LENGTH_SHORT).show()
-            } else Toast.makeText(context, "Anda belum Login", Toast.LENGTH_SHORT).show()
+        binding.btnLogin.setOnClickListener { startActivity(Intent(context, LoginActivity::class.java)) }
+        binding.btnRegister.setOnClickListener { startActivity(Intent(context, RegisterActivity::class.java)) }
+    }
+
+    private fun getRealtimeDataAkun(currentUser: FirebaseUser?) {
+        if (currentUser != null && isAdded) {
+            val akunRef = db.getReference("akun/${currentUser.uid}")
+            akunRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!snapshot.exists()) {
+                        auth.signOut()
+                        googleSignInClient.signOut()
+                        startActivity(Intent(context, MainActivity::class.java))
+                        requireActivity().finish()
+                    }
+
+//                    binding.notNullLayout.visibility = if (snapshot.exists()) View.VISIBLE else View.GONE
+                    binding.nullLayout.visibility = if (snapshot.exists()) View.GONE else View.VISIBLE
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    override fun onStart() {
+        super.onStart()
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+//            binding.notNullLayout.visibility = View.GONE
+            binding.nullLayout.visibility = View.VISIBLE
+        }
     }
 }
