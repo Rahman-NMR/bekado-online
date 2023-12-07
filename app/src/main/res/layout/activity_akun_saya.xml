@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface_container"
+    tools:context=".ui.profil.AkunSayaActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/smallBottomdp">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/app_bar"
+                style="@style/costume.Toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:paddingEnd="4dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:navigationIcon="@drawable/icon_round_arrow_back_24"
+                app:title="@string/akun_saya" />
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/app_bar_layout"
+            app:layout_constraintWidth_max="500dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/foto_profil"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginVertical="24dp"
+                android:padding="4dp"
+                android:src="@drawable/img_broken_image_circle"
+                app:civ_border_color="?attr/colorPrimary"
+                app:civ_border_width="2dp" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        style="@style/textView.akunSaya"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/nama"
+                        app:drawableStartCompat="@drawable/icon_outline_person_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/nama_view"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/background_stroke1_16"
+                            android:padding="16dp"
+                            android:text="@string/tidak_ada_data"
+                            android:textColor="@color/grey_700"
+                            android:textSize="16sp"
+                            android:visibility="visible"
+                            tools:visibility="visible" />
+
+                        <EditText
+                            android:id="@+id/nama_edit"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/background_stroke1_16"
+                            android:enabled="false"
+                            android:hint="@string/masukkan_nama_anda"
+                            android:imeOptions="actionDone"
+                            android:importantForAutofill="no"
+                            android:inputType="text|textPersonName|textCapSentences"
+                            android:padding="16dp"
+                            android:singleLine="true"
+                            android:textSize="16sp"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_edit_nama"
+                            style="@style/iconOnly.button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            app:cornerRadius="16dp"
+                            app:icon="@drawable/icon_round_mode_edit_24"
+                            app:iconSize="24dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_cancel_nama"
+                            style="@style/iconOnly.outlined.red"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:visibility="gone"
+                            app:cornerRadius="16dp"
+                            app:icon="@drawable/icon_round_close_24"
+                            app:iconSize="24dp"
+                            app:strokeColor="?attr/colorPrimary"
+                            tools:visibility="visible" />
+                    </LinearLayout>
+
+                    <TextView
+                        style="@style/textView.akunSaya"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/nomor_telepon"
+                        app:drawableStartCompat="@drawable/icon_outline_call_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/nohp_view"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/background_stroke1_16"
+                            android:padding="16dp"
+                            android:text="@string/tidak_ada_data"
+                            android:textColor="@color/grey_700"
+                            android:textSize="16sp"
+                            android:visibility="visible"
+                            tools:visibility="visible" />
+
+                        <EditText
+                            android:id="@+id/nohp_edit"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/background_stroke1_16"
+                            android:enabled="false"
+                            android:hint="@string/masukkan_nomor_telepon_anda"
+                            android:imeOptions="actionDone"
+                            android:importantForAutofill="no"
+                            android:inputType="phone"
+                            android:padding="16dp"
+                            android:singleLine="true"
+                            android:textSize="16sp"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_edit_nohp"
+                            style="@style/iconOnly.button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            app:cornerRadius="16dp"
+                            app:icon="@drawable/icon_round_mode_edit_24"
+                            app:iconSize="24dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_cancel_nohp"
+                            style="@style/iconOnly.outlined.red"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:visibility="gone"
+                            app:cornerRadius="16dp"
+                            app:icon="@drawable/icon_round_close_24"
+                            app:iconSize="24dp"
+                            app:strokeColor="?attr/colorPrimary"
+                            tools:visibility="visible" />
+                    </LinearLayout>
+
+                    <TextView
+                        style="@style/textView.akunSaya"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/email"
+                        app:drawableStartCompat="@drawable/icon_outline_email_24" />
+
+                    <TextView
+                        android:id="@+id/email_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:background="@drawable/background_stroke1_16"
+                        android:padding="16dp"
+                        android:text="@string/tidak_ada_data"
+                        android:textColor="@color/grey_700"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        style="@style/textView.akunSaya"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/alamat"
+                        app:drawableStartCompat="@drawable/icon_outline_cottage_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/alamat_view"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/background_stroke1_16"
+                            android:padding="16dp"
+                            android:text="@string/tidak_ada_data"
+                            android:textColor="@color/grey_700"
+                            android:textSize="16sp"
+                            android:visibility="visible"
+                            tools:visibility="visible" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_edit_alamat"
+                            style="@style/iconOnly.button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            app:cornerRadius="16dp"
+                            app:icon="@drawable/icon_round_open_in_new_24"
+                            app:iconSize="24dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -3,6 +3,7 @@ package com.bekado.bekadoonline.helper
 import android.content.Context
 import android.util.DisplayMetrics
 import android.view.WindowManager
+import android.widget.Toast
 import java.text.DecimalFormat
 import java.text.NumberFormat
 
@@ -25,5 +26,9 @@ object Helper {
         val spanCount = (screenWidth / columnWidthPx).toInt()
 
         return if (spanCount > 0) spanCount else 1
+    }
+
+    fun showToast(message: String, context: Context) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }
