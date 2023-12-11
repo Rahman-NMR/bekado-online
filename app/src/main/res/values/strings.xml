@@ -24,6 +24,7 @@
     <string name="register">Register</string>
     <string name="batalkan">Batalkan</string>
     <string name="logout">Logout</string>
+    <string name="tambah_ke_keranjang">Tambah ke Keranjang</string>
 
     <!--    helper text-->
     <string name="email_invalid">Email tidak sesuai format</string>
@@ -74,4 +75,5 @@
     <string name="masukkan_nomor_telepon_anda">Masukkan nomor telepon Anda</string>
     <string name="masukkan_nama_anda">Masukkan nama Anda</string>
     <string name="tidak_ada_data">Tidak ada data</string>
+    <string name="jumlah_di_keranjang">Jumlah di keranjang</string>
 </resources>

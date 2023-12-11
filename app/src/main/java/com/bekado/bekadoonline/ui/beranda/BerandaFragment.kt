@@ -14,6 +14,7 @@ import com.bekado.bekadoonline.ui.KeranjangActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterButton
 import com.bekado.bekadoonline.adapter.AdapterProduk
+import com.bekado.bekadoonline.bottomsheet.ShowProdukBottomSheet
 import com.bekado.bekadoonline.bottomsheet.SortProdukBottomSheet
 import com.bekado.bekadoonline.databinding.FragmentBerandaBinding
 import com.bekado.bekadoonline.helper.GridSpacingItemDecoration
@@ -159,7 +160,9 @@ class BerandaFragment : Fragment() {
                         binding.rvButtonSelector.adapter = adapterButton
                     }
                 }
-                adapterProduk = AdapterProduk(dataProduk) { }
+                adapterProduk = AdapterProduk(dataProduk) { produk ->
+                    ShowProdukBottomSheet(requireContext()).showDialog(requireContext(), produk, auth, db)
+                }
                 getAllProduk(snapshot, dataProduk, dataKategori, adapterProduk, sortFilter)
                 binding.rvProduk.adapter = adapterProduk
 

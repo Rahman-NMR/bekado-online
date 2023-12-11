@@ -58,6 +58,11 @@ class ProfilFragment : Fragment() {
         }
         val currentUser = auth.currentUser
         akunRef = db.getReference("akun/${currentUser?.uid}")
+        akunListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {}
+
+            override fun onCancelled(error: DatabaseError) {}
+        }
 
         getRealtimeDataAkun(currentUser)
 

@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:importantForAccessibility="no"
             android:src="@drawable/icon_round_horizontal_32"
-            app:tint="#444444" />
+            app:tint="@color/grey_500" />
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/nscroll_view"

@@ -1,13 +1,23 @@
 package com.bekado.bekadoonline.helper
 
+import android.content.Context
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.bekado.bekadoonline.adapter.AdapterProduk
+import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperSort.sortNameAsc
 import com.bekado.bekadoonline.helper.HelperSort.sortNameDesc
 import com.bekado.bekadoonline.helper.HelperSort.sortPriceDesc
 import com.bekado.bekadoonline.helper.HelperSort.sortPriceAsc
+import com.bekado.bekadoonline.model.CombinedKeranjangModel
 import com.bekado.bekadoonline.model.KategoriModel
 import com.bekado.bekadoonline.model.ProdukModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
+import java.util.Date
+import java.util.HashMap
 
 object HelperProduk {
     fun getFiltered(
@@ -61,6 +71,70 @@ object HelperProduk {
             sortPriceAsc -> dataProduk.sortBy { it.hargaProduk }
             sortPriceDesc -> dataProduk.sortByDescending { it.hargaProduk }
             else -> dataProduk.sortBy { it.idProduk }
+        }
+    }
+
+    fun addToKeranjang(produk: ProdukModel, keranjangRef: DatabaseReference, context: Context) {
+        val idProduk = produk.idProduk.toString()
+        keranjangRef.child(idProduk).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val tambahKeranjang = HashMap<String, Any>()
+                val jumlahPesan = snapshot.child("jumlahProduk").value as Long? ?: 0
+
+                tambahKeranjang["idProduk"] = idProduk
+                tambahKeranjang["jumlahProduk"] = jumlahPesan + 1
+                tambahKeranjang["timestamp"] = Date().time.toString()
+                tambahKeranjang["diPilih"] = false
+                keranjangRef.child(idProduk).setValue(tambahKeranjang)
+                    .addOnSuccessListener { showToast("${produk.namaProduk} ditambahkan ke keranjang", context) }
+                    .addOnFailureListener { showToast("Tidak dapat menambahkan ${produk.namaProduk} ke keranjang", context) }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                showToast("Tidak dapat mengambil data keranjang", context)
+            }
+        })
+    }
+
+    fun deleteKeranjang(
+        keranjang: CombinedKeranjangModel,
+        keranjangRef: DatabaseReference,
+        viewBinding: CoordinatorLayout,
+        anchorLayout: Boolean,
+        ditampilkan: Boolean,
+        notifyDataSetChanged: Unit
+    ) {
+        keranjangRef.removeValue()
+
+        val nama = keranjang.produkModel?.namaProduk.toString()
+        val idProduk = keranjang.produkModel?.idProduk.toString()
+        val jumlahP = keranjang.keranjangModel?.jumlahProduk
+        val waktu = keranjang.keranjangModel?.timestamp.toString()
+
+        val snackbar = Snackbar.make(viewBinding, "$nama dihapus dari keranjang", Snackbar.LENGTH_LONG)
+        val actionText = "Batalkan"
+        val cancelAction = {
+            val temp = HashMap<String, Any?>()
+            temp["idProduk"] = idProduk
+            temp["jumlahProduk"] = jumlahP
+            temp["timestamp"] = waktu
+            temp["diPilih"] = false
+            keranjangRef.setValue(temp)
+            notifyDataSetChanged
+        }
+
+//        if (anchorLayout) snackbar.setAnchorView(R.id.lanjut_pembayaran)
+//        if (ditampilkan)
+            snackbar.setAction(actionText) { cancelAction() }
+        snackbar.show()
+    }
+
+    fun plusMinus(keranjangRef: DatabaseReference, add: Boolean) {
+        keranjangRef.child("jumlahProduk").get().addOnSuccessListener { dataSnapshot ->
+            val jumlahPesanOld = dataSnapshot.getValue(Long::class.java) ?: 0
+            val item = if (add) jumlahPesanOld + 1 else jumlahPesanOld - 1
+
+            keranjangRef.child("jumlahProduk").setValue(item)
         }
     }
 }
