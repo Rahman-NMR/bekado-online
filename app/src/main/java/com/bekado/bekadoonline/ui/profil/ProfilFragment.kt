@@ -71,7 +71,7 @@ class ProfilFragment : Fragment() {
             btnRegister.setOnClickListener { startActivity(Intent(context, RegisterActivity::class.java)) }
 
             btnAkunSaya.setOnClickListener { startActivity(Intent(context, AkunSayaActivity::class.java)) }
-            btnUbahAlamat.setOnClickListener { Toast.makeText(requireContext(), getString(R.string.ubah_alamat), Toast.LENGTH_SHORT).show() }
+            btnDetailAlamat.setOnClickListener { startActivity(Intent(context, AlamatActivity::class.java)) }
             btnUbahPassword.setOnClickListener { Toast.makeText(requireContext(), getString(R.string.ubah_password), Toast.LENGTH_SHORT).show() }
             btnTentangKami.setOnClickListener { Toast.makeText(requireContext(), getString(R.string.tentang_kami), Toast.LENGTH_SHORT).show() }
             btnLogout.setOnClickListener { showAlertDialog() }

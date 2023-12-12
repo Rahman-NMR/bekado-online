@@ -55,7 +55,7 @@ class AkunSayaActivity : AppCompatActivity() {
         with(binding) {
             appBar.setNavigationOnClickListener { onBackPressed() }
             btnEditFoto.setOnClickListener { showToast("Sedang dalam perbaikan", this@AkunSayaActivity) }
-//            btnEditAlamat.setOnClickListener { startActivity(Intent(this@AkunSayaActivity, AkunSayaActivity::class.java)) }
+            btnEditAlamat.setOnClickListener { startActivity(Intent(this@AkunSayaActivity, AlamatActivity::class.java)) }
 
             btnEditNama.setOnClickListener {
                 toggleEditView(namaEdit, namaView, btnEditNama, btnCancelNama, btnEditNohp)

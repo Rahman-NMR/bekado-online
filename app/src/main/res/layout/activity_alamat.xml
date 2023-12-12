@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface_container"
+    tools:context=".ui.profil.AlamatActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/smallBottomdp">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/app_bar"
+                style="@style/costume.Toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:paddingEnd="4dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:navigationIcon="@drawable/icon_round_arrow_back_24"
+                app:title="@string/detail_alamat" />
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/app_bar_layout"
+            app:layout_constraintWidth_max="500dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:paddingHorizontal="8dp"
+                android:text="@string/titik_lokasi"
+                android:textColor="@color/blue_grey_700"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_titik_lokasi"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:drawablePadding="6dp"
+                        android:ellipsize="end"
+                        android:gravity="center_vertical"
+                        android:maxLines="2"
+                        android:paddingVertical="4dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="8dp"
+                        android:text="@string/titik_lokasi"
+                        android:textColor="@color/grey_700"
+                        android:textSize="14sp"
+                        app:drawableStartCompat="@drawable/icon_outline_pin_drop_24"
+                        app:drawableTint="?attr/colorSecondaryVariant" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_get_titik_lokasi"
+                        style="@style/materialbutton.text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/record" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:paddingHorizontal="8dp"
+                android:text="@string/ubah_alamat"
+                android:textColor="@color/blue_grey_700"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/outline_nama_alamat"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:helperTextEnabled="true"
+                        app:helperTextTextColor="@color/helper_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/nama_alamat"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="@string/nama_penerima"
+                            android:inputType="textPersonName|textCapSentences"
+                            android:maxLength="30"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/outline_nohp_alamat"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        app:counterEnabled="true"
+                        app:counterMaxLength="15"
+                        app:helperTextEnabled="true"
+                        app:helperTextTextColor="@color/helper_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/nohp_alamat"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="@string/nomor_telepon_penerima"
+                            android:inputType="phone"
+                            android:maxLength="15"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/outline_alamat"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        app:counterEnabled="true"
+                        app:counterMaxLength="200"
+                        app:helperTextEnabled="true"
+                        app:helperTextTextColor="@color/helper_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/alamat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="top"
+                            android:hint="@string/alamat_lengkap"
+                            android:imeOptions="actionDone"
+                            android:inputType="textLongMessage|textMultiLine|textCapSentences"
+                            android:lineSpacingExtra="4sp"
+                            android:maxLength="200"
+                            android:maxLines="12"
+                            android:minLines="6"
+                            android:scrollbars="vertical"
+                            android:singleLine="false"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/outline_kode_pos"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        app:helperTextEnabled="true"
+                        app:helperTextTextColor="@color/helper_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/kode_pos"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="@string/kode_pos"
+                            android:inputType="number"
+                            android:maxLength="6"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_simpan_perubahan"
+                        style="@style/materialbutton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="28dp"
+                        android:enabled="false"
+                        android:text="@string/simpan" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -16,6 +16,7 @@
     <string name="tidak_dapat_kosong">tidak dapat kosong</string>
     <string name="terlalu_singkat">terlalu singkat</string>
     <string name="terlalu_panjang">terlalu panjang</string>
+    <string name="alamat_berhasil_save">Alamat berhasil di simpan</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -28,12 +29,17 @@
     <string name="pesan_sekarang">Pesan Sekarang</string>
     <string name="hapus">Hapus</string>
     <string name="hapus_semua">Hapus Semua</string>
+    <string name="simpan">Simpan</string>
+    <string name="keluar">Keluar</string>
+    <string name="record">Record</string>
 
     <!--    helper text-->
     <string name="email_invalid">Email tidak sesuai format</string>
     <string name="min_8_char">Minimal 8 karakter</string>
     <string name="min_9_angka">Minimal 9 angka</string>
     <string name="password_berbeda">Password berbeda</string>
+    <string name="kode_pos_invalid">Kode pos invalid</string>
+    <string name="alamat_terlalu_singkat">Alamat terlalu singkat</string>
 
     <!--    snackbar-->
     <string name="pastikan_no_error">Pastikan tidak ada pesan error</string>
@@ -52,9 +58,14 @@
     <string name="title_keranjang">Keranjang</string>
     <string name="urutkan_berdasarkan">Urutkan Berdasarkan</string>
 
+    <!--    sub title-->
+    <string name="tidak_dapat_diproses">Tidak dapat diproses</string>
+    <string name="titik_lokasi">Titik Lokasi</string>
+    <string name="ubah_alamat">Ubah Alamat</string>
+
     <!--    button -> title-->
     <string name="akun_saya">Akun Saya</string>
-    <string name="ubah_alamat">Ubah Alamat</string>
+    <string name="detail_alamat">Detail Alamat</string>
     <string name="ubah_password">Ubah Password</string>
     <string name="kategori_produk">Kategori/Produk</string>
     <string name="pengiriman">Pengiriman</string>
@@ -62,10 +73,12 @@
 
     <!--    title dialog-->
     <string name="logout_akun">Logout Akun?</string>
+    <string name="keluar_halaman">Keluar Halaman?</string>
 
     <!--    msg dialog-->
     <string name="msg_logout">Anda akan keluar dari Akun ini</string>
     <string name="hapus_produk_dipilih">Produk yang dipilih akan dihapus dari Keranjang</string>
+    <string name="msg_alamat">Perubahan alamat akan dibatalkan. Semua perubahan tidak akan disimpan</string>
 
     <string name="atau">Atau masuk dengan</string>
     <string name="email">Email</string>
@@ -88,5 +101,8 @@
     <string name="jumlah_di_keranjang">Jumlah di keranjang</string>
     <string name="total_harga">Total Harga</string>
     <string name="strip">-</string>
-    <string name="tidak_dapat_diproses">Tidak dapat diproses</string>
+    <string name="nama_penerima">Nama penerima</string>
+    <string name="nomor_telepon_penerima">Nomor telepon penerima</string>
+    <string name="alamat_lengkap">Alamat lengkap</string>
+    <string name="kode_pos">Kode pos</string>
 </resources>

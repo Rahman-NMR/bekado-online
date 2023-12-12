@@ -13,7 +13,7 @@ android {
         minSdk = 23
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0.1.1"
+        versionName = "1.0.1.2"
 //        big update
 //        feature
 //        stable
@@ -49,6 +49,7 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
     implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.firebase:firebase-auth:22.3.0")
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
     implementation("com.google.firebase:firebase-database:20.3.0")

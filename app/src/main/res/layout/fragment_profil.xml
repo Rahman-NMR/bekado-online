@@ -292,11 +292,11 @@
                             app:icon="@drawable/icon_outline_person_24" />
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_ubah_alamat"
+                            android:id="@+id/btn_detail_alamat"
                             style="@style/materialTextListButtonIcon.grey"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/ubah_alamat"
+                            android:text="@string/detail_alamat"
                             app:icon="@drawable/icon_outline_cottage_24" />
 
                         <com.google.android.material.button.MaterialButton

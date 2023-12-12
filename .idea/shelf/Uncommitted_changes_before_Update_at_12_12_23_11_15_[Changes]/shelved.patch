@@ -1,0 +1,130 @@
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\">\r\n\r\n    <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />\r\n    <uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\" />\r\n    <uses-permission android:name=\"android.permission.INTERNET\" />\r\n\r\n    <application\r\n        android:allowBackup=\"true\"\r\n        android:dataExtractionRules=\"@xml/data_extraction_rules\"\r\n        android:fullBackupContent=\"@xml/backup_rules\"\r\n        android:icon=\"@mipmap/ic_launcher\"\r\n        android:label=\"@string/app_name\"\r\n        android:roundIcon=\"@mipmap/ic_launcher_round\"\r\n        android:supportsRtl=\"false\"\r\n        android:theme=\"@style/Theme.BekadoOnline\"\r\n        tools:targetApi=\"31\">\r\n        <activity\r\n            android:name=\".ui.profil.AkunSayaActivity\"\r\n            android:exported=\"false\"\r\n            android:windowSoftInputMode=\"adjustResize\" />\r\n        <activity\r\n            android:name=\".ui.KeranjangActivity\"\r\n            android:exported=\"false\" />\r\n        <activity\r\n            android:name=\".RegisterActivity\"\r\n            android:exported=\"false\"\r\n            android:windowSoftInputMode=\"adjustResize\" />\r\n        <activity\r\n            android:name=\".RegisterGoogleActivity\"\r\n            android:exported=\"false\"\r\n            android:windowSoftInputMode=\"adjustResize\" />\r\n        <activity\r\n            android:name=\".LoginActivity\"\r\n            android:exported=\"false\"\r\n            android:windowSoftInputMode=\"adjustResize\" />\r\n        <activity\r\n            android:name=\".MainActivity\"\r\n            android:exported=\"true\"\r\n            android:windowSoftInputMode=\"adjustResize\">\r\n            <intent-filter>\r\n                <action android:name=\"android.intent.action.MAIN\" />\r\n\r\n                <category android:name=\"android.intent.category.LAUNCHER\" />\r\n            </intent-filter>\r\n        </activity>\r\n    </application>\r\n\r\n</manifest>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml	(revision ba0bad061fdbe055dcb55ac6238f502ce115f19a)
++++ b/app/src/main/AndroidManifest.xml	(date 1702353853872)
+@@ -17,6 +17,10 @@
+         android:theme="@style/Theme.BekadoOnline"
+         tools:targetApi="31">
+         <activity
++            android:name=".ui.profil.AlamatActivity"
++            android:exported="false"
++            android:windowSoftInputMode="adjustResize" />
++        <activity
+             android:name=".ui.profil.AkunSayaActivity"
+             android:exported="false"
+             android:windowSoftInputMode="adjustResize" />
+Index: app/build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\r\n    id(\"com.android.application\")\r\n    id(\"org.jetbrains.kotlin.android\")\r\n    id(\"com.google.gms.google-services\")\r\n}\r\n\r\nandroid {\r\n    namespace = \"com.bekado.bekadoonline\"\r\n    compileSdk = 34\r\n\r\n    defaultConfig {\r\n        applicationId = \"com.bekado.bekadoonline\"\r\n        minSdk = 23\r\n        targetSdk = 34\r\n        versionCode = 1\r\n        versionName = \"1.0.1.1\"\r\n//        big update\r\n//        feature\r\n//        stable\r\n//        tester, bug fixing,\r\n\r\n        testInstrumentationRunner = \"androidx.test.runner.AndroidJUnitRunner\"\r\n    }\r\n\r\n    buildTypes {\r\n        release {\r\n            isMinifyEnabled = false\r\n            proguardFiles(getDefaultProguardFile(\"proguard-android-optimize.txt\"), \"proguard-rules.pro\")\r\n        }\r\n    }\r\n    compileOptions {\r\n        sourceCompatibility = JavaVersion.VERSION_1_8\r\n        targetCompatibility = JavaVersion.VERSION_1_8\r\n    }\r\n    kotlinOptions {\r\n        jvmTarget = \"1.8\"\r\n    }\r\n    buildFeatures {\r\n        viewBinding = true\r\n    }\r\n}\r\n\r\ndependencies {\r\n\r\n    implementation(\"androidx.core:core-ktx:1.9.0\")\r\n    implementation(\"androidx.appcompat:appcompat:1.6.1\")\r\n    implementation(\"com.google.android.material:material:1.10.0\")\r\n    implementation(\"androidx.constraintlayout:constraintlayout:2.1.4\")\r\n    implementation(\"androidx.navigation:navigation-fragment-ktx:2.7.5\")\r\n    implementation(\"androidx.navigation:navigation-ui-ktx:2.7.5\")\r\n    implementation(\"com.google.android.gms:play-services-auth:20.7.0\")\r\n    implementation(\"com.google.firebase:firebase-auth:22.3.0\")\r\n    implementation(platform(\"com.google.firebase:firebase-bom:32.3.1\"))\r\n    implementation(\"com.google.firebase:firebase-database:20.3.0\")\r\n    implementation(\"com.github.bumptech.glide:glide:5.0.0-rc01\")\r\n    implementation(\"com.facebook.shimmer:shimmer:0.5.0\")\r\n    implementation(\"androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01\")\r\n    implementation(\"de.hdodenhof:circleimageview:3.1.0\")\r\n\r\n    testImplementation(\"junit:junit:4.13.2\")\r\n    androidTestImplementation(\"androidx.test.ext:junit:1.1.5\")\r\n    androidTestImplementation(\"androidx.test.espresso:espresso-core:3.5.1\")\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+--- a/app/build.gradle.kts	(revision dc7bdfe9b80ccf8a9cbcc708b27babce54283373)
++++ b/app/build.gradle.kts	(date 1702354113813)
+@@ -56,6 +56,7 @@
+     implementation("com.facebook.shimmer:shimmer:0.5.0")
+     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
+     implementation("de.hdodenhof:circleimageview:3.1.0")
++    implementation("com.google.firebase:firebase-storage:20.3.0")
+ 
+     testImplementation("junit:junit:4.13.2")
+     androidTestImplementation("androidx.test.ext:junit:1.1.5")
+Index: app/src/main/res/layout/activity_alamat.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/activity_alamat.xml b/app/src/main/res/layout/activity_alamat.xml
+new file mode 100644
+--- /dev/null	(date 1702353853953)
++++ b/app/src/main/res/layout/activity_alamat.xml	(date 1702353853953)
+@@ -0,0 +1,49 @@
++<?xml version="1.0" encoding="utf-8"?>
++<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:background="@color/surface_container"
++    tools:context=".ui.profil.AlamatActivity">
++
++    <androidx.constraintlayout.widget.ConstraintLayout
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:clipChildren="false"
++        android:clipToPadding="false"
++        android:paddingBottom="@dimen/smallBottomdp">
++
++        <com.google.android.material.appbar.AppBarLayout
++            android:id="@+id/app_bar_layout"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            app:layout_constraintEnd_toEndOf="parent"
++            app:layout_constraintStart_toStartOf="parent"
++            app:layout_constraintTop_toTopOf="parent">
++
++            <androidx.appcompat.widget.Toolbar
++                android:id="@+id/app_bar"
++                style="@style/costume.Toolbar"
++                android:layout_width="match_parent"
++                android:layout_height="?attr/actionBarSize"
++                android:paddingEnd="4dp"
++                app:contentInsetStartWithNavigation="0dp"
++                app:navigationIcon="@drawable/icon_round_arrow_back_24"
++                app:title="@string/alamat" />
++        </com.google.android.material.appbar.AppBarLayout>
++
++        <LinearLayout
++            android:layout_width="0dp"
++            android:layout_height="wrap_content"
++            android:clipChildren="false"
++            android:clipToPadding="false"
++            android:gravity="center"
++            android:orientation="vertical"
++            android:paddingHorizontal="16dp"
++            app:layout_constraintEnd_toEndOf="parent"
++            app:layout_constraintStart_toStartOf="parent"
++            app:layout_constraintTop_toBottomOf="@id/app_bar_layout"
++            app:layout_constraintWidth_max="500dp"></LinearLayout>
++    </androidx.constraintlayout.widget.ConstraintLayout>
++</ScrollView>
+\ No newline at end of file
+Index: app/src/main/java/com/bekado/bekadoonline/ui/profil/AlamatActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/bekado/bekadoonline/ui/profil/AlamatActivity.kt b/app/src/main/java/com/bekado/bekadoonline/ui/profil/AlamatActivity.kt
+new file mode 100644
+--- /dev/null	(date 1702353853932)
++++ b/app/src/main/java/com/bekado/bekadoonline/ui/profil/AlamatActivity.kt	(date 1702353853932)
+@@ -0,0 +1,20 @@
++package com.bekado.bekadoonline.ui.profil
++
++import androidx.appcompat.app.AppCompatActivity
++import android.os.Bundle
++import com.bekado.bekadoonline.R
++import com.bekado.bekadoonline.databinding.ActivityAlamatBinding
++import com.google.firebase.auth.FirebaseAuth
++import com.google.firebase.database.FirebaseDatabase
++
++class AlamatActivity : AppCompatActivity() {
++    private lateinit var binding: ActivityAlamatBinding
++    private lateinit var auth: FirebaseAuth
++    private lateinit var db: FirebaseDatabase
++
++    override fun onCreate(savedInstanceState: Bundle?) {
++        super.onCreate(savedInstanceState)
++        binding = ActivityAlamatBinding.inflate(layoutInflater)
++        setContentView(binding.root)
++    }
++}
+\ No newline at end of file
