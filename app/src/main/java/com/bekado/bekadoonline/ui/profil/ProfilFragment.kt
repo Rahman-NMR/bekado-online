@@ -189,8 +189,8 @@ class ProfilFragment : Fragment() {
 
     private fun showAlertDialog() {
         val alertdialog = MaterialAlertDialogBuilder(requireContext(), R.style.alertDialog)
-            .setTitle("Logout Akun")
-            .setMessage("Apakah Anda yakin ingin logout?")
+            .setTitle(getString(R.string.logout_akun))
+            .setMessage(getString(R.string.msg_logout))
             .setCancelable(false)
             .setNegativeButton(getString(R.string.batalkan)) { dialog, _ ->
                 dialog.cancel()

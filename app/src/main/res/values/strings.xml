@@ -25,6 +25,9 @@
     <string name="batalkan">Batalkan</string>
     <string name="logout">Logout</string>
     <string name="tambah_ke_keranjang">Tambah ke Keranjang</string>
+    <string name="pesan_sekarang">Pesan Sekarang</string>
+    <string name="hapus">Hapus</string>
+    <string name="hapus_semua">Hapus Semua</string>
 
     <!--    helper text-->
     <string name="email_invalid">Email tidak sesuai format</string>
@@ -57,6 +60,13 @@
     <string name="pengiriman">Pengiriman</string>
     <string name="tentang_kami">Tentang Kami</string>
 
+    <!--    title dialog-->
+    <string name="logout_akun">Logout Akun?</string>
+
+    <!--    msg dialog-->
+    <string name="msg_logout">Anda akan keluar dari Akun ini</string>
+    <string name="hapus_produk_dipilih">Produk yang dipilih akan dihapus dari Keranjang</string>
+
     <string name="atau">Atau masuk dengan</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -76,4 +86,7 @@
     <string name="masukkan_nama_anda">Masukkan nama Anda</string>
     <string name="tidak_ada_data">Tidak ada data</string>
     <string name="jumlah_di_keranjang">Jumlah di keranjang</string>
+    <string name="total_harga">Total Harga</string>
+    <string name="strip">-</string>
+    <string name="tidak_dapat_diproses">Tidak dapat diproses</string>
 </resources>

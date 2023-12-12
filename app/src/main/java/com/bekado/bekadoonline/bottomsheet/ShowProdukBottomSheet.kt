@@ -91,7 +91,10 @@ class ShowProdukBottomSheet(context: Context) {
     }
 
     private fun plusMinusJumlah(ref: DatabaseReference) {
-        bindingPBS.tambahJumlahProduk.setOnClickListener { HelperProduk.plusMinus(ref, true) }
+        bindingPBS.tambahJumlahProduk.apply {
+            isEnabled = jumlahPesanV != 100
+            setOnClickListener { HelperProduk.plusMinus(ref, true) }
+        }
         bindingPBS.kurangJumlahProduk.setOnClickListener {
             if (jumlahPesanV == 1) {
                 ref.removeValue()

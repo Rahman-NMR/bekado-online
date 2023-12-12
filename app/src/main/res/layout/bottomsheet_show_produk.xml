@@ -126,7 +126,6 @@
                         app:drawableStartCompat="@drawable/icon_outline_shopping_cart_24"
                         app:drawableTint="?attr/colorPrimary" />
 
-
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/kurang_jumlah_produk"
                         style="@style/iconOnly.outlined"

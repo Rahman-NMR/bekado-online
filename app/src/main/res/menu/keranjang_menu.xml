@@ -6,5 +6,6 @@
         android:id="@+id/menu_keranjang"
         android:icon="@drawable/icon_outline_shopping_cart_24"
         android:title="@string/title_keranjang"
+        app:iconTint="@color/grey_700"
         app:showAsAction="always" />
 </menu>

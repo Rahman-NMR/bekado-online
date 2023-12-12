@@ -1,6 +1,7 @@
 package com.bekado.bekadoonline.helper
 
 import android.content.Context
+import android.widget.LinearLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.bekado.bekadoonline.adapter.AdapterProduk
 import com.bekado.bekadoonline.helper.Helper.showToast
@@ -100,7 +101,7 @@ object HelperProduk {
         keranjang: CombinedKeranjangModel,
         keranjangRef: DatabaseReference,
         viewBinding: CoordinatorLayout,
-        anchorLayout: Boolean,
+        anchorLayout: LinearLayout,
         ditampilkan: Boolean,
         notifyDataSetChanged: Unit
     ) {
@@ -123,9 +124,8 @@ object HelperProduk {
             notifyDataSetChanged
         }
 
-//        if (anchorLayout) snackbar.setAnchorView(R.id.lanjut_pembayaran)
-//        if (ditampilkan)
-            snackbar.setAction(actionText) { cancelAction() }
+        snackbar.anchorView = anchorLayout
+        if (ditampilkan) snackbar.setAction(actionText) { cancelAction() }
         snackbar.show()
     }
 
