@@ -1,6 +1,5 @@
 package com.bekado.bekadoonline.ui.profil
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,13 +12,13 @@ import com.bekado.bekadoonline.MainActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.RegisterActivity
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
+import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.model.AkunModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -188,31 +187,17 @@ class ProfilFragment : Fragment() {
     }
 
     private fun showAlertDialog() {
-        val alertdialog = MaterialAlertDialogBuilder(requireContext(), R.style.alertDialog)
-            .setTitle(getString(R.string.logout_akun))
-            .setMessage(getString(R.string.msg_logout))
-            .setCancelable(false)
-            .setNegativeButton(getString(R.string.batalkan)) { dialog, _ ->
-                dialog.cancel()
-            }
-            .setPositiveButton(getString(R.string.logout)) { _, _ ->
-                auth.signOut()
-                googleSignInClient.signOut()
-                startActivity(Intent(context, MainActivity::class.java))
-                requireActivity().finish()
-            }.show()
-
-        val negativeBtn = alertdialog.getButton(DialogInterface.BUTTON_NEGATIVE)
-        val positiveBtn = alertdialog.getButton(DialogInterface.BUTTON_POSITIVE)
-
-        negativeBtn.apply {
-            textSize = 16f
-            setTextColor(context.getColor(R.color.grey_500))
-        }
-
-        positiveBtn.apply {
-            textSize = 16f
-            setTextColor(context.getColor(R.color.error))
+        Helper.showAlertDialog(
+            getString(R.string.logout_akun),
+            getString(R.string.msg_logout),
+            getString(R.string.logout),
+            requireContext(),
+            requireContext().getColor(R.color.error)
+        ) {
+            auth.signOut()
+            googleSignInClient.signOut()
+            startActivity(Intent(context, MainActivity::class.java))
+            requireActivity().finish()
         }
     }
 

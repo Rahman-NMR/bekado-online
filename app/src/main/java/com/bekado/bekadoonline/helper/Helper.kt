@@ -1,9 +1,12 @@
 package com.bekado.bekadoonline.helper
 
 import android.content.Context
+import android.content.DialogInterface
 import android.util.DisplayMetrics
 import android.view.WindowManager
 import android.widget.Toast
+import com.bekado.bekadoonline.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.DecimalFormat
 import java.text.NumberFormat
 
@@ -30,5 +33,38 @@ object Helper {
 
     fun showToast(message: String, context: Context) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    fun showAlertDialog(
+        title: String,
+        msg: String,
+        positifBtn: String,
+        context: Context,
+        color: Int,
+        positiveBtnClickListener: () -> Unit
+    ) {
+        val alertdialog = MaterialAlertDialogBuilder(context, R.style.alertDialog)
+            .setTitle(title)
+            .setMessage(msg)
+            .setCancelable(true)
+            .setNegativeButton(context.getString(R.string.batalkan)) { dialog, _ ->
+                dialog.cancel()
+            }
+            .setPositiveButton(positifBtn) { _, _ ->
+                positiveBtnClickListener.invoke()
+            }.show()
+
+        val negativeBtn = alertdialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+        val positiveBtn = alertdialog.getButton(DialogInterface.BUTTON_POSITIVE)
+
+        negativeBtn.apply {
+            textSize = 16f
+            setTextColor(context.getColor(R.color.blue_grey_700))
+        }
+
+        positiveBtn.apply {
+            textSize = 16f
+            setTextColor(color)
+        }
     }
 }

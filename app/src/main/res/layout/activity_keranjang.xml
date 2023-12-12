@@ -26,7 +26,6 @@
             android:layout_height="?attr/actionBarSize"
             android:paddingEnd="4dp"
             app:contentInsetStartWithNavigation="0dp"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
             app:navigationIcon="@drawable/icon_round_arrow_back_24"
             app:title="@string/title_keranjang" />
     </com.google.android.material.appbar.AppBarLayout>
@@ -140,45 +139,54 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:id="@+id/ll_container_pesanan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
-        android:background="@drawable/background_bottom_sheet"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="8dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
 
-            <TextView
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/total_harga"
+                    android:textColor="@color/grey_700"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/total_harga"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/strip"
+                    android:textColor="@color/blue_grey_700"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_pesan_sekarang"
+                style="@style/materialbutton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/total_harga"
-                android:textColor="@color/grey_700"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/total_harga"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/strip"
-                android:textColor="@color/blue_grey_700"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:enabled="false"
+                android:text="@string/pesan_sekarang" />
         </LinearLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_pesan_sekarang"
-            style="@style/materialbutton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:enabled="false"
-            android:text="@string/pesan_sekarang" />
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

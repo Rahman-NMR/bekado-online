@@ -78,6 +78,7 @@
     <!--    msg dialog-->
     <string name="msg_logout">Anda akan keluar dari Akun ini</string>
     <string name="hapus_produk_dipilih">Produk yang dipilih akan dihapus dari Keranjang</string>
+    <string name="hapus_produk_semua">Semua produk ini akan dihapus dari keranjang</string>
     <string name="msg_alamat">Perubahan alamat akan dibatalkan. Semua perubahan tidak akan disimpan</string>
 
     <string name="atau">Atau masuk dengan</string>

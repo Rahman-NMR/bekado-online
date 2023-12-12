@@ -48,14 +48,10 @@
             app:layout_constraintWidth_max="500dp">
 
             <TextView
+                style="@style/textView.sub.title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:paddingHorizontal="8dp"
-                android:text="@string/titik_lokasi"
-                android:textColor="@color/blue_grey_700"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="@string/titik_lokasi" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -98,14 +94,10 @@
             </androidx.cardview.widget.CardView>
 
             <TextView
+                style="@style/textView.sub.title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:paddingHorizontal="8dp"
-                android:text="@string/ubah_alamat"
-                android:textColor="@color/blue_grey_700"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="@string/ubah_alamat" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"

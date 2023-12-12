@@ -1,8 +1,6 @@
 package com.bekado.bekadoonline.ui
 
-import android.content.DialogInterface
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,20 +9,19 @@ import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterKeranjang
 import com.bekado.bekadoonline.databinding.ActivityKeranjangBinding
 import com.bekado.bekadoonline.helper.GridSpacingItemDecoration
+import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperProduk
 import com.bekado.bekadoonline.model.CombinedKeranjangModel
 import com.bekado.bekadoonline.model.ProdukModel
 import com.example.testnew.model.KeranjangModel
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import java.util.ArrayList
 
 class KeranjangActivity : AppCompatActivity() {
     private lateinit var binding: ActivityKeranjangBinding
@@ -35,8 +32,6 @@ class KeranjangActivity : AppCompatActivity() {
     private lateinit var adapterKeranjangHide: AdapterKeranjang
     private var dataKeranjangHide: ArrayList<CombinedKeranjangModel> = ArrayList()
 
-    private lateinit var alamatRef: DatabaseReference
-    private lateinit var alamatListener: ValueEventListener
     private lateinit var keranjangRef: DatabaseReference
     private lateinit var keranjangListener: ValueEventListener
     private lateinit var produkRef: DatabaseReference
@@ -50,7 +45,6 @@ class KeranjangActivity : AppCompatActivity() {
         supportActionBar?.hide()
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
-        alamatRef = db.getReference("alamat/${auth.currentUser?.uid}")
         keranjangRef = db.getReference("keranjang/${auth.currentUser?.uid}")
         produkRef = db.getReference("produk/produk")
         kategoriRef = db.getReference("produk/kategori")
@@ -249,33 +243,11 @@ class KeranjangActivity : AppCompatActivity() {
     }
 
     private fun showAlertDialog(totalItem: Int, deleteHide: Boolean) {
-        val title = if (!deleteHide) "Hapus $totalItem produk?" else "Hapus $totalItem produk tidak dapat diproses?"
-        val msg = if (!deleteHide) getString(R.string.hapus_produk_dipilih) else "Semua produk ini akan dihapus dari keranjangmu"
+        val title = if (!deleteHide) "Hapus $totalItem produk?" else "Hapus $totalItem produk yang tidak dapat diproses?"
+        val msg = if (!deleteHide) getString(R.string.hapus_produk_dipilih) else getString(R.string.hapus_produk_semua)
         val positifBtn = if (!deleteHide) getString(R.string.hapus) else getString(R.string.hapus_semua)
 
-        val alertdialog = MaterialAlertDialogBuilder(this, R.style.alertDialog)
-            .setTitle(title)
-            .setMessage(msg)
-            .setCancelable(false)
-            .setNegativeButton(getString(R.string.batalkan)) { dialog, _ ->
-                dialog.cancel()
-            }
-            .setPositiveButton(positifBtn) { _, _ ->
-                deleteSelected(deleteHide)
-            }.show()
-
-        val negativeBtn = alertdialog.getButton(DialogInterface.BUTTON_NEGATIVE)
-        val positiveBtn = alertdialog.getButton(DialogInterface.BUTTON_POSITIVE)
-
-        negativeBtn.apply {
-            textSize = 16f
-            setTextColor(context.getColor(R.color.grey_500))
-        }
-
-        positiveBtn.apply {
-            textSize = 16f
-            setTextColor(context.getColor(R.color.error))
-        }
+        Helper.showAlertDialog(title, msg, positifBtn, this, getColor(R.color.error)) { deleteSelected(deleteHide) }
     }
 
     private fun deleteSelected(deleteHide: Boolean) {

@@ -1,7 +1,6 @@
 package com.bekado.bekadoonline.ui.profil
 
 import android.annotation.SuppressLint
-import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.os.Bundle
@@ -11,12 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityAlamatBinding
+import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.model.AkunModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -274,27 +273,14 @@ class AlamatActivity : AppCompatActivity() {
     }
 
     private fun showAlertDialog() {
-        val alertdialog = MaterialAlertDialogBuilder(this, R.style.alertDialog)
-            .setTitle(getString(R.string.keluar_halaman))
-            .setMessage(getString(R.string.msg_alamat))
-            .setCancelable(false)
-            .setNegativeButton(getString(R.string.batalkan)) { dialog, _ ->
-                dialog.cancel()
-            }
-            .setPositiveButton(getString(R.string.keluar)) { _, _ ->
-                finish()
-            }.show()
-
-        val negativeBtn = alertdialog.getButton(DialogInterface.BUTTON_NEGATIVE)
-        val positiveBtn = alertdialog.getButton(DialogInterface.BUTTON_POSITIVE)
-
-        negativeBtn.apply {
-            textSize = 16f
-            setTextColor(context.getColor(R.color.grey_500))
-        }
-
-        positiveBtn.apply {
-            textSize = 16f
+        Helper.showAlertDialog(
+            getString(R.string.keluar_halaman),
+            getString(R.string.msg_alamat),
+            getString(R.string.keluar),
+            this,
+            getColor(R.color.blue_grey_700)
+        ) {
+            finish()
         }
     }
 

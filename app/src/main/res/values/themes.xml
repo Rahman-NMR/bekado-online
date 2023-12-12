@@ -75,4 +75,14 @@
         <item name="android:textColor">?attr/colorSecondaryVariant</item>
         <item name="drawableTint">?attr/colorSecondaryVariant</item>
     </style>
+
+    <!--    textView sub title-->
+    <style name="textView.sub.title" parent="Theme.BekadoOnline">
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:textColor">@color/blue_grey_700</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

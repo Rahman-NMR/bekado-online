@@ -1,7 +1,7 @@
 package com.bekado.bekadoonline.helper
 
 import android.content.Context
-import android.widget.LinearLayout
+import androidx.cardview.widget.CardView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.bekado.bekadoonline.adapter.AdapterProduk
 import com.bekado.bekadoonline.helper.Helper.showToast
@@ -101,7 +101,7 @@ object HelperProduk {
         keranjang: CombinedKeranjangModel,
         keranjangRef: DatabaseReference,
         viewBinding: CoordinatorLayout,
-        anchorLayout: LinearLayout,
+        anchorLayout: CardView,
         ditampilkan: Boolean,
         notifyDataSetChanged: Unit
     ) {
