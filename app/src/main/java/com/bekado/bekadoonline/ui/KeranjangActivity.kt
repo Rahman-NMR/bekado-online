@@ -38,6 +38,7 @@ class KeranjangActivity : AppCompatActivity() {
     private lateinit var alamatRef: DatabaseReference
     private lateinit var alamatListener: ValueEventListener
     private lateinit var keranjangRef: DatabaseReference
+    private lateinit var keranjangListener: ValueEventListener
     private lateinit var produkRef: DatabaseReference
     private lateinit var kategoriRef: DatabaseReference
 
@@ -77,7 +78,7 @@ class KeranjangActivity : AppCompatActivity() {
     }
 
     private fun getDataKeranjang() {
-        keranjangRef.orderByChild("timestamp").addValueEventListener(object : ValueEventListener {
+        keranjangListener = object : ValueEventListener {
             override fun onDataChange(keranjangSnapshot: DataSnapshot) {
                 dataKeranjang.clear()
                 dataKeranjangHide.clear()
@@ -127,7 +128,8 @@ class KeranjangActivity : AppCompatActivity() {
                     rvDaftarPesananHide.visibility = View.GONE
                 }
             }
-        })
+        }
+        keranjangRef.orderByChild("timestamp").addValueEventListener(keranjangListener)
     }
 
     private fun handleProductData(
@@ -294,5 +296,10 @@ class KeranjangActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (auth.currentUser == null) startActivity(Intent(this, LoginActivity::class.java))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (auth.currentUser != null) keranjangRef.orderByChild("timestamp").removeEventListener(keranjangListener)
     }
 }
