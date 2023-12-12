@@ -1,5 +1,6 @@
 package com.bekado.bekadoonline.ui.profil
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -53,11 +54,13 @@ class AkunSayaActivity : AppCompatActivity() {
 
         with(binding) {
             appBar.setNavigationOnClickListener { onBackPressed() }
+            btnEditFoto.setOnClickListener { showToast("Sedang dalam perbaikan", this@AkunSayaActivity) }
+//            btnEditAlamat.setOnClickListener { startActivity(Intent(this@AkunSayaActivity, AkunSayaActivity::class.java)) }
 
             btnEditNama.setOnClickListener {
                 toggleEditView(namaEdit, namaView, btnEditNama, btnCancelNama, btnEditNohp)
                 if (!namaEdit.isEnabled) {
-                    if (isConnected(this@AkunSayaActivity))
+                    if (isConnected(this@AkunSayaActivity)) if (namaUser != namaEdit.text.toString())
                         updateData(currentUser?.uid, "nama", namaEdit, getString(R.string.nama), namaEdit.text.toString().trim())
                 } else focusRequest(namaEdit)
             }
@@ -66,7 +69,7 @@ class AkunSayaActivity : AppCompatActivity() {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     toggleEditView(namaEdit, namaView, btnEditNama, btnCancelNama, btnEditNohp)
                     if (!namaEdit.isEnabled)
-                        if (isConnected(this@AkunSayaActivity))
+                        if (isConnected(this@AkunSayaActivity)) if (namaUser != namaEdit.text.toString())
                             updateData(currentUser?.uid, "nama", namaEdit, getString(R.string.nama), namaEdit.text.toString().trim())
 
                     true
@@ -76,7 +79,7 @@ class AkunSayaActivity : AppCompatActivity() {
             btnEditNohp.setOnClickListener {
                 toggleEditView(nohpEdit, nohpView, btnEditNohp, btnCancelNohp, btnEditNama)
                 if (!nohpEdit.isEnabled) {
-                    if (isConnected(this@AkunSayaActivity))
+                    if (isConnected(this@AkunSayaActivity)) if (nohpUser != nohpEdit.text.toString())
                         updateData(currentUser?.uid, "noHp", nohpEdit, getString(R.string.nomor_telepon), nohpEdit.text.toString().trim())
                 } else focusRequest(nohpEdit)
             }
@@ -85,7 +88,7 @@ class AkunSayaActivity : AppCompatActivity() {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     toggleEditView(nohpEdit, nohpView, btnEditNohp, btnCancelNohp, btnEditNama)
                     if (!nohpEdit.isEnabled)
-                        if (isConnected(this@AkunSayaActivity))
+                        if (isConnected(this@AkunSayaActivity)) if (nohpUser != nohpEdit.text.toString())
                             updateData(currentUser?.uid, "noHp", nohpEdit, getString(R.string.nomor_telepon), nohpEdit.text.toString().trim())
 
                     true
