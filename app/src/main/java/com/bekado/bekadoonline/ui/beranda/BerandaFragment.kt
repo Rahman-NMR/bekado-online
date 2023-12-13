@@ -62,7 +62,7 @@ class BerandaFragment : Fragment() {
         db = FirebaseDatabase.getInstance()
         produkRef = db.getReference("produk")
 
-        val paddingBottom = resources.getDimensionPixelSize(R.dimen.normalBottomdp)
+        val paddingBottom = resources.getDimensionPixelSize(R.dimen.maxBottomdp)
         val padding = resources.getDimensionPixelSize(R.dimen.smalldp)
         val lmProduk = GridLayoutManager(context, calculateSpanCount(requireContext()))
         val lmButton = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)

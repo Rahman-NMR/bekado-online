@@ -7,4 +7,5 @@
     <dimen name="normaldp">16dp</dimen>
     <dimen name="smallBottomdp">40dp</dimen>
     <dimen name="normalBottomdp">60dp</dimen>
+    <dimen name="maxBottomdp">104dp</dimen>
 </resources>

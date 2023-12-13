@@ -69,7 +69,6 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:boxStrokeColor="?attr/colorPrimary"
                         app:helperTextEnabled="true"
                         app:helperTextTextColor="@color/helper_text">
 
@@ -88,7 +87,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        app:boxStrokeColor="?attr/colorPrimary"
                         app:helperTextEnabled="true"
                         app:helperTextTextColor="@color/helper_text"
                         app:passwordToggleEnabled="true"
@@ -105,7 +103,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_login"
-                        style="@style/materialbutton.this"
+                        style="@style/materialbutton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="28dp"

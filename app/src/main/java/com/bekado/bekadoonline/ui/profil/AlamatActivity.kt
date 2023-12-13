@@ -144,7 +144,7 @@ class AlamatActivity : AppCompatActivity() {
                     kodePos.clearFocus()
                     btnSimpanPerubahan.isEnabled = false
 
-                    val snackbar = Snackbar.make(binding.root, getString(R.string.alamat_berhasil_save), Snackbar.LENGTH_LONG)
+                    val snackbar = Snackbar.make(binding.root, getString(R.string.alamat_berhasil_save), Snackbar.LENGTH_SHORT)
                     snackbar.setAction("Oke") { finish() }.show()
                 }
                 getDataAlamat()
@@ -212,6 +212,9 @@ class AlamatActivity : AppCompatActivity() {
                     .addOnSuccessListener {
                         val fullAlamat = "$namaJalan $noRumah $komplek $camatKel $kotaKab $provinsi $kodePos"
                         binding.tvTitikLokasi.text = fullAlamat
+
+                        val snackbar = Snackbar.make(binding.root, getString(R.string.lokasi_sekarang_disave), Snackbar.LENGTH_SHORT)
+                        snackbar.setAction("Oke") { finish() }.show()
                     }
 
 //                val snackbar = Snackbar.make(binding.root, "Lokasi sudah benar?", Snackbar.LENGTH_LONG)//todo:for admin

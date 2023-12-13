@@ -43,6 +43,8 @@
 
     <!--    snackbar-->
     <string name="pastikan_no_error">Pastikan tidak ada pesan error</string>
+    <string name="alamat_berhasil_save">Alamat berhasil di simpan</string>
+    <string name="lokasi_sekarang_disave">Lokasi sekarang di simpan</string>
 
     <!--    sort-->
     <string name="rekomendasi">Random</string>

@@ -11,10 +11,6 @@
         <item name="cornerRadius">99dp</item>
     </style>
 
-    <style name="materialbutton.this" parent="materialbutton">
-        <item name="materialThemeOverlay">@style/color.secondary</item>
-    </style>
-
     <style name="materialbutton.red" parent="materialbutton">
         <item name="materialThemeOverlay">@style/color.red</item>
     </style>

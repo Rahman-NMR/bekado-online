@@ -67,7 +67,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:background="@drawable/background_stroke1_99"
-                        android:backgroundTint="#526A91"
+                        android:backgroundTint="@color/verif"
                         android:backgroundTintMode="screen"
                         android:drawablePadding="8dp"
                         android:gravity="center"

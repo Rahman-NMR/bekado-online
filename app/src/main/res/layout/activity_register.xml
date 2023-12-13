@@ -55,7 +55,6 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:boxStrokeColor="?attr/colorPrimary"
                         app:counterEnabled="true"
                         app:counterMaxLength="30"
                         app:helperTextEnabled="true"
@@ -77,7 +76,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        app:boxStrokeColor="?attr/colorPrimary"
                         app:helperTextEnabled="true"
                         app:helperTextTextColor="@color/helper_text">
 
@@ -97,7 +95,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        app:boxStrokeColor="?attr/colorPrimary"
                         app:helperTextEnabled="true"
                         app:helperTextTextColor="@color/helper_text">
 
@@ -116,11 +113,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        app:boxStrokeColor="?attr/colorPrimary"
                         app:helperTextEnabled="true"
                         app:helperTextTextColor="@color/helper_text"
-                        app:passwordToggleEnabled="true"
-                        app:passwordToggleTint="?attr/colorPrimary">
+                        app:passwordToggleEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/password_daftar"
@@ -137,11 +132,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        app:boxStrokeColor="?attr/colorPrimary"
                         app:helperTextEnabled="true"
                         app:helperTextTextColor="@color/helper_text"
-                        app:passwordToggleEnabled="true"
-                        app:passwordToggleTint="?attr/colorPrimary">
+                        app:passwordToggleEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/konfirmasi_password_daftar"
@@ -154,7 +147,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_register"
-                        style="@style/materialbutton.this"
+                        style="@style/materialbutton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="28dp"
