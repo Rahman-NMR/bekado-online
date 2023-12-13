@@ -4,8 +4,13 @@
 
     <!--    child db-->
     <string name="key_antrian">antrian</string>
+    <string name="status_menunggu_pembayaran">Menunggu Pembayaran</string>
+    <string name="status_menunggu_konfirmasi">Menunggu Konfirmasi</string>
     <string name="key_proses">proses</string>
+    <string name="status_dalam_proses">Dalam Proses</string>
+    <string name="status_dalam_pengiriman">Dalam Pengiriman</string>
     <string name="key_selesai">selesai</string>
+    <string name="status_selesai">Selesai</string>
 
     <!--    toast-->
     <string name="no_internet_connection">Tidak ada koneksi internet</string>
@@ -16,7 +21,8 @@
     <string name="tidak_dapat_kosong">tidak dapat kosong</string>
     <string name="terlalu_singkat">terlalu singkat</string>
     <string name="terlalu_panjang">terlalu panjang</string>
-    <string name="alamat_berhasil_save">Alamat berhasil di simpan</string>
+    <string name="alamat_uncompleate">Alamat belum lengkap</string>
+    <string name="pesanan_baru_berhasil">Pesanan baru berhasil dibuat</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -32,6 +38,11 @@
     <string name="simpan">Simpan</string>
     <string name="keluar">Keluar</string>
     <string name="record">Record</string>
+    <string name="ubah">Ubah</string>
+    <string name="tampilkan_lebih_sedikit">Tampilkan lebih sedikit</string>
+    <string name="konfirmasi_pesanan">Konfirmasi Pesanan</string>
+    <string name="transfer">Transfer</string>
+    <string name="cod">COD</string>
 
     <!--    helper text-->
     <string name="email_invalid">Email tidak sesuai format</string>
@@ -58,12 +69,17 @@
     <string name="title_transaksi">Transaksi</string>
     <string name="title_profil">Profil</string>
     <string name="title_keranjang">Keranjang</string>
+    <string name="title_checkout">Checkout</string>
     <string name="urutkan_berdasarkan">Urutkan Berdasarkan</string>
 
     <!--    sub title-->
     <string name="tidak_dapat_diproses">Tidak dapat diproses</string>
     <string name="titik_lokasi">Titik Lokasi</string>
     <string name="ubah_alamat">Ubah Alamat</string>
+    <string name="alamat_penerima">Alamat Penerima</string>
+    <string name="daftar_produk">Daftar Produk</string>
+    <string name="rincian_pembayaran">Rincian Pembayaran</string>
+    <string name="metode_pembayaran">Metode Pembayaran</string>
 
     <!--    button -> title-->
     <string name="akun_saya">Akun Saya</string>
@@ -108,4 +124,6 @@
     <string name="nomor_telepon_penerima">Nomor telepon penerima</string>
     <string name="alamat_lengkap">Alamat lengkap</string>
     <string name="kode_pos">Kode pos</string>
+    <string name="total_belanja">Total Belanja</string>
+    <string name="total_ongkos_kirim">Total Ongkos Kirim</string>
 </resources>

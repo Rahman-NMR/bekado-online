@@ -9,6 +9,11 @@ import com.bekado.bekadoonline.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.DecimalFormat
 import java.text.NumberFormat
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 object Helper {
     fun addcoma3digit(number: Long?): String {
@@ -19,6 +24,22 @@ object Helper {
     fun delComa3digit(input: String?): Long {
         val stringWithoutDots = input!!.replace(".", "")
         return stringWithoutDots.toLong()
+    }
+
+    fun calcDistance(latUser: Double, lonUser: Double, latToko: Double, lonToko: Double): Double {
+        val earth = 6371.0 // Radius bumi dalam kilometer
+        val latRad1 = Math.toRadians(latUser)
+        val lonRad1 = Math.toRadians(lonUser)
+        val latRad2 = Math.toRadians(latToko)
+        val lonRad2 = Math.toRadians(lonToko)
+
+        val dLat = latRad2 - latRad1
+        val dLon = lonRad2 - lonRad1
+
+        val a = sin(dLat / 2).pow(2) + cos(latRad1) * cos(latRad2) * sin(dLon / 2).pow(2)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+        return earth * c
     }
 
     fun calculateSpanCount(requireContext: Context): Int {

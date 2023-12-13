@@ -19,6 +19,12 @@
         android:theme="@style/Theme.BekadoOnline"
         tools:targetApi="31">
         <activity
+            android:name=".adapter.PembayaranActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.CheckOutActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.profil.AlamatActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

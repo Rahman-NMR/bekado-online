@@ -3,6 +3,7 @@ package com.bekado.bekadoonline.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.LoginActivity
 import com.bekado.bekadoonline.R
@@ -11,6 +12,7 @@ import com.bekado.bekadoonline.databinding.ActivityKeranjangBinding
 import com.bekado.bekadoonline.helper.GridSpacingItemDecoration
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
+import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperProduk
 import com.bekado.bekadoonline.model.CombinedKeranjangModel
@@ -66,9 +68,18 @@ class KeranjangActivity : AppCompatActivity() {
                 getDataKeranjang()
 //            getAlamatPenerima()
 
-//            binding.llPengirim.setOnClickListener { startActivity(Intent(activity, UbahAlamatActivity::class.java)) }
+                binding.btnPesanSekarang.setOnClickListener { checkout() }
             }
         }
+    }
+
+    private fun checkout() {
+        val selectedKeranjang = dataKeranjang.filter { it.keranjangModel?.diPilih == true }
+        if (selectedKeranjang.isNotEmpty()) {
+            val intent = Intent(this, CheckOutActivity::class.java)
+            intent.putExtra("selected_dataKeranjang", ArrayList(selectedKeranjang))
+            startActivity(intent)
+        } else showToast("Pilih produk terlebih dahulu", this)
     }
 
     private fun getDataKeranjang() {
@@ -269,6 +280,7 @@ class KeranjangActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (auth.currentUser == null) startActivity(Intent(this, LoginActivity::class.java))
+        else getDataKeranjang()
     }
 
     override fun onDestroy() {
