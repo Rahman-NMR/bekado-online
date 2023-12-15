@@ -11,6 +11,7 @@
     <string name="status_dalam_pengiriman">Dalam Pengiriman</string>
     <string name="key_selesai">selesai</string>
     <string name="status_selesai">Selesai</string>
+    <string name="status_dibatalkan">Dibatalkan</string>
 
     <!--    toast-->
     <string name="no_internet_connection">Tidak ada koneksi internet</string>
@@ -126,4 +127,5 @@
     <string name="kode_pos">Kode pos</string>
     <string name="total_belanja">Total Belanja</string>
     <string name="total_ongkos_kirim">Total Ongkos Kirim</string>
+    <string name="pesanan">Pesanan</string>
 </resources>
