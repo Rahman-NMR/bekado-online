@@ -156,9 +156,9 @@ class TransaksiFragment : Fragment() {
 
 //                if (isAdded) filteredBy()
                 adapterTransaksi = AdapterTransaksi(dataTransaksi) { trx ->
-//                    val intent = Intent(context, DetailTransaksiActivity::class.java)
-//                        .putExtra("trx", trx).putExtra("isAdmin", isAdmin)
-//                    startActivityForResult(intent, 884)
+                    val intent = Intent(context, DetailTransaksiActivity::class.java)
+                        .putExtra("trx", trx).putExtra("isAdmin", isAdmin)
+                    startActivityForResult(intent, 884)
                 }
                 binding.rvDaftarTransaksi.adapter = adapterTransaksi
 

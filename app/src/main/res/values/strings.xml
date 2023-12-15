@@ -44,6 +44,8 @@
     <string name="konfirmasi_pesanan">Konfirmasi Pesanan</string>
     <string name="transfer">Transfer</string>
     <string name="cod">COD</string>
+    <string name="konfirmasi">Konfirmasi</string>
+    <string name="lihat_pembayaran">Lihat pembayaran</string>
 
     <!--    helper text-->
     <string name="email_invalid">Email tidak sesuai format</string>
@@ -71,6 +73,7 @@
     <string name="title_profil">Profil</string>
     <string name="title_keranjang">Keranjang</string>
     <string name="title_checkout">Checkout</string>
+    <string name="title_detail_transaksi">Detail Transaksi</string>
     <string name="urutkan_berdasarkan">Urutkan Berdasarkan</string>
 
     <!--    sub title-->
@@ -93,12 +96,14 @@
     <!--    title dialog-->
     <string name="logout_akun">Logout Akun?</string>
     <string name="keluar_halaman">Keluar Halaman?</string>
+    <string name="konfirmasi_pesanan_">Konfirmasi Pesanan?</string>
 
     <!--    msg dialog-->
-    <string name="msg_logout">Anda akan keluar dari Akun ini</string>
+    <string name="msg_logout">Anda akan keluar dari Akun sekarang</string>
     <string name="hapus_produk_dipilih">Produk yang dipilih akan dihapus dari Keranjang</string>
     <string name="hapus_produk_semua">Semua produk ini akan dihapus dari keranjang</string>
     <string name="msg_alamat">Perubahan alamat akan dibatalkan. Semua perubahan tidak akan disimpan</string>
+    <string name="msg_konf_pesanan">Pesanan akan ditambahkan ke daftar transaksi.</string>
 
     <string name="atau">Atau masuk dengan</string>
     <string name="email">Email</string>
@@ -128,4 +133,7 @@
     <string name="total_belanja">Total Belanja</string>
     <string name="total_ongkos_kirim">Total Ongkos Kirim</string>
     <string name="pesanan">Pesanan</string>
+    <string name="no_pesanan_">No. Pesanan :</string>
+    <string name="tanggal_pemesanan_">Tanggal Pemesanan :</string>
+    <string name="status_pesanan_">Status Pesanan :</string>
 </resources>

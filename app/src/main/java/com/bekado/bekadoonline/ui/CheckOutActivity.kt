@@ -37,6 +37,10 @@ class CheckOutActivity : AppCompatActivity() {
     private val biayaKurir: Long = 50000
     private var metodePembayaran: String = ""
 
+    private var namaPnrm: String = ""
+    private var noHpPnrm: String = ""
+    private var alamatPnrm: String = ""
+    private var kodePosPnrm: String = ""
     private var latitude: String = ""
     private var longitude: String = ""
 
@@ -73,7 +77,14 @@ class CheckOutActivity : AppCompatActivity() {
                     }
             }
             btnKonfirmasiPesanan.setOnClickListener {
-                if (latitude.isNotEmpty() && longitude.isNotEmpty()) addTransaksi(currentUid)
+                if (latitude.isNotEmpty() && longitude.isNotEmpty())
+                    Helper.showAlertDialog(
+                        getString(R.string.konfirmasi_pesanan_),
+                        getString(R.string.msg_konf_pesanan),
+                        getString(R.string.konfirmasi),
+                        this@CheckOutActivity,
+                        getColor(R.color.blue_grey_700)
+                    ) { addTransaksi(currentUid) }
                 else showToast(getString(R.string.alamat_uncompleate), this@CheckOutActivity)
             }
         }
@@ -83,13 +94,16 @@ class CheckOutActivity : AppCompatActivity() {
         alamatListener = object : ValueEventListener {
             override fun onDataChange(snapshotAlamat: DataSnapshot) {
                 if (snapshotAlamat.exists()) {
-                    val nama = snapshotAlamat.child("nama").value?.toString() ?: ""
-                    val noHp = snapshotAlamat.child("noHp").value?.toString() ?: ""
-                    val alamat = snapshotAlamat.child("alamatLengkap").value?.toString() ?: ""
-                    val kodePos = snapshotAlamat.child("kodePos").value?.toString() ?: ""
+                    namaPnrm = snapshotAlamat.child("nama").value?.toString() ?: ""
+                    noHpPnrm = snapshotAlamat.child("noHp").value?.toString() ?: ""
+                    alamatPnrm = snapshotAlamat.child("alamatLengkap").value?.toString() ?: ""
+                    kodePosPnrm = snapshotAlamat.child("kodePos").value?.toString() ?: ""
 
-                    val penerima = if (nama.isNotEmpty() && noHp.isNotEmpty()) "$nama - $noHp" else getString(R.string.tidak_ada_data)
-                    val address = if (alamat.isNotEmpty() && kodePos.isNotEmpty()) "$alamat, $kodePos" else getString(R.string.tidak_ada_data)
+                    val penerima = if (namaPnrm.isNotEmpty() && noHpPnrm.isNotEmpty()) "$namaPnrm - $noHpPnrm"
+                    else getString(R.string.tidak_ada_data)
+                    val address = if (alamatPnrm.isNotEmpty() && kodePosPnrm.isNotEmpty()) "$alamatPnrm, $kodePosPnrm"
+                    else getString(R.string.tidak_ada_data)
+
                     binding.namaNohp.text = penerima
                     binding.alamat.text = address
 
@@ -142,35 +156,8 @@ class CheckOutActivity : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.rvDaftarProduk.layoutManager = layoutManager
 
-//        val adapterCheckout = AdapterCheckout(ArrayList<CombinedKeranjangModel>().apply { add(selectedKeranjang[0]) })
         val adapterCheckout = AdapterCheckout(selectedKeranjang)
         binding.rvDaftarProduk.adapter = adapterCheckout
-
-//        todo:implement di detail transaksi
-//        val txt = "+${selectedKeranjang.size - 1} produk lainnya"
-//        val showD = R.drawable.icon_round_expand_more_24
-//        val hideD = R.drawable.icon_round_expand_less_24
-//        binding.buttonShowAll.apply {
-//            visibility = if (selectedKeranjang.size <= 1) View.GONE else View.VISIBLE
-//            text = txt
-//            setIconResource(showD)
-//            setOnClickListener {
-//                showAllItem = !showAllItem
-//                if (showAllItem) {
-//                    adapterCheckout.checkoutModelList = selectedKeranjang
-//                    binding.buttonShowAll.text = getString(R.string.tampilkan_lebih_sedikit)
-//                    binding.buttonShowAll.setIconResource(hideD)
-//                } else {
-//                    adapterCheckout.checkoutModelList = ArrayList<CombinedKeranjangModel>().apply {
-//                        add(selectedKeranjang[0])
-//                    }
-//                    binding.buttonShowAll.text = txt
-//                    binding.buttonShowAll.setIconResource(showD)
-//                }
-//
-//                adapterCheckout.notifyDataSetChanged()
-//            }
-//        }
     }
 
     private fun updateRincianHarga(transfer: Boolean) {
@@ -210,6 +197,14 @@ class CheckOutActivity : AppCompatActivity() {
             "totalHarga" to totalHarga,
             "totalItem" to totalItem,
         )
+        val dataAlamat = hashMapOf(
+            "alamatLengkap" to alamatPnrm,
+            "kodePos" to kodePosPnrm,
+            "latitude" to latitude,
+            "longitude" to longitude,
+            "nama" to namaPnrm,
+            "noHp" to noHpPnrm
+        )
         if (selectedKeranjang.isNotEmpty()) {
             for (produk in selectedKeranjang) {
                 val dataProduk = mapOf(
@@ -227,6 +222,7 @@ class CheckOutActivity : AppCompatActivity() {
 
         trxChildRef.setValue(dataTransaksi).addOnSuccessListener {
             showToast(getString(R.string.pesanan_baru_berhasil), this)
+            trxChildRef.child("alamatPenerima").setValue(dataAlamat)
             trxChildRef.child("produkList").setValue(produkMap)
                 .addOnSuccessListener {
                     selectedKeranjang.forEach { keranjangRef.child("${it.produkModel?.idProduk}").removeValue() }
