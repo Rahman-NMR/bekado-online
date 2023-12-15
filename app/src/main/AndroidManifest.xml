@@ -19,7 +19,7 @@
         android:theme="@style/Theme.BekadoOnline"
         tools:targetApi="31">
         <activity
-            android:name=".adapter.PembayaranActivity"
+            android:name=".ui.PembayaranActivity"
             android:exported="false" />
         <activity
             android:name=".ui.CheckOutActivity"

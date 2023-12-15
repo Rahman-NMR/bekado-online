@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bekado.bekadoonline.LoginActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterKeranjang
 import com.bekado.bekadoonline.databinding.ActivityKeranjangBinding
@@ -279,8 +278,7 @@ class KeranjangActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (auth.currentUser == null) startActivity(Intent(this, LoginActivity::class.java))
-        else getDataKeranjang()
+        if (auth.currentUser != null) getDataKeranjang()
     }
 
     override fun onDestroy() {

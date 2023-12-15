@@ -26,6 +26,5 @@ class AdapterProdukShimmer(private val shimmer: ArrayList<ShimmerModel>) : Recyc
         fun data(shimmer: ShimmerModel) {
             binding.shimmer.text = shimmer.count.toString()
         }
-
     }
 }

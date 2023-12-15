@@ -137,6 +137,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_produk_shimmer"
             android:layout_width="match_parent"
+            android:isScrollContainer="false"
             android:layout_height="wrap_content"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:spanCount="2"

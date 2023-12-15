@@ -1,8 +1,7 @@
-package com.bekado.bekadoonline.adapter
+package com.bekado.bekadoonline.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityPembayaranBinding
 
 class PembayaranActivity : AppCompatActivity() {

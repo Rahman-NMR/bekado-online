@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bekado.bekadoonline.LoginActivity
+import com.bekado.bekadoonline.MainActivity
 import com.bekado.bekadoonline.ui.KeranjangActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterButton
@@ -19,6 +21,7 @@ import com.bekado.bekadoonline.bottomsheet.SortProdukBottomSheet
 import com.bekado.bekadoonline.databinding.FragmentBerandaBinding
 import com.bekado.bekadoonline.helper.GridSpacingItemDecoration
 import com.bekado.bekadoonline.helper.Helper.calculateSpanCount
+import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperProduk.getAllProduk
 import com.bekado.bekadoonline.helper.HelperProduk.getFiltered
@@ -27,7 +30,10 @@ import com.bekado.bekadoonline.model.ButtonModel
 import com.bekado.bekadoonline.model.KategoriModel
 import com.bekado.bekadoonline.model.ProdukModel
 import com.bekado.bekadoonline.shimmer.ShimmerModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -38,6 +44,7 @@ class BerandaFragment : Fragment() {
     private lateinit var binding: FragmentBerandaBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
+    private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var adapterButton: AdapterButton
     private lateinit var adapterProduk: AdapterProduk
     private val dataButton: ArrayList<ButtonModel> = ArrayList()
@@ -45,6 +52,7 @@ class BerandaFragment : Fragment() {
     private val dataProduk: ArrayList<ProdukModel> = ArrayList()
     private val dataShimmer: ArrayList<ShimmerModel> = ArrayList()
 
+    private lateinit var akunRef: DatabaseReference
     private lateinit var produkRef: DatabaseReference
     private lateinit var produkListener: ValueEventListener
 
@@ -60,6 +68,10 @@ class BerandaFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
+        googleSignInClient = GoogleSignIn.getClient(requireContext(), HelperAuth.clientGoogle(requireContext()))
+
+        val currentUser = auth.currentUser
+        akunRef = db.getReference("akun/${currentUser?.uid}")
         produkRef = db.getReference("produk")
 
         val paddingBottom = resources.getDimensionPixelSize(R.dimen.maxBottomdp)
@@ -68,6 +80,7 @@ class BerandaFragment : Fragment() {
         val lmButton = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         val lmShimmer = GridLayoutManager(context, calculateSpanCount(requireContext()))
 
+        getRealtimeDataAkun(currentUser)
         searchProduk()
         getDataAllProduk()
         fabScrollToTop()
@@ -76,7 +89,10 @@ class BerandaFragment : Fragment() {
         with(binding) {
             appBar.setOnMenuItemClickListener {
                 when (it.itemId) {
-                    R.id.menu_keranjang -> requireContext().startActivity(Intent(context, KeranjangActivity::class.java))
+                    R.id.menu_keranjang -> {
+                        if (auth.currentUser != null) requireContext().startActivity(Intent(context, KeranjangActivity::class.java))
+                        else requireContext().startActivity(Intent(context, LoginActivity::class.java))
+                    }
                 }
                 true
             }
@@ -131,6 +147,9 @@ class BerandaFragment : Fragment() {
     }
 
     private fun getDataAllProduk() {
+        binding.searchProduk.clearFocus()
+        binding.searchProduk.setQuery("", false)
+
         produkListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 dataProduk.clear()
@@ -210,11 +229,14 @@ class BerandaFragment : Fragment() {
                             data.hargaProduk.toString().contains(textToSearch, ignoreCase = true)
                 } as ArrayList<ProdukModel>
 
-                if (searchList.isEmpty()) {
-                    binding.rvProduk.visibility = View.GONE
-                } else {
-                    binding.rvProduk.visibility = View.VISIBLE
-                    adapterProduk.onApplySearch(searchList)
+                if (HelperConnection.isConnected(requireContext())) {
+                    if (searchList.isEmpty()) {
+                        binding.rvProduk.visibility = View.GONE
+                    } else {
+                        binding.rvProduk.visibility = View.VISIBLE
+                        adapterProduk.onApplySearch(searchList)
+                        adapterButton.onSearchProduk(dataButton.filter { it.isActive } as ArrayList<ButtonModel>)
+                    }
                 }
 
 //                if (newText.isNullOrBlank()) {
@@ -230,5 +252,23 @@ class BerandaFragment : Fragment() {
             binding.filterNKategori.visibility = if (focus) View.GONE else View.VISIBLE
         }
         binding.searchProduk.setOnQueryTextListener(search)
+    }
+
+    private fun getRealtimeDataAkun(currentUser: FirebaseUser?) {
+        if (currentUser != null && isAdded) {
+            val akunRef = db.getReference("akun/${currentUser.uid}")
+            akunRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!snapshot.exists()) {
+                        auth.signOut()
+                        googleSignInClient.signOut()
+                        startActivity(Intent(context, MainActivity::class.java))
+                        requireActivity().finish()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
+        }
     }
 }

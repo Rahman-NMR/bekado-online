@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.databinding.RvLayoutButtonSelectorBinding
 import com.bekado.bekadoonline.model.ButtonModel
 
-class AdapterButton(private val buttonList: ArrayList<ButtonModel>, val onClick: (ButtonModel) -> Unit) :
+class AdapterButton(private var buttonList: ArrayList<ButtonModel>, val onClick: (ButtonModel) -> Unit) :
     RecyclerView.Adapter<AdapterButton.ButtonViewHolder>() {
     lateinit var context: Context
 
@@ -41,5 +41,10 @@ class AdapterButton(private val buttonList: ArrayList<ButtonModel>, val onClick:
                 }
             }
         }
+    }
+
+    fun onSearchProduk(buttonList: ArrayList<ButtonModel>) {
+        this.buttonList = buttonList
+        notifyDataSetChanged()
     }
 }
