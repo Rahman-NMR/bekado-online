@@ -105,6 +105,12 @@
     <string name="msg_alamat">Perubahan alamat akan dibatalkan. Semua perubahan tidak akan disimpan</string>
     <string name="msg_konf_pesanan">Pesanan akan ditambahkan ke daftar transaksi.</string>
 
+    <!--    empty condition-->
+    <string name="msg_keranjang_kosong">Keranjang masih kosong</string>
+    <string name="desc_keranjang_kosong">Anda belum menambahkan produk ke keranjang.</string>
+    <string name="msg_transaksi_kosong">Tidak ada transaksi</string>
+    <string name="desc_transaksi_kosong">Anda masih belum melakukan transaksi.</string>
+
     <string name="atau">Atau masuk dengan</string>
     <string name="email">Email</string>
     <string name="password">Password</string>

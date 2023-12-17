@@ -77,14 +77,16 @@ class CheckOutActivity : AppCompatActivity() {
                     }
             }
             btnKonfirmasiPesanan.setOnClickListener {
-                if (latitude.isNotEmpty() && longitude.isNotEmpty())
-                    Helper.showAlertDialog(
-                        getString(R.string.konfirmasi_pesanan_),
-                        getString(R.string.msg_konf_pesanan),
-                        getString(R.string.konfirmasi),
-                        this@CheckOutActivity,
-                        getColor(R.color.blue_grey_700)
-                    ) { addTransaksi(currentUid) }
+                if (latitude.isNotEmpty() && longitude.isNotEmpty() &&
+                    namaPnrm.isNotEmpty() && noHpPnrm.isNotEmpty() &&
+                    alamatPnrm.isNotEmpty() && kodePosPnrm.isNotEmpty()
+                ) Helper.showAlertDialog(
+                    getString(R.string.konfirmasi_pesanan_),
+                    getString(R.string.msg_konf_pesanan),
+                    getString(R.string.konfirmasi),
+                    this@CheckOutActivity,
+                    getColor(R.color.blue_grey_700)
+                ) { addTransaksi(currentUid) }
                 else showToast(getString(R.string.alamat_uncompleate), this@CheckOutActivity)
             }
         }

@@ -161,8 +161,7 @@ class TransaksiFragment : Fragment() {
                     startActivityForResult(intent, 884)
                 }
                 binding.rvDaftarTransaksi.adapter = adapterTransaksi
-
-//                binding.transaksiKosong.visibility = if (adapterTransaksi.itemCount == 0) View.VISIBLE else View.GONE
+                binding.transaksiKosong.visibility = if (adapterTransaksi.itemCount == 0) View.VISIBLE else View.GONE
 
                 with(binding) {
                     shimmerRvDaftarTransaksi.stopShimmer()
@@ -176,7 +175,7 @@ class TransaksiFragment : Fragment() {
                     shimmerRvDaftarTransaksi.startShimmer()
                     shimmerRvDaftarTransaksi.visibility = View.VISIBLE
                     rvDaftarTransaksi.visibility = View.GONE
-//                    transaksiKosong.visibility = View.GONE
+                    transaksiKosong.visibility = View.GONE
                 }
             }
         }

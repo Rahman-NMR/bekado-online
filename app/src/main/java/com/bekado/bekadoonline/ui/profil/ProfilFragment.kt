@@ -93,6 +93,8 @@ class ProfilFragment : Fragment() {
                                 .apply(RequestOptions()).centerCrop()
                                 .into(binding.fotoProfil)
                         }
+                        val refAdmin = if (data.statusAdmin) "transaksi" else "transaksi/${currentUser.uid}"
+                        transaksiRef = db.getReference(refAdmin)
 
                         if (data.statusAdmin) {
                             binding.btnAdminKategoriProduk.visibility = View.VISIBLE

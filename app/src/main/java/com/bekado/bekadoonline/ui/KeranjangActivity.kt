@@ -52,7 +52,6 @@ class KeranjangActivity : AppCompatActivity() {
 
         with(binding) {
             appBar.setNavigationOnClickListener { onBackPressed() }
-            loadingIndicator.visibility = View.VISIBLE
 
             val lmActive = LinearLayoutManager(this@KeranjangActivity, LinearLayoutManager.VERTICAL, false)
             val lmNonActive = LinearLayoutManager(this@KeranjangActivity, LinearLayoutManager.VERTICAL, false)
@@ -65,7 +64,6 @@ class KeranjangActivity : AppCompatActivity() {
 
             if (auth.currentUser != null) {
                 getDataKeranjang()
-//            getAlamatPenerima()
 
                 binding.btnPesanSekarang.setOnClickListener { checkout() }
             }
@@ -114,7 +112,8 @@ class KeranjangActivity : AppCompatActivity() {
                     }
                 } else {
                     with(binding) {
-//                        keranjangKosong.visibility = View.VISIBLE
+                        keranjangKosong.visibility = View.VISIBLE
+                        loadingIndicator.visibility = View.GONE
 
                         rvDaftarPesanan.visibility = View.GONE
                         llProdukNoProses.visibility = View.GONE
@@ -125,7 +124,8 @@ class KeranjangActivity : AppCompatActivity() {
 
             override fun onCancelled(error: DatabaseError) {
                 with(binding) {
-//                    keranjangKosong.visibility = View.GONE
+                    keranjangKosong.visibility = View.GONE
+                    loadingIndicator.visibility = View.VISIBLE
 
                     rvDaftarPesanan.visibility = View.GONE
                     llProdukNoProses.visibility = View.GONE
@@ -185,7 +185,7 @@ class KeranjangActivity : AppCompatActivity() {
             keranjang.keranjangModel?.diPilih = isChecked
             keranjangRef.child("${keranjang.produkModel?.idProduk}/diPilih").setValue(isChecked)
         }, { keranjang ->
-            if (HelperConnection.isConnected(this))
+            if (HelperConnection.isConnected(this)) {
                 HelperProduk.deleteKeranjang(
                     keranjang,
                     keranjangRef.child("${keranjang.produkModel?.idProduk}"),
@@ -194,7 +194,13 @@ class KeranjangActivity : AppCompatActivity() {
                     true,
                     adapterKeranjang.notifyDataSetChanged()
                 )
-            binding.llProdukSelected.visibility = View.GONE
+                if (adapterKeranjang.itemCount == 1) {
+                    binding.llProdukSelected.visibility = View.GONE
+                    binding.totalHarga.text = getString(R.string.strip)
+                    binding.btnPesanSekarang.isEnabled = false
+                    binding.btnPesanSekarang.text = getString(R.string.pesan_sekarang)
+                }
+            }
         })
         adapterKeranjangHide = AdapterKeranjang(dataKeranjangHide, { _, _ ->
         }, { keranjang ->
@@ -213,7 +219,9 @@ class KeranjangActivity : AppCompatActivity() {
             rvDaftarPesanan.adapter = adapterKeranjang
             rvDaftarPesananHide.adapter = adapterKeranjangHide
 
-//            keranjangKosong.visibility = if (adapterKeranjang.itemCount == 0 && adapterKeranjangHide.itemCount == 0) View.VISIBLE else View.GONE
+            keranjangKosong.visibility = if (adapterKeranjang.itemCount == 0 && adapterKeranjangHide.itemCount == 0) View.VISIBLE else View.GONE
+            loadingIndicator.visibility = if (adapterKeranjang.itemCount == 0 && adapterKeranjangHide.itemCount == 0) View.GONE else View.VISIBLE
+
             llProdukNoProses.visibility = if (adapterKeranjangHide.itemCount >= 1) View.VISIBLE else View.GONE
             rvDaftarPesanan.visibility = if (adapterKeranjang.itemCount == 0) View.GONE else View.VISIBLE
             rvDaftarPesananHide.visibility = if (adapterKeranjangHide.itemCount == 0) View.GONE else View.VISIBLE
@@ -233,7 +241,6 @@ class KeranjangActivity : AppCompatActivity() {
             }
         }
 
-//        val selectedSize = dataKeranjang.filter { it.keranjangModel!!.diPilih }.size
         val selectedKeranjang = dataKeranjang.any { it.keranjangModel!!.diPilih }
         val txtDelDiPilih = "$totalItem produk terpilih"
         val btnTxt = "${getString(R.string.pesan_sekarang)} ($totalItem)"
@@ -243,8 +250,8 @@ class KeranjangActivity : AppCompatActivity() {
             totalHarga.text = if (selectedKeranjang) ttlHrgBlnj else getString(R.string.strip)
             llProdukSelected.visibility = if (!selectedKeranjang) View.GONE else View.VISIBLE
             btnDeleteDiCeklis.visibility = if (!selectedKeranjang) View.GONE else View.VISIBLE
-            btnPesanSekarang.isEnabled = selectedKeranjang
             xProdukTerpilih.text = txtDelDiPilih
+            btnPesanSekarang.isEnabled = selectedKeranjang
             btnPesanSekarang.text = if (selectedKeranjang) btnTxt else getString(R.string.pesan_sekarang)
 
             btnDeleteDiCeklis.setOnClickListener { showAlertDialog(totalItem, false) }
@@ -266,19 +273,28 @@ class KeranjangActivity : AppCompatActivity() {
         if (HelperConnection.isConnected(this))
             if (!deleteHide)
                 selectedKeranjang.forEach {
-                    keranjangRef.child("${it.produkModel?.idProduk}").removeValue()
-                        .addOnSuccessListener { getDataKeranjang() }
+                    keranjangRef.child("${it.produkModel?.idProduk}").removeValue().addOnSuccessListener {
+                        getDataKeranjang()
+                        updateTotalHarga()
+                    }
                 }
             else
                 dataKeranjangHide.forEach {
-                    keranjangRef.child("${it.produkModel?.idProduk}").removeValue()
-                        .addOnSuccessListener { getDataKeranjang() }
+                    keranjangRef.child("${it.produkModel?.idProduk}").removeValue().addOnSuccessListener {
+                        getDataKeranjang()
+                        updateTotalHarga()
+                    }
                 }
     }
 
     override fun onStart() {
         super.onStart()
         if (auth.currentUser != null) getDataKeranjang()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        binding.llProdukSelected.visibility = View.GONE
     }
 
     override fun onDestroy() {

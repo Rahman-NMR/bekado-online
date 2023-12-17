@@ -30,6 +30,37 @@
             app:title="@string/title_keranjang" />
     </com.google.android.material.appbar.AppBarLayout>
 
+    <LinearLayout
+        android:id="@+id/keranjang_kosong"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.85"
+            android:lineSpacingExtra="3sp"
+            android:paddingHorizontal="32dp"
+            android:text="@string/msg_keranjang_kosong"
+            android:textColor="@color/blue_grey_700"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.85"
+            android:lineSpacingExtra="2sp"
+            android:paddingHorizontal="32dp"
+            android:text="@string/desc_keranjang_kosong"
+            android:textColor="@color/grey_500"
+            android:textSize="18sp" />
+    </LinearLayout>
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

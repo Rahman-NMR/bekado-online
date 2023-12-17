@@ -20,7 +20,7 @@
     <!--    surface/surface container-->
     <color name="surface">@color/white</color>
     <color name="surface_container">#F5F5F5</color>
-    <color name="surface_variant">@color/white</color>
+<!--    <color name="surface_variant">@color/white</color>-->
     <!--    error-->
     <color name="error">@color/helper_text</color>
     <!--    <color name="on_error">@color/white</color>-->

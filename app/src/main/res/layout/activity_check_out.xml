@@ -79,7 +79,6 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="32dp"
                     android:background="@color/white"
                     app:cardCornerRadius="16dp">
 
@@ -134,6 +133,7 @@
                     style="@style/textView.sub.title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
                     android:text="@string/daftar_produk" />
 
                 <androidx.cardview.widget.CardView
@@ -160,7 +160,7 @@
                     style="@style/textView.sub.title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="24dp"
                     android:text="@string/metode_pembayaran" />
 
                 <com.google.android.material.button.MaterialButtonToggleGroup
@@ -177,8 +177,14 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:text="@string/transfer"
-                        app:cornerRadius="16dp" />
+                        app:cornerRadius="16dp"
+                        app:icon="@drawable/icon_outline_credit_card_24"
+                        app:iconGravity="top"
+                        app:iconPadding="2dp"
+                        app:iconSize="36dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_pengiriman_cod"
@@ -186,15 +192,21 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:text="@string/cod"
-                        app:cornerRadius="16dp" />
+                        app:cornerRadius="16dp"
+                        app:icon="@drawable/icon_outline_payments_24"
+                        app:iconGravity="top"
+                        app:iconPadding="2dp"
+                        app:iconSize="36dp" />
                 </com.google.android.material.button.MaterialButtonToggleGroup>
 
                 <TextView
                     style="@style/textView.sub.title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="24dp"
                     android:text="@string/rincian_pembayaran" />
 
                 <androidx.cardview.widget.CardView
@@ -319,7 +331,7 @@
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="0.5dp"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="12dp"
                             android:background="@color/outline" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -331,7 +343,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="8dp"
-                                android:paddingVertical="8dp"
+                                android:paddingVertical="12dp"
                                 android:text="@string/total_belanja"
                                 android:textColor="@color/blue_grey_700"
                                 android:textSize="16sp"
@@ -347,7 +359,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
                                 android:gravity="end"
-                                android:paddingVertical="8dp"
+                                android:paddingVertical="12dp"
                                 android:text="@string/strip"
                                 android:textColor="@color/blue_grey_700"
                                 android:textSize="16sp"
@@ -362,7 +374,6 @@
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="0.5dp"
-                            android:layout_marginTop="8dp"
                             android:background="@color/outline" />
 
                         <com.google.android.material.button.MaterialButton

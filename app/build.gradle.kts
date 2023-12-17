@@ -13,7 +13,7 @@ android {
         minSdk = 23
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0.1.8"
+        versionName = "1.0.1.9"
 //        big update
 //        feature
 //        stable
