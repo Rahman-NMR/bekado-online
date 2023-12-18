@@ -46,6 +46,7 @@
     <string name="cod">COD</string>
     <string name="konfirmasi">Konfirmasi</string>
     <string name="lihat_pembayaran">Lihat pembayaran</string>
+    <string name="upload_bukti_pembayaran">Upload Bukti Pembayaran</string>
 
     <!--    helper text-->
     <string name="email_invalid">Email tidak sesuai format</string>
@@ -74,6 +75,7 @@
     <string name="title_keranjang">Keranjang</string>
     <string name="title_checkout">Checkout</string>
     <string name="title_detail_transaksi">Detail Transaksi</string>
+    <string name="title_pembayaran">Pembayaran</string>
     <string name="urutkan_berdasarkan">Urutkan Berdasarkan</string>
 
     <!--    sub title-->
@@ -84,6 +86,11 @@
     <string name="daftar_produk">Daftar Produk</string>
     <string name="rincian_pembayaran">Rincian Pembayaran</string>
     <string name="metode_pembayaran">Metode Pembayaran</string>
+    <string name="pilih_metode_transfer">Pilih Metode Transfer</string>
+    <string name="ringkasan_pembayaran">Ringkasan Pembayaran</string>
+    <string name="bukti_pembayaran">Bukti Pembayaran</string>
+    <string name="info_pengiriman">Informasi Pengiriman</string>
+    <string name="buka_di_google_maps">Buka di Google Maps</string>
 
     <!--    button -> title-->
     <string name="akun_saya">Akun Saya</string>
@@ -142,4 +149,10 @@
     <string name="no_pesanan_">No. Pesanan :</string>
     <string name="tanggal_pemesanan_">Tanggal Pemesanan :</string>
     <string name="status_pesanan_">Status Pesanan :</string>
+    <string name="belum_upload_bukti">Bukti pembayaran tidak ditemukan</string>
+    <string name="nominal_transfer">Nominal Transfer</string>
+    <string name="nomor_rekening">Nomor Rekening</string>
+    <string name="nama_bank">Nama Bank</string>
+    <string name="salin">Salin</string>
+    <string name="penerima">Penerima</string>
 </resources>

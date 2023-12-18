@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/color_trans_pressedalpha_activepralpha"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp">
+
+    <ImageView
+        android:id="@+id/logo_bank"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:scaleType="centerInside"
+        android:src="@drawable/img_broken_image"
+        tools:visibility="gone"
+        android:importantForAccessibility="no" />
+
+    <TextView
+        android:id="@+id/nama_bank"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:paddingVertical="16dp"
+        android:textColor="@color/grey_700"
+        android:textSize="14sp" />
+</LinearLayout>

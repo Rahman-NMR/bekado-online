@@ -1,14 +1,16 @@
 package com.bekado.bekadoonline.ui
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterCheckout
 import com.bekado.bekadoonline.databinding.ActivityCheckOutBinding
 import com.bekado.bekadoonline.helper.Helper
+import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.Helper.showToast
+import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.model.CombinedKeranjangModel
 import com.bekado.bekadoonline.ui.profil.AlamatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -46,8 +48,6 @@ class CheckOutActivity : AppCompatActivity() {
 
     private val lati = -7.4547115
     private val longi = 109.258109
-
-//    private var showAllItem = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,7 +127,7 @@ class CheckOutActivity : AppCompatActivity() {
                         binding.ongkirTxt.text = jarakOngkirTxt
                         jarak = jarakPerKm.toLong()
                         //todo:kalo ada kebijakan baru dari pihak toko; ongkir = biayaKurir * jarak
-                        ongkir = if (jarak > 1) biayaKurir else 0
+                        ongkir = if (jarak < 1) 0 else biayaKurir
                     }
 
                     updateRincianHarga(true)
@@ -148,7 +148,7 @@ class CheckOutActivity : AppCompatActivity() {
             totalItem++
         }
         val itemTxt = "${getString(R.string.total_harga)} ($totalItem produk)"
-        val hargaTxt = "Rp${Helper.addcoma3digit(totalHarga)}"
+        val hargaTxt = "Rp${addcoma3digit(totalHarga)}"
 
         binding.xProduk.text = itemTxt
         binding.totalHarga.text = hargaTxt
@@ -164,10 +164,10 @@ class CheckOutActivity : AppCompatActivity() {
 
     private fun updateRincianHarga(transfer: Boolean) {
         totalBelanja = totalHarga + ongkir
-        val belanjaTxt = if (totalBelanja > 0) "Rp${Helper.addcoma3digit(totalHarga + ongkir)}" else "Gratis"
+        val belanjaTxt = if (totalBelanja > 0) "Rp${addcoma3digit(totalHarga + ongkir)}" else "Gratis"
         val ongkirTxt =
             if (latitude.isNotEmpty() && longitude.isNotEmpty())
-                if (jarak > 0) "Rp${Helper.addcoma3digit(ongkir)}" else "Gratis"
+                if (jarak > 0) "Rp${addcoma3digit(ongkir)}" else "Gratis"
             else getString(R.string.strip)
         metodePembayaran = if (transfer) getString(R.string.transfer) else getString(R.string.cod)
 
@@ -197,7 +197,7 @@ class CheckOutActivity : AppCompatActivity() {
             "ongkir" to ongkir,
 
             "totalHarga" to totalHarga,
-            "totalItem" to totalItem,
+            "totalItem" to totalItem
         )
         val dataAlamat = hashMapOf(
             "alamatLengkap" to alamatPnrm,
@@ -223,15 +223,21 @@ class CheckOutActivity : AppCompatActivity() {
         }
 
         trxChildRef.setValue(dataTransaksi).addOnSuccessListener {
-            showToast(getString(R.string.pesanan_baru_berhasil), this)
+            showToastL(getString(R.string.pesanan_baru_berhasil), this)
             trxChildRef.child("alamatPenerima").setValue(dataAlamat)
             trxChildRef.child("produkList").setValue(produkMap)
                 .addOnSuccessListener {
                     selectedKeranjang.forEach { keranjangRef.child("${it.produkModel?.idProduk}").removeValue() }
 
-                    val flag = Intent(this, PembayaranActivity::class.java)
-                    flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    startActivity(flag)
+                    if (metodePembayaran == getString(R.string.transfer)) {
+                        val flag = Intent(this, PembayaranActivity::class.java)
+                        flag.putExtra("statusAdmin", false)
+                        flag.putExtra("totalBelanjaK", "Rp.${addcoma3digit(totalBelanja)}")
+                        flag.putExtra("pathTrx", "$uidNow/$idTransaksi")
+                        flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+
+                        startActivity(flag)
+                    }
                     finish()
                 }
         }

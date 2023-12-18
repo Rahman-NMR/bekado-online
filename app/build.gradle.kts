@@ -13,7 +13,7 @@ android {
         minSdk = 23
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0.1.9"
+        versionName = "1.0.1.10"
 //        big update
 //        feature
 //        stable
@@ -57,6 +57,7 @@ dependencies {
     implementation("com.facebook.shimmer:shimmer:0.5.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
     implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("com.google.firebase:firebase-storage:20.3.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

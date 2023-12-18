@@ -56,6 +56,10 @@ object Helper {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
+    fun showToastL(message: String, context: Context) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+
     fun showAlertDialog(
         title: String,
         msg: String,

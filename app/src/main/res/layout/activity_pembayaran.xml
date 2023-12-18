@@ -4,11 +4,337 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_container"
     tools:context=".ui.PembayaranActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/app_bar"
+            style="@style/costume.Toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:paddingEnd="4dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:navigationIcon="@drawable/icon_round_arrow_back_24"
+            app:title="@string/title_pembayaran" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/app_name" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="@dimen/maxBottomdp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_max="700dp">
+
+                <TextView
+                    android:id="@+id/subtitle_pilih_met_trns"
+                    style="@style/textView.sub.title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pilih_metode_transfer"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_pilih_met_trns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:background="@color/white"
+                    android:visibility="gone"
+                    app:cardCornerRadius="16dp"
+                    tools:visibility="visible">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_metode_transfer_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:itemCount="1"
+                        tools:listitem="@layout/rv_metode_transfer" />
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    style="@style/textView.sub.title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ringkasan_pembayaran" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    app:cardCornerRadius="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <LinearLayout
+                                android:id="@+id/ll_nama_bank"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                app:layout_constraintEnd_toStartOf="@+id/salin_nama_bank"
+                                app:layout_constraintHorizontal_bias="0.5"
+                                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="8dp"
+                                    android:text="@string/nama_bank"
+                                    android:textColor="@color/grey_500"
+                                    android:textSize="14sp" />
+
+                                <TextView
+                                    android:id="@+id/nama_bank_dipilih"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="8dp"
+                                    android:paddingVertical="2dp"
+                                    android:text="@string/strip"
+                                    android:textColor="@color/grey_700"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/salin_nama_bank"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                android:layout_marginStart="8dp"
+                                android:gravity="end|center_vertical"
+                                android:text="@string/salin"
+                                android:textColor="@color/blue_grey_700"
+                                android:textSize="14sp"
+                                app:layout_constraintBottom_toBottomOf="@+id/ll_nama_bank"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintHorizontal_bias="0.5"
+                                app:layout_constraintStart_toEndOf="@+id/ll_nama_bank"
+                                app:layout_constraintTop_toTopOf="@+id/ll_nama_bank" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp">
+
+                            <LinearLayout
+                                android:id="@+id/ll_no_rek"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                app:layout_constraintEnd_toStartOf="@+id/salin_no_rek"
+                                app:layout_constraintHorizontal_bias="0.5"
+                                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="8dp"
+                                    android:text="@string/nomor_rekening"
+                                    android:textColor="@color/grey_500"
+                                    android:textSize="14sp" />
+
+                                <TextView
+                                    android:id="@+id/no_rek_dipilih"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="8dp"
+                                    android:paddingVertical="2dp"
+                                    android:text="@string/strip"
+                                    android:textColor="@color/grey_700"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/salin_no_rek"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                android:layout_marginStart="8dp"
+                                android:gravity="end|center_vertical"
+                                android:text="@string/salin"
+                                android:textColor="@color/blue_grey_700"
+                                android:textSize="14sp"
+                                app:layout_constraintBottom_toBottomOf="@+id/ll_no_rek"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintHorizontal_bias="0.5"
+                                app:layout_constraintStart_toEndOf="@+id/ll_no_rek"
+                                app:layout_constraintTop_toTopOf="@+id/ll_no_rek" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp">
+
+                            <LinearLayout
+                                android:id="@+id/ll_nominal_tf"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                app:layout_constraintEnd_toStartOf="@+id/salin_nominal_tf"
+                                app:layout_constraintHorizontal_bias="0.5"
+                                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="8dp"
+                                    android:text="@string/nominal_transfer"
+                                    android:textColor="@color/grey_500"
+                                    android:textSize="14sp" />
+
+                                <TextView
+                                    android:id="@+id/nominal_tf"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="8dp"
+                                    android:paddingVertical="2dp"
+                                    android:text="@string/strip"
+                                    android:textColor="@color/grey_700"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/salin_nominal_tf"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                android:layout_marginStart="8dp"
+                                android:gravity="end|center_vertical"
+                                android:text="@string/salin"
+                                android:textColor="@color/blue_grey_700"
+                                android:textSize="14sp"
+                                app:layout_constraintBottom_toBottomOf="@+id/ll_nominal_tf"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintHorizontal_bias="0.5"
+                                app:layout_constraintStart_toEndOf="@+id/ll_nominal_tf"
+                                app:layout_constraintTop_toTopOf="@+id/ll_nominal_tf" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_pilih_metode_skrng"
+                            style="@style/materialbutton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:text="@string/simpan"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    style="@style/textView.sub.title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/bukti_pembayaran" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    app:cardCornerRadius="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_bukti_pmbyrn"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:paddingHorizontal="24dp"
+                            android:paddingVertical="64dp"
+                            android:text="@string/belum_upload_bukti"
+                            android:textColor="@color/grey_500"
+                            android:textSize="14sp"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/loading_indicator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:indeterminate="true"
+                            android:padding="48dp" />
+
+                        <ImageView
+                            android:id="@+id/image_bukti_pmbyrn"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:importantForAccessibility="no"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_simpan_bukt_pmbyrn"
+                    style="@style/materialbutton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/simpan"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_upbuk_pembayaran"
+                    style="@style/materialbutton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:enabled="false"
+                    android:text="@string/upload_bukti_pembayaran" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,18 +1,22 @@
 package com.bekado.bekadoonline.ui.transaksi
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterCheckout
 import com.bekado.bekadoonline.databinding.ActivityDetailTransaksiBinding
 import com.bekado.bekadoonline.helper.Helper
+import com.bekado.bekadoonline.model.AlamatModel
 import com.bekado.bekadoonline.model.CombinedKeranjangModel
 import com.bekado.bekadoonline.model.ProdukModel
 import com.bekado.bekadoonline.model.TransaksiModel
 import com.bekado.bekadoonline.ui.PembayaranActivity
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.testnew.model.KeranjangModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -32,6 +36,9 @@ class DetailTransaksiActivity : AppCompatActivity() {
     private var dataCombin: ArrayList<CombinedKeranjangModel> = ArrayList()
 
     private lateinit var trxRef: DatabaseReference
+    private var latitude: String = ""
+    private var longitude: String = ""
+    private var statusAdmin: Boolean = false
 
     private lateinit var transaksi: TransaksiModel
     private var isAdmin: Boolean = false
@@ -62,24 +69,24 @@ class DetailTransaksiActivity : AppCompatActivity() {
             status.text = transaksi.statusPesanan
             noPesanan.text = transaksi.noPesanan
             waktuPembelian.text = timeBuy
-
-            lihatPembayaran.setOnClickListener { startActivity(Intent(this@DetailTransaksiActivity, PembayaranActivity::class.java)) }
         }
     }
 
     private fun dataTransaksi(uidNow: String?, idTransaksi: String?) {
         if (!isAdmin) {
-            trxRef.child("$uidNow/$idTransaksi").get().addOnSuccessListener { snapshot ->
-                setDataView(snapshot)
-//                alamatPenerima()
+            val refTrxUser = trxRef.child("$uidNow/$idTransaksi")
+            refTrxUser.get().addOnSuccessListener { snapshot ->
+                setDataView(snapshot, "$uidNow/$idTransaksi")
+                alamatPenerima(snapshot)
             }
         } else {
-            trxRef.get().addOnSuccessListener { data ->
+            val refTrxAdm = trxRef
+            refTrxAdm.get().addOnSuccessListener { data ->
                 for (item in data.children) {
                     val snapshot = item.child("$idTransaksi")
                     if (snapshot.exists()) {
-                        setDataView(snapshot)
-//                        alamatPenerima()
+                        setDataView(snapshot, "${item.key}/$idTransaksi")
+                        alamatPenerima(snapshot)
                         getProfilData("${item.key}")
                     }
                 }
@@ -87,21 +94,20 @@ class DetailTransaksiActivity : AppCompatActivity() {
         }
     }
 
-//    private fun alamatPenerima() {
-//        trxRef.child("alamat").get().addOnSuccessListener { snapshot ->
-//            val nama = snapshot.child("nama").value.toString()
-//            val noHp = snapshot.child("noHp").value.toString()
-//            val alamat = snapshot.child("alamatLengkap").value.toString()
-//            val kodePos = snapshot.child("kodePos").value.toString()
-//
-//            val address = "$alamat, $kodePos"
-//            binding.alamatPenerima1.text = nama
-//            binding.alamatPenerima2.text = noHp
-//            binding.alamatPenerima3.text = address
-//        }
-//    }
+    private fun alamatPenerima(snapshot: DataSnapshot) {
+        val alamat = snapshot.child("alamatPenerima").getValue(AlamatModel::class.java)
 
-    private fun setDataView(snapshot: DataSnapshot) {
+        if (alamat != null) {
+            val alamatP = "${alamat.alamatLengkap}, ${alamat.kodePos}"
+            binding.namaPenerima.text = alamat.nama
+            binding.noHpPenerima.text = alamat.noHp
+            binding.alamatPenerima.text = alamatP
+            latitude = alamat.latitude.toString()
+            longitude = alamat.longitude.toString()
+        }
+    }
+
+    private fun setDataView(snapshot: DataSnapshot, uidnIdtrx: String) {
         val rp = snapshot.child("currency").value as String
         val totalItem = snapshot.child("totalItem").value as Long
         val ttlHarga = snapshot.child("totalHarga").value as Long
@@ -120,11 +126,49 @@ class DetailTransaksiActivity : AppCompatActivity() {
             pembayaranMetodeTxt.text = metodePembayaran
             ongkirHarga.text = ongkr
             totalBelanjaHarga.text = ttlBlnj
+
+            val isTf = metodePembayaran == getString(R.string.transfer)
+            lihatPembayaran.isEnabled = isTf
+            if (isTf) {
+                rlLihatPembayaran.visibility = View.VISIBLE
+                lihatPembayaran.setOnClickListener {
+                    val tent = Intent(this@DetailTransaksiActivity, PembayaranActivity::class.java)
+                    tent.putExtra("statusAdmin", statusAdmin)
+                    tent.putExtra("totalBelanjaK", ttlBlnj)
+                    tent.putExtra("pathTrx", uidnIdtrx)
+                    startActivity(tent)
+                }
+            }
         }
     }
 
     private fun getProfilData(uid: String) {
+        with(binding) {
+            db.getReference("akun/${auth.currentUser?.uid}").get()
+                .addOnSuccessListener { statusAdmin = it.child("statusAdmin").value as Boolean }
 
+            db.getReference("akun/$uid").get().addOnSuccessListener { data ->
+                userCard.visibility = View.VISIBLE
+                userCardTitle.visibility = View.VISIBLE
+                Glide.with(this@DetailTransaksiActivity).load(data.child("fotoProfil").value.toString())
+                    .apply(RequestOptions()).centerCrop()
+                    .into(fotoProfil)
+                namaUser.text = data.child("nama").value.toString()
+                val nohp = data.child("noHp").value.toString()
+                noHpUser.text = nohp.ifEmpty { getString(R.string.tidak_ada_data) }
+
+                openMaps.setOnClickListener {
+                    val gmmIntentUri = Uri.parse("geo:0,0?q=$latitude,$longitude")
+                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                    mapIntent.setPackage("com.google.android.apps.maps")
+
+                    startActivity(mapIntent)
+                }
+            }.addOnFailureListener {
+                userCard.visibility = View.GONE
+                userCardTitle.visibility = View.GONE
+            }
+        }
     }
 
     private fun getDataProduk(uidNow: String?, idTransaksi: String?) {

@@ -162,7 +162,7 @@ class AlamatActivity : AppCompatActivity() {
                         val geoCoder = Geocoder(this@AlamatActivity, Locale.getDefault())
                         val adress = geoCoder.getFromLocation(latitude.toDouble(), longitude.toDouble(), 10)
                         val namaJalan = if (adress!![0].thoroughfare != null) adress[0].thoroughfare else ""
-                        val noRumah = if (adress[0].subThoroughfare != null) "No.${adress[0].subThoroughfare}," else ""
+                        val noRumah = if (adress[0].subThoroughfare != null) "${adress[0].subThoroughfare}," else ""
                         val komplek = if (adress[0].subLocality != null) "${adress[0].subLocality}," else ""
                         val camatKel = if (adress[0].locality != null) "${adress[0].locality}," else ""
                         val kotaKab = if (adress[0].subAdminArea != null) "${adress[0].subAdminArea}," else ""
