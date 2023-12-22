@@ -1,16 +1,22 @@
 package com.bekado.bekadoonline.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterBankList
 import com.bekado.bekadoonline.databinding.ActivityPembayaranBinding
+import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.showToast
+import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.model.BankModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -21,12 +27,15 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
+import java.io.File
 
 class PembayaranActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPembayaranBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
     private lateinit var storage: FirebaseStorage
+
+    private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
     private var dataBank: ArrayList<BankModel> = ArrayList()
     private lateinit var adapterBank: AdapterBankList
     private var imageUri: Uri = Uri.parse("")
@@ -39,10 +48,6 @@ class PembayaranActivity : AppCompatActivity() {
     private lateinit var bankLogo: String
     private lateinit var bankNoRek: String
 
-    companion object {
-        private const val REQUEST_CODE_PICK_IMAGE = 4576
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPembayaranBinding.inflate(layoutInflater)
@@ -52,6 +57,17 @@ class PembayaranActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
         storage = FirebaseStorage.getInstance()
+        pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                val selectedImageUri: Uri? = data?.data
+                if (selectedImageUri != null) {
+                    setImage(selectedImageUri)
+                    imageUri = selectedImageUri
+                }
+            }
+        }
+
         isAdmin = intent.getBooleanExtra("statusAdmin", false)
         totalBelanja = intent.getStringExtra("totalBelanjaK") ?: ""
         uidnIdtrx = intent.getStringExtra("pathTrx") ?: ""
@@ -60,6 +76,8 @@ class PembayaranActivity : AppCompatActivity() {
         getDataBuktiTrx()
 
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        val drawableTop = if (isAdmin) 0 else R.drawable.icon_outline_add_photo_alternate_24
+        val txtBuktiTrx = if (isAdmin) getString(R.string.belum_upload_bukti) else getString(R.string.tambah_bukti_pembayaran)
 
         with(binding) {
             appBar.setNavigationOnClickListener { onBackPressed() }
@@ -67,9 +85,15 @@ class PembayaranActivity : AppCompatActivity() {
             rvMetodeTransferList.layoutManager = layoutManager
             btnPilihMetodeSkrng.setOnClickListener { saveMetodeSelected() }
 
-            if (isAdmin) btnUpbukPembayaran.visibility = View.GONE
-            btnUpbukPembayaran.setOnClickListener { selectImage() }
+            salinNamaBank.setOnClickListener { Helper.salinPesan(this@PembayaranActivity, namaBankDipilih.text) }
+            salinNoRek.setOnClickListener { Helper.salinPesan(this@PembayaranActivity, noRekDipilih.text) }
+            salinNominalTf.setOnClickListener { Helper.salinPesan(this@PembayaranActivity, nominalTf.text) }
+
+            btnUbahImageBukti.visibility = if (!isAdmin) View.VISIBLE else View.GONE
+            tvBuktiPmbyrn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, drawableTop, 0, 0)
+            tvBuktiPmbyrn.text = txtBuktiTrx
             btnSimpanBuktPmbyrn.setOnClickListener { uploadImage() }
+            btnUbahImageBukti.setOnClickListener { pilihGambarIntent() }
         }
     }
 
@@ -77,12 +101,16 @@ class PembayaranActivity : AppCompatActivity() {
         if (uidnIdtrx.isNotEmpty()) {
             val listener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!isAdmin) binding.tvBuktiPmbyrn.setOnClickListener {
+                        if (snapshot.exists()) pilihGambarIntent()
+                        else showToastL("Anda belum memilih metode transfer", this@PembayaranActivity)
+                    }
+
                     if (snapshot.exists())
                         with(binding) {
                             subtitlePilihMetTrns.visibility = View.GONE
                             cvPilihMetTrns.visibility = View.GONE
                             btnPilihMetodeSkrng.visibility = View.GONE
-                            btnUpbukPembayaran.isEnabled = true
 
                             nominalTf.text = snapshot.child("biayaTransfer").value.toString()
                             namaBankDipilih.text = snapshot.child("namaBank").value.toString()
@@ -93,10 +121,10 @@ class PembayaranActivity : AppCompatActivity() {
                                     .load(buktiTrx).apply(RequestOptions().centerInside())
                                     .into(imageBuktiPmbyrn)
                                 tvBuktiPmbyrn.visibility = View.GONE
-                                imageBuktiPmbyrn.visibility = View.VISIBLE
+                                clImgBktiExist.visibility = View.VISIBLE
                             } else {
                                 tvBuktiPmbyrn.visibility = View.VISIBLE
-                                imageBuktiPmbyrn.visibility = View.GONE
+                                clImgBktiExist.visibility = View.GONE
                             }
                         }
                     else {
@@ -163,26 +191,34 @@ class PembayaranActivity : AppCompatActivity() {
         if (uidnIdtrx.isNotEmpty())
             trxRef.child("buktiTransaksi").setValue(buktiTransaksi).addOnSuccessListener {
                 showToast("Metode transfer dipilih", this)
-                with(binding) {
-                    subtitlePilihMetTrns.visibility = View.GONE
-                    cvPilihMetTrns.visibility = View.GONE
-                    btnPilihMetodeSkrng.visibility = View.GONE
-                    btnUpbukPembayaran.isEnabled = true
-                }
+                getDataBuktiTrx()
             }
     }
 
-    private fun selectImage() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE)
+    private fun pilihGambarIntent() {
+        val pickImageIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        pickImageLauncher.launch(pickImageIntent)
+    }
+
+    private fun setImage(selectedImageUri: Uri) {
+        val inputStream = contentResolver.openInputStream(selectedImageUri)
+        val timestamp = System.currentTimeMillis()
+        val fileName = "galeri$timestamp.jpg"
+        val destinationFile = File(cacheDir, fileName)
+        inputStream?.use { input ->
+            destinationFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        loadImageWithGlide(Uri.fromFile(destinationFile), binding.imageBuktiPmbyrn)
     }
 
     private fun loadImageWithGlide(imageUri: Uri?, imageBuktiPmbyrn: ImageView) {
         val requestOptions = RequestOptions().centerInside()
         Glide.with(this).load(imageUri).apply(requestOptions).into(imageBuktiPmbyrn)
-        imageBuktiPmbyrn.visibility = View.VISIBLE
+        binding.clImgBktiExist.visibility = View.VISIBLE
         binding.tvBuktiPmbyrn.visibility = View.GONE
-        binding.btnUpbukPembayaran.visibility = View.GONE
         binding.btnSimpanBuktPmbyrn.visibility = View.VISIBLE
     }
 
@@ -197,14 +233,5 @@ class PembayaranActivity : AppCompatActivity() {
                 }.addOnFailureListener { showToast("upload rtdb fail", this@PembayaranActivity) }
             }.addOnFailureListener { showToast("upload downloadUrl fail", this@PembayaranActivity) }
         }.addOnFailureListener { showToast("upload putFile fail", this@PembayaranActivity) }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
-            imageUri = data.data!!
-            loadImageWithGlide(imageUri, binding.imageBuktiPmbyrn)
-        }
     }
 }

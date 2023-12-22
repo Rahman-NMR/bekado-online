@@ -46,7 +46,7 @@
     <string name="cod">COD</string>
     <string name="konfirmasi">Konfirmasi</string>
     <string name="lihat_pembayaran">Lihat pembayaran</string>
-    <string name="upload_bukti_pembayaran">Upload Bukti Pembayaran</string>
+    <string name="simpan_bukti_pembayaran">Simpan Bukti Pembayaran</string>
 
     <!--    helper text-->
     <string name="email_invalid">Email tidak sesuai format</string>
@@ -149,6 +149,7 @@
     <string name="no_pesanan_">No. Pesanan :</string>
     <string name="tanggal_pemesanan_">Tanggal Pemesanan :</string>
     <string name="status_pesanan_">Status Pesanan :</string>
+    <string name="tambah_bukti_pembayaran">Tambahkan bukti pembayaran</string>
     <string name="belum_upload_bukti">Bukti pembayaran tidak ditemukan</string>
     <string name="nominal_transfer">Nominal Transfer</string>
     <string name="nomor_rekening">Nomor Rekening</string>

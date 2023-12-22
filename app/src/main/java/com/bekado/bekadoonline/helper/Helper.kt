@@ -1,5 +1,7 @@
 package com.bekado.bekadoonline.helper
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.DialogInterface
 import android.util.DisplayMetrics
@@ -58,6 +60,12 @@ object Helper {
 
     fun showToastL(message: String, context: Context) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+
+    fun salinPesan(context: Context, textnya: CharSequence) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText(textnya, textnya)
+        clipboard.setPrimaryClip(clip)
     }
 
     fun showAlertDialog(

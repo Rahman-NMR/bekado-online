@@ -85,4 +85,18 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <!--    textView salin-->
+    <style name="textView.salin" parent="Theme.BekadoOnline">
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:background">@color/cardview_pressed</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:text">@string/salin</item>
+        <item name="android:textColor">?attr/colorSecondaryVariant</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 </resources>
