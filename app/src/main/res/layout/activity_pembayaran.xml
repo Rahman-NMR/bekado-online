@@ -304,7 +304,8 @@
                             android:id="@+id/cl_img_bkti_exist"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:visibility="gone">
+                            android:visibility="gone"
+                            tools:visibility="visible">
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_ubah_image_bukti"

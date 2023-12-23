@@ -15,6 +15,7 @@ import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.model.AkunModel
+import com.bekado.bekadoonline.ui.adm.KategoriListActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -101,6 +102,7 @@ class ProfilFragment : Fragment() {
                             binding.btnAdminPengiriman.visibility = View.VISIBLE
                             binding.badgeAdmin.visibility = View.VISIBLE
                             getRealtimeDataTransaksi(true)
+                            binding.btnAdminKategoriProduk.setOnClickListener { startActivity(Intent(context, KategoriListActivity::class.java)) }
                         } else {
                             binding.btnAdminKategoriProduk.visibility = View.GONE
                             binding.btnAdminPengiriman.visibility = View.GONE
