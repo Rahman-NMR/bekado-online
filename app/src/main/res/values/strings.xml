@@ -24,6 +24,7 @@
     <string name="terlalu_panjang">terlalu panjang</string>
     <string name="alamat_uncompleate">Alamat belum lengkap</string>
     <string name="pesanan_baru_berhasil">Pesanan baru berhasil dibuat</string>
+    <string name="kategori_terhapus">Kategori telah dihapus</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -48,6 +49,10 @@
     <string name="lihat_pembayaran">Lihat pembayaran</string>
     <string name="simpan_bukti_pembayaran">Simpan Bukti Pembayaran</string>
     <string name="perbarui_posisi">Perbarui Posisi</string>
+    <string name="hapus_kategori">Hapus Kategori</string>
+
+    <!--    fab-->
+    <string name="tambah_produk">Tambah Produk</string>
 
     <!--    helper text-->
     <string name="email_invalid">Email tidak sesuai format</string>
@@ -78,6 +83,7 @@
     <string name="title_detail_transaksi">Detail Transaksi</string>
     <string name="title_pembayaran">Pembayaran</string>
     <string name="title_kategori_list">Kategori List</string>
+    <string name="title_produk_list">Produk List</string>
     <string name="urutkan_berdasarkan">Urutkan Berdasarkan</string>
 
     <!--    sub title-->
@@ -93,6 +99,7 @@
     <string name="bukti_pembayaran">Bukti Pembayaran</string>
     <string name="info_pengiriman">Informasi Pengiriman</string>
     <string name="buka_di_google_maps">Buka di Google Maps</string>
+    <string name="kategori_sekarang">Kategori Sekarang</string>
 
     <!--    button -> title-->
     <string name="akun_saya">Akun Saya</string>
@@ -161,4 +168,5 @@
     <string name="tambah_kategori">Tambah kategori</string>
     <string name="nama_kategori">Nama kategori</string>
     <string name="produk">Produk</string>
+    <string name="tampilkan_produk">Tampilkan Produk</string>
 </resources>

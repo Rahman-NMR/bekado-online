@@ -1,5 +1,6 @@
 package com.bekado.bekadoonline.ui.adm
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,14 +12,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.adapter.AdapterKategoriList
+import com.bekado.bekadoonline.adapter.admn.AdapterKategoriList
 import com.bekado.bekadoonline.databinding.ActivityKategoriListBinding
 import com.bekado.bekadoonline.helper.Helper.hideKeyboard
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection.isConnected
 import com.bekado.bekadoonline.helper.ItemMoveCallback
 import com.bekado.bekadoonline.model.KategoriModel
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -27,7 +27,6 @@ import com.google.firebase.database.ValueEventListener
 
 class KategoriListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityKategoriListBinding
-    private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
     private lateinit var adapterKategoriList: AdapterKategoriList
     private var dataKategori: ArrayList<KategoriModel> = ArrayList()
@@ -41,7 +40,6 @@ class KategoriListActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.hide()
-        auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
         kategoriRef = db.getReference("produk")
 
@@ -66,7 +64,7 @@ class KategoriListActivity : AppCompatActivity() {
                     true
                 } else false
             }
-            btnPerbaruiPosisi.setOnClickListener { setupUbahPosisi() }
+            btnPerbaruiPosisi.setOnClickListener { if (isConnected(this@KategoriListActivity)) setupUbahPosisi() }
         }
     }
 
@@ -91,7 +89,11 @@ class KategoriListActivity : AppCompatActivity() {
                     dataKategori.sortBy { it.posisi }
                     binding.lineDivider.visibility = if (dataKategori.isEmpty()) View.GONE else View.VISIBLE
                 }
-                adapterKategoriList = AdapterKategoriList(dataKategori) { }
+                adapterKategoriList = AdapterKategoriList(dataKategori) { kategori ->
+                    val intents = Intent(this@KategoriListActivity, ProdukListActivity::class.java)
+                        .putExtra("idKategori", kategori)
+                    startActivity(intents)
+                }
                 val itemTouchHelperCallback = ItemMoveCallback(adapterKategoriList, binding)
                 val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
                 itemTouchHelper.attachToRecyclerView(binding.rvKategori)
@@ -157,9 +159,8 @@ class KategoriListActivity : AppCompatActivity() {
             val kategoriId = kategori.idKategori
             updates["$kategoriId/posisi"] = kategori.posisi
         }
-        kategoriRef.updateChildren(updates).addOnSuccessListener {
-            binding.btnPerbaruiPosisi.visibility = View.GONE
-        }
+        kategoriRef.updateChildren(updates)
+            .addOnSuccessListener { binding.btnPerbaruiPosisi.visibility = View.GONE }
     }
 
     override fun onDestroy() {

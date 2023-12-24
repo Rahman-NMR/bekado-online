@@ -43,6 +43,10 @@
         <item name="android:paddingRight">16dp</item>
     </style>
 
+    <style name="materialbutton.text.red" parent="materialbutton.text">
+        <item name="materialThemeOverlay">@style/color.red</item>
+    </style>
+
     <style name="materialTextListButtonIcon" parent="Widget.MaterialComponents.Button.TextButton.Icon">
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
