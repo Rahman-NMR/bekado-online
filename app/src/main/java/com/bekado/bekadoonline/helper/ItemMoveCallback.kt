@@ -3,7 +3,7 @@ package com.bekado.bekadoonline.helper
 import android.view.View
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.bekado.bekadoonline.adapter.AdapterKategoriList
+import com.bekado.bekadoonline.adapter.admn.AdapterKategoriList
 import com.bekado.bekadoonline.databinding.ActivityKategoriListBinding
 
 class ItemMoveCallback(private val adapterKategoriList: AdapterKategoriList, private val binding: ActivityKategoriListBinding) :

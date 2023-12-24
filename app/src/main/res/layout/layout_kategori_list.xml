@@ -10,7 +10,7 @@
     android:focusable="true"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingVertical="16dp"
+    android:paddingVertical="10dp"
     android:paddingStart="16dp"
     android:paddingEnd="12dp">
 

@@ -73,6 +73,7 @@ class BerandaFragment : Fragment() {
         val currentUser = auth.currentUser
         akunRef = db.getReference("akun/${currentUser?.uid}")
         produkRef = db.getReference("produk")
+        adapterButton = AdapterButton(dataButton){}
 
         val paddingBottom = resources.getDimensionPixelSize(R.dimen.maxBottomdp)
         val padding = resources.getDimensionPixelSize(R.dimen.smalldp)

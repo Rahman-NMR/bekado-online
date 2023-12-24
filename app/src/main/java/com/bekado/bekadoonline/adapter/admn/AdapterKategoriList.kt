@@ -1,4 +1,4 @@
-package com.bekado.bekadoonline.adapter
+package com.bekado.bekadoonline.adapter.admn
 
 import android.content.Context
 import android.view.LayoutInflater

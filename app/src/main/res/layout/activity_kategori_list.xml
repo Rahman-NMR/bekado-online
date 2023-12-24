@@ -62,6 +62,7 @@
                             android:id="@+id/rv_kategori"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
                             tools:itemCount="5"
                             tools:listitem="@layout/layout_kategori_list" />
 
@@ -113,6 +114,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:clickable="true"
+        android:contentDescription="@string/tambah_kategori"
         android:focusable="true"
         android:src="@drawable/icon_outline_save_24"
         android:visibility="gone"

@@ -295,6 +295,7 @@ class KeranjangActivity : AppCompatActivity() {
     override fun onRestart() {
         super.onRestart()
         binding.llProdukSelected.visibility = View.GONE
+        updateTotalHarga()
     }
 
     override fun onDestroy() {
