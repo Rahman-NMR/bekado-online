@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.admn.AdapterKategoriList
+import com.bekado.bekadoonline.bottomsheet.admn.ShowEditKategoriBottomSheet
 import com.bekado.bekadoonline.databinding.ActivityKategoriListBinding
 import com.bekado.bekadoonline.helper.Helper.hideKeyboard
 import com.bekado.bekadoonline.helper.Helper.showToast
@@ -89,11 +90,16 @@ class KategoriListActivity : AppCompatActivity() {
                     dataKategori.sortBy { it.posisi }
                     binding.lineDivider.visibility = if (dataKategori.isEmpty()) View.GONE else View.VISIBLE
                 }
-                adapterKategoriList = AdapterKategoriList(dataKategori) { kategori ->
+                adapterKategoriList = AdapterKategoriList(dataKategori, { kategori ->
                     val intents = Intent(this@KategoriListActivity, ProdukListActivity::class.java)
                         .putExtra("idKategori", kategori)
                     startActivity(intents)
-                }
+                }, { kategori ->
+                    val ref = kategoriRef.child("kategori/${kategori.idKategori}")
+                    ShowEditKategoriBottomSheet(this@KategoriListActivity).showDialog(
+                        this@KategoriListActivity, kategori.namaKategori, kategori.visibilitas, ref
+                    )
+                })
                 val itemTouchHelperCallback = ItemMoveCallback(adapterKategoriList, binding)
                 val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
                 itemTouchHelper.attachToRecyclerView(binding.rvKategori)

@@ -6,14 +6,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.LayoutKategoriListBinding
-import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.ItemTouchHelperListener
 import com.bekado.bekadoonline.model.KategoriModel
 import java.util.Collections
 
 class AdapterKategoriList(
     private var kategoriModelLilst: ArrayList<KategoriModel>,
-    private var listenerKategoriList: (KategoriModel) -> Unit
+    private var listenerKategoriList: (KategoriModel) -> Unit,
+    private var listenerEdit: (KategoriModel) -> Unit
 ) : RecyclerView.Adapter<AdapterKategoriList.ViewHolder>(), ItemTouchHelperListener {
     lateinit var context: Context
 
@@ -45,17 +45,17 @@ class AdapterKategoriList(
     override fun getItemCount(): Int = kategoriModelLilst.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(kategoriModelLilst[position], listenerKategoriList, context)
+        holder.bind(kategoriModelLilst[position], listenerKategoriList, listenerEdit, context)
     }
 
     class ViewHolder(val binding: LayoutKategoriListBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(kategori: KategoriModel, listenerKategori: (KategoriModel) -> Unit, context: Context) {
+        fun bind(kategori: KategoriModel, listenerKategori: (KategoriModel) -> Unit, listenerEdit: (KategoriModel) -> Unit, context: Context) {
             val jumlahProduk = "${kategori.jumlahProduk}/100 ${context.getString(R.string.produk)}"
             binding.kategoriNama.text = kategori.namaKategori
             binding.kategoriJumlahProduknya.text = jumlahProduk
 
             binding.root.setOnClickListener { listenerKategori(kategori) }
-            binding.btnEditKategori.setOnClickListener { showToast("Edit ${kategori.namaKategori} sedang dalam perbaikan", context) }
+            binding.btnEditKategori.setOnClickListener { listenerEdit(kategori) }
         }
     }
 }

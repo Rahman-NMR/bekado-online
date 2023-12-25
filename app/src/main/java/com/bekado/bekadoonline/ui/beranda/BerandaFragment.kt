@@ -73,7 +73,7 @@ class BerandaFragment : Fragment() {
         val currentUser = auth.currentUser
         akunRef = db.getReference("akun/${currentUser?.uid}")
         produkRef = db.getReference("produk")
-        adapterButton = AdapterButton(dataButton){}
+        adapterButton = AdapterButton(dataButton) {}
 
         val paddingBottom = resources.getDimensionPixelSize(R.dimen.maxBottomdp)
         val padding = resources.getDimensionPixelSize(R.dimen.smalldp)
@@ -82,8 +82,8 @@ class BerandaFragment : Fragment() {
         val lmShimmer = GridLayoutManager(context, calculateSpanCount(requireContext()))
 
         getRealtimeDataAkun(currentUser)
-        searchProduk()
         getDataAllProduk()
+        searchProduk()
         fabScrollToTop()
         HelperConnection.shimmerProduk(lmShimmer, binding.rvProdukShimmer, padding, dataShimmer)
 
@@ -174,7 +174,10 @@ class BerandaFragment : Fragment() {
                             if (button.isActive) {
                                 if (button.namaKategori == semua)
                                     getAllProduk(snapshot, dataProduk, dataKategori, adapterProduk, sortFilter)
-                                else getFiltered(snapshot, button.idKategori, dataProduk, adapterProduk, sortFilter)
+                                else {
+                                    getFiltered(snapshot, button.idKategori, dataProduk, adapterProduk, sortFilter)
+                                    binding.produkKosong.visibility = if (dataProduk.isEmpty()) View.VISIBLE else View.GONE
+                                }
                             }
                         }
                         binding.rvButtonSelector.adapter = adapterButton
@@ -184,9 +187,10 @@ class BerandaFragment : Fragment() {
                     ShowProdukBottomSheet(requireContext()).showDialog(requireContext(), produk, auth, db)
                 }
                 getAllProduk(snapshot, dataProduk, dataKategori, adapterProduk, sortFilter)
-                binding.rvProduk.adapter = adapterProduk
-
                 with(binding) {
+                    rvProduk.adapter = adapterProduk
+                    produkKosong.visibility = if (dataProduk.isEmpty()) View.VISIBLE else View.GONE
+
                     shimmerRvProduk.apply {
                         stopShimmer()
                         visibility = View.GONE
@@ -206,6 +210,7 @@ class BerandaFragment : Fragment() {
                 with(binding) {
                     shimmerRvProduk.startShimmer()
                     shimmerRvButtonSelector.startShimmer()
+                    produkKosong.visibility = View.GONE
                     rvProduk.visibility = View.GONE
                     rvButtonSelector.visibility = View.GONE
                     llBtnSort.visibility = View.GONE
@@ -240,11 +245,6 @@ class BerandaFragment : Fragment() {
                     }
                 }
 
-//                if (newText.isNullOrBlank()) {
-//                    dataProduk.clear()
-//                    getDataAllProduk()
-////                    adapterProduk.notifyDataSetChanged()
-//                }
                 return true
             }
         }

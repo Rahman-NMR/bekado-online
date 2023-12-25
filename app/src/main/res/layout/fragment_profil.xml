@@ -332,16 +332,6 @@
                             tools:visibility="visible" />
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_admin_pengiriman"
-                            style="@style/materialTextListButtonIcon.grey"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/pengiriman"
-                            android:visibility="gone"
-                            app:icon="@drawable/icon_outline_local_shipping_24"
-                            tools:visibility="visible" />
-
-                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_tentang_kami"
                             style="@style/materialTextListButtonIcon.grey"
                             android:layout_width="match_parent"

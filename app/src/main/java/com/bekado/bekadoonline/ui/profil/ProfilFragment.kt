@@ -99,13 +99,11 @@ class ProfilFragment : Fragment() {
 
                         if (data.statusAdmin) {
                             binding.btnAdminKategoriProduk.visibility = View.VISIBLE
-                            binding.btnAdminPengiriman.visibility = View.VISIBLE
                             binding.badgeAdmin.visibility = View.VISIBLE
                             getRealtimeDataTransaksi(true)
                             binding.btnAdminKategoriProduk.setOnClickListener { startActivity(Intent(context, KategoriListActivity::class.java)) }
                         } else {
                             binding.btnAdminKategoriProduk.visibility = View.GONE
-                            binding.btnAdminPengiriman.visibility = View.GONE
                             binding.badgeAdmin.visibility = View.GONE
                             getRealtimeDataTransaksi(false)
                         }

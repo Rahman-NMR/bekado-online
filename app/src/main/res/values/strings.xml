@@ -107,7 +107,6 @@
     <string name="detail_alamat">Detail Alamat</string>
     <string name="ubah_password">Ubah Password</string>
     <string name="kategori_produk">Kategori/Produk</string>
-    <string name="pengiriman">Pengiriman</string>
     <string name="tentang_kami">Tentang Kami</string>
 
     <!--    title dialog-->
@@ -127,6 +126,10 @@
     <string name="desc_keranjang_kosong">Anda belum menambahkan produk ke keranjang.</string>
     <string name="msg_transaksi_kosong">Tidak ada transaksi</string>
     <string name="desc_transaksi_kosong">Anda masih belum melakukan transaksi.</string>
+    <string name="msg_beranda_kosong">Produk masih kosong</string>
+    <string name="desc_beranda_kosong">Kategori ini belum memiliki produk.</string>
+<!--    <string name="msg_cari_kosong">Tidak ada hasil</string>-->
+<!--    <string name="desc_cari_kosong">Tidak dapat menemukan produk yang dicari.</string>-->
 
     <string name="atau">Atau masuk dengan</string>
     <string name="email">Email</string>
@@ -171,4 +174,6 @@
     <string name="nama_kategori">Nama kategori</string>
     <string name="produk">Produk</string>
     <string name="tampilkan_produk">Tampilkan Produk</string>
+    <string name="tampilkan_kategori">Tampilkan kategori</string>
+    <string name="masukkan_nama_kategori">Masukkan nama kategori</string>
 </resources>
