@@ -26,6 +26,7 @@
     <string name="pesanan_baru_berhasil">Pesanan baru berhasil dibuat</string>
     <string name="kategori_terhapus">Kategori telah dihapus</string>
     <string name="pilih_produk_dulu">Pilih produk terlebih dahulu</string>
+    <string name="syarat_checkout">Minimal pembelanjaan Rp50.000</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -95,7 +96,6 @@
     <string name="daftar_produk">Daftar Produk</string>
     <string name="rincian_pembayaran">Rincian Pembayaran</string>
     <string name="metode_pembayaran">Metode Pembayaran</string>
-    <string name="pilih_metode_transfer">Pilih Metode Transfer</string>
     <string name="ringkasan_pembayaran">Ringkasan Pembayaran</string>
     <string name="bukti_pembayaran">Bukti Pembayaran</string>
     <string name="info_pengiriman">Informasi Pengiriman</string>
@@ -161,6 +161,7 @@
     <string name="status_pesanan_">Status Pesanan :</string>
     <string name="tambah_bukti_pembayaran">Tambahkan bukti pembayaran</string>
     <string name="belum_upload_bukti">Bukti pembayaran tidak ditemukan</string>
+    <string name="atas_nama">Atas Nama</string>
     <string name="nominal_transfer">Nominal Transfer</string>
     <string name="nomor_rekening">Nomor Rekening</string>
     <string name="nama_bank">Nama Bank</string>

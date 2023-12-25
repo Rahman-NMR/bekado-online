@@ -133,7 +133,6 @@ class DetailTransaksiActivity : AppCompatActivity() {
                 lihatPembayaran.setOnClickListener {
                     val tent = Intent(this@DetailTransaksiActivity, PembayaranActivity::class.java)
                     tent.putExtra("statusAdmin", statusAdmin)
-                    tent.putExtra("totalBelanjaK", ttlBlnj)
                     tent.putExtra("pathTrx", uidnIdtrx)
                     startActivity(tent)
                 }

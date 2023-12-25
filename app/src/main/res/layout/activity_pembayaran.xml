@@ -48,38 +48,6 @@
                 app:layout_constraintWidth_max="700dp">
 
                 <TextView
-                    android:id="@+id/subtitle_pilih_met_trns"
-                    style="@style/textView.sub.title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/pilih_metode_transfer"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cv_pilih_met_trns"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="24dp"
-                    android:background="@color/white"
-                    android:visibility="gone"
-                    app:cardCornerRadius="16dp"
-                    tools:visibility="visible">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_metode_transfer_list"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false"
-                        android:overScrollMode="never"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:itemCount="1"
-                        tools:listitem="@layout/rv_metode_transfer" />
-                </androidx.cardview.widget.CardView>
-
-                <TextView
                     style="@style/textView.sub.title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -99,57 +67,39 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
+                        <LinearLayout
+                            android:id="@+id/ll_nama_bank"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <LinearLayout
-                                android:id="@+id/ll_nama_bank"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                app:layout_constraintEnd_toStartOf="@+id/salin_nama_bank"
-                                app:layout_constraintHorizontal_bias="0.5"
-                                app:layout_constraintHorizontal_chainStyle="spread_inside"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginEnd="8dp"
-                                    android:text="@string/nama_bank"
-                                    android:textColor="@color/grey_500"
-                                    android:textSize="14sp" />
-
-                                <TextView
-                                    android:id="@+id/nama_bank_dipilih"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginEnd="8dp"
-                                    android:paddingVertical="2dp"
-                                    android:text="@string/strip"
-                                    android:textColor="@color/grey_700"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintEnd_toStartOf="@+id/salin_nama_bank"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintHorizontal_chainStyle="spread_inside"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
 
                             <TextView
-                                android:id="@+id/salin_nama_bank"
-                                style="@style/textView.salin"
-                                android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                app:layout_constraintBottom_toBottomOf="@+id/ll_nama_bank"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintHorizontal_bias="0.5"
-                                app:layout_constraintStart_toEndOf="@+id/ll_nama_bank"
-                                app:layout_constraintTop_toTopOf="@+id/ll_nama_bank" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/nama_bank"
+                                android:textColor="@color/grey_500"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/nama_bank"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="2dp"
+                                android:text="@string/strip"
+                                android:textColor="@color/grey_700"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp">
+                            android:layout_marginTop="12dp">
 
                             <LinearLayout
                                 android:id="@+id/ll_no_rek"
@@ -171,7 +121,7 @@
                                     android:textSize="14sp" />
 
                                 <TextView
-                                    android:id="@+id/no_rek_dipilih"
+                                    android:id="@+id/no_rek"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginEnd="8dp"
@@ -194,10 +144,40 @@
                                 app:layout_constraintTop_toTopOf="@+id/ll_no_rek" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
+                        <LinearLayout
+                            android:id="@+id/ll_atas_nama"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="vertical"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintHorizontal_chainStyle="spread_inside"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/atas_nama"
+                                android:textColor="@color/grey_500"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/atas_nama"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="2dp"
+                                android:text="@string/strip"
+                                android:textColor="@color/grey_700"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp">
+                            android:layout_marginTop="12dp">
 
                             <LinearLayout
                                 android:id="@+id/ll_nominal_tf"
@@ -241,16 +221,6 @@
                                 app:layout_constraintStart_toEndOf="@+id/ll_nominal_tf"
                                 app:layout_constraintTop_toTopOf="@+id/ll_nominal_tf" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_pilih_metode_skrng"
-                            style="@style/materialbutton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:text="@string/simpan"
-                            android:visibility="gone"
-                            tools:visibility="visible" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -287,9 +257,7 @@
                             android:text="@string/tambah_bukti_pembayaran"
                             android:textColor="@color/grey_500"
                             android:textSize="14sp"
-                            android:visibility="gone"
-                            app:drawableTopCompat="@drawable/icon_outline_add_photo_alternate_24"
-                            tools:visibility="visible" />
+                            app:drawableTopCompat="@drawable/icon_outline_add_photo_alternate_24" />
 
                         <com.google.android.material.progressindicator.CircularProgressIndicator
                             android:id="@+id/loading_indicator"
@@ -297,8 +265,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:indeterminate="true"
-                            android:padding="48dp"
-                            tools:visibility="gone" />
+                            android:padding="48dp" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/cl_img_bkti_exist"

@@ -36,7 +36,6 @@ class CheckOutActivity : AppCompatActivity() {
     private var totalHarga: Long = 0
     private var totalItem = 0
     private var totalBelanja: Long = 0
-    private val biayaKurir: Long = 50000
     private var metodePembayaran: String = ""
 
     private var namaPnrm: String = ""
@@ -80,13 +79,15 @@ class CheckOutActivity : AppCompatActivity() {
                 if (latitude.isNotEmpty() && longitude.isNotEmpty() &&
                     namaPnrm.isNotEmpty() && noHpPnrm.isNotEmpty() &&
                     alamatPnrm.isNotEmpty() && kodePosPnrm.isNotEmpty()
-                ) Helper.showAlertDialog(
-                    getString(R.string.konfirmasi_pesanan_),
-                    getString(R.string.msg_konf_pesanan),
-                    getString(R.string.konfirmasi),
-                    this@CheckOutActivity,
-                    getColor(R.color.blue_grey_700)
-                ) { addTransaksi(currentUid) }
+                ) if (totalBelanja >= 50000) {
+                    Helper.showAlertDialog(
+                        getString(R.string.konfirmasi_pesanan_),
+                        getString(R.string.msg_konf_pesanan),
+                        getString(R.string.konfirmasi),
+                        this@CheckOutActivity,
+                        getColor(R.color.blue_grey_700)
+                    ) { addTransaksi(currentUid) }
+                } else showToastL(getString(R.string.syarat_checkout), this@CheckOutActivity)
                 else showToast(getString(R.string.alamat_uncompleate), this@CheckOutActivity)
             }
         }
@@ -126,8 +127,6 @@ class CheckOutActivity : AppCompatActivity() {
 
                         binding.ongkirTxt.text = jarakOngkirTxt
                         jarak = jarakPerKm.toLong()
-                        //todo:kalo ada kebijakan baru dari pihak toko; ongkir = biayaKurir * jarak
-                        ongkir = if (jarak < 1) 0 else biayaKurir
                     }
 
                     updateRincianHarga(true)
@@ -165,10 +164,7 @@ class CheckOutActivity : AppCompatActivity() {
     private fun updateRincianHarga(transfer: Boolean) {
         totalBelanja = totalHarga + ongkir
         val belanjaTxt = if (totalBelanja > 0) "Rp${addcoma3digit(totalHarga + ongkir)}" else "Gratis"
-        val ongkirTxt =
-            if (latitude.isNotEmpty() && longitude.isNotEmpty())
-                if (jarak > 0) "Rp${addcoma3digit(ongkir)}" else "Gratis"
-            else getString(R.string.strip)
+        val ongkirTxt = if (latitude.isNotEmpty() && longitude.isNotEmpty()) "Gratis" else getString(R.string.strip)
         metodePembayaran = if (transfer) getString(R.string.transfer) else getString(R.string.cod)
 
         binding.totalBelanjaHarga.text = belanjaTxt
@@ -183,6 +179,7 @@ class CheckOutActivity : AppCompatActivity() {
         val currentTime = Date().time.toString()
         val noPesanan = generateIdPesanan(currentTime)
 
+        val dataBuktiTrx = hashMapOf<String, Any>()
         val produkMap = mutableMapOf<String, Any>()
         val dataTransaksi = hashMapOf(
             "idTransaksi" to idTransaksi,
@@ -207,6 +204,13 @@ class CheckOutActivity : AppCompatActivity() {
             "nama" to namaPnrm,
             "noHp" to noHpPnrm
         )
+        db.getReference("aaabdfiklnrstt").get().addOnSuccessListener { data ->
+            dataBuktiTrx["pemilikBank"] = data.child("pemilik").value as String
+            dataBuktiTrx["biayaTransfer"] = totalBelanja
+            dataBuktiTrx["fotoBank"] = data.child("logoWiki").value as String
+            dataBuktiTrx["namaBank"] = data.child("name").value as String
+            dataBuktiTrx["noRek"] = data.child("noRek").value as String
+        }
         if (selectedKeranjang.isNotEmpty()) {
             for (produk in selectedKeranjang) {
                 val dataProduk = mapOf(
@@ -225,6 +229,7 @@ class CheckOutActivity : AppCompatActivity() {
         trxChildRef.setValue(dataTransaksi).addOnSuccessListener {
             showToastL(getString(R.string.pesanan_baru_berhasil), this)
             trxChildRef.child("alamatPenerima").setValue(dataAlamat)
+            trxChildRef.child("buktiTransaksi").setValue(dataBuktiTrx)
             trxChildRef.child("produkList").setValue(produkMap)
                 .addOnSuccessListener {
                     selectedKeranjang.forEach { keranjangRef.child("${it.produkModel?.idProduk}").removeValue() }
@@ -232,7 +237,6 @@ class CheckOutActivity : AppCompatActivity() {
                     if (metodePembayaran == getString(R.string.transfer)) {
                         val flag = Intent(this, PembayaranActivity::class.java)
                         flag.putExtra("statusAdmin", false)
-                        flag.putExtra("totalBelanjaK", "Rp.${addcoma3digit(totalBelanja)}")
                         flag.putExtra("pathTrx", "$uidNow/$idTransaksi")
                         flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
 
