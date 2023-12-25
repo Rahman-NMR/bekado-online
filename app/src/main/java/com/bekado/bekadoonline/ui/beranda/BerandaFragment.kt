@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.LoginActivity
 import com.bekado.bekadoonline.MainActivity
-import com.bekado.bekadoonline.ui.KeranjangActivity
+import com.bekado.bekadoonline.ui.transaksi.KeranjangActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterButton
 import com.bekado.bekadoonline.adapter.AdapterProduk

@@ -1,4 +1,4 @@
-package com.bekado.bekadoonline.ui
+package com.bekado.bekadoonline.ui.transaksi
 
 import android.app.Activity
 import android.content.Intent

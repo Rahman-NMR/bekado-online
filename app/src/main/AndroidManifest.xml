@@ -29,10 +29,10 @@
             android:name=".ui.transaksi.DetailTransaksiActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.PembayaranActivity"
+            android:name=".ui.transaksi.PembayaranActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.CheckOutActivity"
+            android:name=".ui.transaksi.CheckOutActivity"
             android:exported="false" />
         <activity
             android:name=".ui.profil.AlamatActivity"
@@ -43,7 +43,7 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.KeranjangActivity"
+            android:name=".ui.transaksi.KeranjangActivity"
             android:exported="false" />
         <activity
             android:name=".RegisterActivity"

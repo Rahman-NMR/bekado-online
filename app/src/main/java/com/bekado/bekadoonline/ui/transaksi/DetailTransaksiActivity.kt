@@ -14,7 +14,6 @@ import com.bekado.bekadoonline.model.AlamatModel
 import com.bekado.bekadoonline.model.CombinedKeranjangModel
 import com.bekado.bekadoonline.model.ProdukModel
 import com.bekado.bekadoonline.model.TransaksiModel
-import com.bekado.bekadoonline.ui.PembayaranActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.testnew.model.KeranjangModel

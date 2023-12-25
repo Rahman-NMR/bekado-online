@@ -19,7 +19,6 @@ import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.model.AkunModel
 import com.bekado.bekadoonline.shimmer.ShimmerModel
-import com.bekado.bekadoonline.ui.KeranjangActivity
 import com.bekado.bekadoonline.model.TransaksiModel
 import com.example.testnew.utils.HelperTransaksi.getData
 import com.google.android.gms.auth.api.signin.GoogleSignIn
