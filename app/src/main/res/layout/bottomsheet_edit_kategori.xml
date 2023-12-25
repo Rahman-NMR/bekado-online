@@ -40,8 +40,8 @@
                     style="@style/textView.akunSaya"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingVertical="4dp"
-                    android:text="@string/nama_kategori" />
+                    android:text="@string/nama_kategori"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"

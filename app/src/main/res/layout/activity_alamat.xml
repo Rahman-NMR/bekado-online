@@ -151,7 +151,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:hint="@string/nomor_telepon_penerima"
-                                android:inputType="phone"
+                                android:inputType="number"
                                 android:maxLength="15"
                                 android:textSize="14sp" />
                         </com.google.android.material.textfield.TextInputLayout>

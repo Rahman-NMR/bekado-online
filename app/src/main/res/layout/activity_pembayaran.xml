@@ -280,7 +280,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_margin="8dp"
-                                app:cornerRadius="99dp"
+                                app:cornerRadius="16dp"
                                 app:icon="@drawable/icon_round_mode_edit_24"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintTop_toTopOf="parent" />
