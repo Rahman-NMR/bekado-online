@@ -151,7 +151,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
                 userCardTitle.visibility = View.VISIBLE
                 Glide.with(this@DetailTransaksiActivity).load(data.child("fotoProfil").value.toString())
                     .apply(RequestOptions()).centerCrop()
-                    .into(fotoProfil)
+                    .placeholder(R.drawable.img_broken_image_circle).into(fotoProfil)
                 namaUser.text = data.child("nama").value.toString()
                 val nohp = data.child("noHp").value.toString()
                 noHpUser.text = nohp.ifEmpty { getString(R.string.tidak_ada_data) }

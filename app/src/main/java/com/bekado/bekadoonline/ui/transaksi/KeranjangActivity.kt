@@ -76,7 +76,7 @@ class KeranjangActivity : AppCompatActivity() {
             val intent = Intent(this, CheckOutActivity::class.java)
             intent.putExtra("selected_dataKeranjang", ArrayList(selectedKeranjang))
             startActivity(intent)
-        } else showToast("Pilih produk terlebih dahulu", this)
+        } else showToast(getString(R.string.pilih_produk_dulu), this)
     }
 
     private fun getDataKeranjang() {

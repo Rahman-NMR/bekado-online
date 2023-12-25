@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.LayoutKeranjangListBinding
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.HelperConnection
@@ -55,7 +56,7 @@ class AdapterKeranjang(
             with(binding) {
                 Glide.with(root.context).load(krjPrdk?.fotoProduk)
                     .apply(RequestOptions()).centerCrop()
-                    .into(gambarProduk)
+                    .placeholder(R.drawable.img_broken_image).into(gambarProduk)
                 namaProduk.text = krjPrdk?.namaProduk
                 hargaProduk.text = hargaProduks
                 hapusProduk.setOnClickListener { listnrDlte(krnjng) }

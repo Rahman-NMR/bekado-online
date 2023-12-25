@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.LayoutProdukGridBinding
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.model.ProdukModel
@@ -36,7 +37,7 @@ class AdapterProduk(
 
             Glide.with(binding.root.context).load(produk.fotoProduk)
                 .apply(RequestOptions()).centerCrop()
-                .into(binding.fotoProduk)
+                .placeholder(R.drawable.img_broken_image).into(binding.fotoProduk)
             binding.namaProduk.text = produk.namaProduk
             binding.hargaProduk.text = hargaProduk
 

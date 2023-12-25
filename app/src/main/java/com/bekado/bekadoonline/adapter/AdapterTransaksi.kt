@@ -88,8 +88,8 @@ class AdapterTransaksi(
                 binding.produkLainnya.text = produkLainnya
             } else binding.produkLainnya.visibility = View.GONE
             Glide.with(binding.root.context).load(transaksiModel.fotoProduk)
-                .apply(RequestOptions())
-                .centerCrop().into(binding.gambarProduk)
+                .apply(RequestOptions()).centerCrop()
+                .placeholder(R.drawable.img_broken_image).into(binding.gambarProduk)
 
             binding.ll.setOnClickListener { listenerTransaksi(transaksiModel) }
         }

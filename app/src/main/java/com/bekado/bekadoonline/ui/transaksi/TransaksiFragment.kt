@@ -157,7 +157,7 @@ class TransaksiFragment : Fragment() {
                 adapterTransaksi = AdapterTransaksi(dataTransaksi) { trx ->
                     val intent = Intent(context, DetailTransaksiActivity::class.java)
                         .putExtra("trx", trx).putExtra("isAdmin", isAdmin)
-                    startActivityForResult(intent, 884)
+                    startActivity(intent)
                 }
                 binding.rvDaftarTransaksi.adapter = adapterTransaksi
                 binding.transaksiKosong.visibility = if (adapterTransaksi.itemCount == 0) View.VISIBLE else View.GONE

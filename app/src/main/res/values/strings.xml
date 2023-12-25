@@ -25,6 +25,7 @@
     <string name="alamat_uncompleate">Alamat belum lengkap</string>
     <string name="pesanan_baru_berhasil">Pesanan baru berhasil dibuat</string>
     <string name="kategori_terhapus">Kategori telah dihapus</string>
+    <string name="pilih_produk_dulu">Pilih produk terlebih dahulu</string>
 
     <!--    button-->
     <string name="login">Login</string>

@@ -39,7 +39,7 @@ class ShowProdukBottomSheet(context: Context) {
         with(bindingPBS) {
             Glide.with(context).load(produk.fotoProduk)
                 .apply(RequestOptions()).centerCrop()
-                .into(fotoProduk)
+                .placeholder(R.drawable.img_broken_image).into(fotoProduk)
             namaProduk.text = produk.namaProduk
             hargaProduk.text = hargaProdukShows
         }

@@ -112,7 +112,7 @@ class AkunSayaActivity : AppCompatActivity() {
                     binding.emailView.text = data.email.toString()
                     if (!isDestroyed) Glide.with(this@AkunSayaActivity).load(data.fotoProfil)
                         .apply(RequestOptions()).centerCrop()
-                        .into(binding.fotoProfil)
+                        .placeholder(R.drawable.img_broken_image_circle).into(binding.fotoProfil)
 
                     binding.namaEdit.setText(data.nama.toString())
                     binding.nohpEdit.setText(data.noHp.toString())

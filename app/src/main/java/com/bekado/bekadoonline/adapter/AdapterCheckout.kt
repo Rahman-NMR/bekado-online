@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.RvCheckoutProdukListBinding
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.model.CombinedKeranjangModel
@@ -37,7 +38,7 @@ class AdapterCheckout(var checkoutModelList: ArrayList<CombinedKeranjangModel>) 
             with(binding){
                 Glide.with(root.context).load(checkoutPr.fotoProduk)
                     .apply(RequestOptions()).centerCrop()
-                    .into(gambarProduk)
+                    .placeholder(R.drawable.img_broken_image).into(gambarProduk)
                 namaProduk.text = checkoutPr.namaProduk
                 jumlahHargaProduk.text = hargaProduk
                 totalHarga.text = hargaTotal

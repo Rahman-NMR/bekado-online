@@ -92,7 +92,7 @@ class ProfilFragment : Fragment() {
                         if (isAdded) {
                             Glide.with(requireContext()).load(data.fotoProfil)
                                 .apply(RequestOptions()).centerCrop()
-                                .into(binding.fotoProfil)
+                                .placeholder(R.drawable.img_broken_image_circle).into(binding.fotoProfil)
                         }
                         val refAdmin = if (data.statusAdmin) "transaksi" else "transaksi/${currentUser.uid}"
                         transaksiRef = db.getReference(refAdmin)
