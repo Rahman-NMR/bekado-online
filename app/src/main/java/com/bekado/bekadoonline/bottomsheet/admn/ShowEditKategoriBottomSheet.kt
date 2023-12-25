@@ -26,13 +26,16 @@ class ShowEditKategoriBottomSheet(context: Context) {
         dialog.setContentView(bindingBS.root)
     }
 
-    fun showDialog(context: Context, namaKategori: String?, visibilitas: Boolean, ref: DatabaseReference) {
+    fun showDialog(context: Context, namaKategori: String?, visibilitas: Boolean, ref: DatabaseReference, jumlahProduk: Long) {
         with(bindingBS) {
+            val toastTxt = "${context.getString(R.string.produk)} ${context.getString(R.string.tidak_dapat_kosong)}"
+
             namaKategoriView.text = namaKategori
             namaKategoriEdit.setText(namaKategori)
             kategoriVisibilitas.isChecked = visibilitas
             kategoriVisibilitas.setOnCheckedChangeListener { _, checked ->
-                Handler().postDelayed({ setVisibility(context, ref, checked, namaKategori) }, 500)
+                if (jumlahProduk.toInt() > 0) Handler().postDelayed({ setVisibility(context, ref, checked, namaKategori) }, 500)
+                else showToast(toastTxt, context)
             }
 
             btnEditNamaKategori.setOnClickListener {

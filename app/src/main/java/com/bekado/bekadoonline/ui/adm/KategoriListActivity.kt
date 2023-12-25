@@ -85,7 +85,7 @@ class KategoriListActivity : AppCompatActivity() {
                         val jumlahProduk = data.child("idKategori").value.toString()
                         if (jumlahProduk == idKategori) jumlahProdukNya++
                     }
-                    val kategoriData = KategoriModel(idKategori, namaKategori, posisi, visibilitas, jumlahProdukNya.toString())
+                    val kategoriData = KategoriModel(idKategori, namaKategori, posisi, visibilitas, jumlahProdukNya.toLong())
                     dataKategori.add(kategoriData)
                     dataKategori.sortBy { it.posisi }
                     binding.lineDivider.visibility = if (dataKategori.isEmpty()) View.GONE else View.VISIBLE
@@ -97,7 +97,7 @@ class KategoriListActivity : AppCompatActivity() {
                 }, { kategori ->
                     val ref = kategoriRef.child("kategori/${kategori.idKategori}")
                     ShowEditKategoriBottomSheet(this@KategoriListActivity).showDialog(
-                        this@KategoriListActivity, kategori.namaKategori, kategori.visibilitas, ref
+                        this@KategoriListActivity, kategori.namaKategori, kategori.visibilitas, ref, kategori.jumlahProduk
                     )
                 })
                 val itemTouchHelperCallback = ItemMoveCallback(adapterKategoriList, binding)

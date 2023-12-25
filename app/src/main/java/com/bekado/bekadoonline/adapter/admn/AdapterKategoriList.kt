@@ -50,7 +50,7 @@ class AdapterKategoriList(
 
     class ViewHolder(val binding: LayoutKategoriListBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(kategori: KategoriModel, listenerKategori: (KategoriModel) -> Unit, listenerEdit: (KategoriModel) -> Unit, context: Context) {
-            val jumlahProduk = "${kategori.jumlahProduk}/100 ${context.getString(R.string.produk)}"
+            val jumlahProduk = "${kategori.jumlahProduk} ${context.getString(R.string.produk)}"
             binding.kategoriNama.text = kategori.namaKategori
             binding.kategoriJumlahProduknya.text = jumlahProduk
 

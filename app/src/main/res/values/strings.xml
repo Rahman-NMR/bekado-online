@@ -27,6 +27,8 @@
     <string name="kategori_terhapus">Kategori telah dihapus</string>
     <string name="pilih_produk_dulu">Pilih produk terlebih dahulu</string>
     <string name="syarat_checkout">Minimal pembelanjaan Rp50.000</string>
+    <string name="berhasil_ditambahkan">berhasil ditambahkan</string>
+    <string name="berhasil_diperbarui">berhasil diperbarui</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -52,9 +54,12 @@
     <string name="simpan_bukti_pembayaran">Simpan Bukti Pembayaran</string>
     <string name="perbarui_posisi">Perbarui Posisi</string>
     <string name="hapus_kategori">Hapus Kategori</string>
+    <string name="hapus_produk">Hapus Produk</string>
+    <string name="simpan_perubahan">Simpan Perubahan</string>
 
     <!--    fab-->
     <string name="tambah_produk">Tambah Produk</string>
+    <string name="edit_produk">Edit Produk</string>
 
     <!--    helper text-->
     <string name="email_invalid">Email tidak sesuai format</string>
@@ -128,8 +133,8 @@
     <string name="desc_transaksi_kosong">Anda masih belum melakukan transaksi.</string>
     <string name="msg_beranda_kosong">Produk masih kosong</string>
     <string name="desc_beranda_kosong">Kategori ini belum memiliki produk.</string>
-<!--    <string name="msg_cari_kosong">Tidak ada hasil</string>-->
-<!--    <string name="desc_cari_kosong">Tidak dapat menemukan produk yang dicari.</string>-->
+    <!--    <string name="msg_cari_kosong">Tidak ada hasil</string>-->
+    <!--    <string name="desc_cari_kosong">Tidak dapat menemukan produk yang dicari.</string>-->
 
     <string name="atau">Atau masuk dengan</string>
     <string name="email">Email</string>
@@ -176,4 +181,8 @@
     <string name="tampilkan_produk">Tampilkan Produk</string>
     <string name="tampilkan_kategori">Tampilkan kategori</string>
     <string name="masukkan_nama_kategori">Masukkan nama kategori</string>
+    <string name="harga_produk">Harga produk</string>
+    <string name="nama_produk">Nama produk</string>
+    <string name="pilih_kategori">Pilih kategori</string>
+    <string name="kategori">Kategori</string>
 </resources>

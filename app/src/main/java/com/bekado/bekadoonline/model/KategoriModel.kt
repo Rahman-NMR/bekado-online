@@ -8,14 +8,14 @@ data class KategoriModel(
     val namaKategori: String? = "",
     var posisi: Long = 0,
     val visibilitas: Boolean = false,
-    val jumlahProduk: String? = ""
+    val jumlahProduk: Long = 0
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
         parcel.readString(),
         parcel.readLong(),
         parcel.readByte() != 0.toByte(),
-        parcel.readString()
+        parcel.readLong()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -23,7 +23,7 @@ data class KategoriModel(
         parcel.writeString(namaKategori)
         parcel.writeLong(posisi)
         parcel.writeByte(if (visibilitas) 1 else 0)
-        parcel.writeString(jumlahProduk)
+        parcel.writeLong(jumlahProduk)
     }
 
     override fun describeContents(): Int {

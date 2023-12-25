@@ -1,5 +1,6 @@
 package com.bekado.bekadoonline.ui.adm
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
@@ -60,7 +61,11 @@ class ProdukListActivity : AppCompatActivity() {
             appBar.setNavigationOnClickListener { onBackPressed() }
             btnHapusKategori.setOnClickListener { showAlertDialog() }
             tvKategoriSekarang.text = kategoriData.namaKategori
-            fabTambahProduk.setOnClickListener { showToast("Sedang dalam perbaikan", this@ProdukListActivity) }
+            fabTambahProduk.setOnClickListener {
+                val ninten = Intent(this@ProdukListActivity, ProdukAddUpdateActivity::class.java)
+                    .putExtra("isEditProduk", false).putExtra("kategoriData", kategoriData)
+                startActivity(ninten)
+            }
         }
     }
 
@@ -102,17 +107,17 @@ class ProdukListActivity : AppCompatActivity() {
                     binding.rvDaftarProduk.visibility = View.VISIBLE
 
                     adapterProduk = AdapterProdukList(dataProduk, { produk ->
-                        showToast("${produk.namaProduk} sedang dalam perbaikan", this@ProdukListActivity)
+                        val ntent = Intent(this@ProdukListActivity, ProdukAddUpdateActivity::class.java)
+                            .putExtra("produkData", produk).putExtra("isEditProduk", true).putExtra("kategoriData", kategoriData)
+                        startActivity(ntent)
                     }, { produk, isChecked ->
                         Handler().postDelayed({ setVisibility(produk, isChecked) }, 500)
                     })
                     binding.rvDaftarProduk.adapter = adapterProduk
                 }
 
-                val totalProdukTxt = "$totalProduk/100"
+                val totalProdukTxt = "$totalProduk produk"
                 binding.tvLimitProduk.text = totalProdukTxt
-
-                binding.fabTambahProduk.isEnabled = totalProduk < 100
                 if (totalProduk == 0) kategoriRef.child("visibilitas").setValue(false)
 
                 binding.loadingProduk.visibility = View.GONE
