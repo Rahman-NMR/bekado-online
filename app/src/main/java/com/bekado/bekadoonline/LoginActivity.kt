@@ -60,6 +60,7 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }
+            btnLupaPassword.setOnClickListener { startActivity(Intent(this@LoginActivity, LupaPasswordActivity::class.java)) }
             googleAutoLogin.setOnClickListener {
                 if (HelperConnection.isConnected(this@LoginActivity)) startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
             }

@@ -119,6 +119,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/null_layout"
         android:layout_width="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:padding="16dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone">
@@ -166,6 +169,5 @@
             app:layout_constraintStart_toEndOf="@+id/btn_login"
             app:layout_constraintTop_toBottomOf="@id/txt_ajakan"
             app:strokeColor="?attr/colorPrimary" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

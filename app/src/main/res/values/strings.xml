@@ -29,6 +29,7 @@
     <string name="syarat_checkout">Minimal pembelanjaan Rp50.000</string>
     <string name="berhasil_ditambahkan">berhasil ditambahkan</string>
     <string name="berhasil_diperbarui">berhasil diperbarui</string>
+    <string name="tautan_reset_pw_sukses">Tautan reset password dikirim ke email Anda</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -56,6 +57,8 @@
     <string name="hapus_kategori">Hapus Kategori</string>
     <string name="hapus_produk">Hapus Produk</string>
     <string name="simpan_perubahan">Simpan Perubahan</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="reset">Reset</string>
 
     <!--    fab-->
     <string name="tambah_produk">Tambah Produk</string>
@@ -125,6 +128,7 @@
     <string name="hapus_produk_semua">Semua produk ini akan dihapus dari keranjang</string>
     <string name="msg_alamat">Perubahan alamat akan dibatalkan. Semua perubahan tidak akan disimpan</string>
     <string name="msg_konf_pesanan">Pesanan akan ditambahkan ke daftar transaksi.</string>
+    <string name="kirim_tautan_ke_email">Tautan akan di kirim ke email</string>
 
     <!--    empty condition-->
     <string name="msg_keranjang_kosong">Keranjang masih kosong</string>
@@ -185,4 +189,5 @@
     <string name="nama_produk">Nama produk</string>
     <string name="pilih_kategori">Pilih kategori</string>
     <string name="kategori">Kategori</string>
+    <string name="lupa_password_desc">Masukkan email yang terkait dengan akun Anda untuk mengubah kata sandinya.</string>
 </resources>

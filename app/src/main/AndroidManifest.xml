@@ -19,6 +19,9 @@
         android:theme="@style/Theme.BekadoOnline"
         tools:targetApi="31">
         <activity
+            android:name=".LupaPasswordActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.adm.ProdukAddUpdateActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
