@@ -95,6 +95,8 @@
     <string name="title_kategori_list">Kategori List</string>
     <string name="title_produk_list">Produk List</string>
     <string name="urutkan_berdasarkan">Urutkan Berdasarkan</string>
+    <string name="edit_kategori">Edit Kategori</string>
+    <string name="pilih_status_pesanan">Pilih Status Pesanan</string>
 
     <!--    sub title-->
     <string name="tidak_dapat_diproses">Tidak dapat diproses</string>

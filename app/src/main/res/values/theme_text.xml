@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    text akun saya-->
+    <style name="textView.akunSaya" parent="Theme.BekadoOnline">
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="android:textColor">?attr/colorSecondaryVariant</item>
+        <item name="drawableTint">?attr/colorSecondaryVariant</item>
+    </style>
+
+    <!--    textView sub title-->
+    <style name="textView.sub.title" parent="Theme.BekadoOnline">
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:textColor">@color/blue_grey_700</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!--    textView salin-->
+    <style name="textView.salin" parent="Theme.BekadoOnline">
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:background">@color/cardview_pressed</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:text">@string/salin</item>
+        <item name="android:textColor">?attr/colorSecondaryVariant</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="textView.status.pesanan.subtitle" parent="Theme.BekadoOnline">
+        <item name="android:background">@color/color_selected</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:paddingStart">32dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/grey_700</item>
+    </style>
+
+    <style name="textView.status.pesanan.title" parent="Theme.BekadoOnline">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?attr/colorSecondaryVariant</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

@@ -30,6 +30,7 @@ class ShowEditKategoriBottomSheet(context: Context) {
         with(bindingBS) {
             val toastTxt = "${context.getString(R.string.produk)} ${context.getString(R.string.tidak_dapat_kosong)}"
 
+            title.text = context.getString(R.string.edit_kategori)
             namaKategoriView.text = namaKategori
             namaKategoriEdit.setText(namaKategori)
             kategoriVisibilitas.isChecked = visibilitas

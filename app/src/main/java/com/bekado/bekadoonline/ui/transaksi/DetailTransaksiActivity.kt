@@ -4,10 +4,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterCheckout
+import com.bekado.bekadoonline.bottomsheet.admn.BottomSheetStatusPesanan
 import com.bekado.bekadoonline.databinding.ActivityDetailTransaksiBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.model.AlamatModel
@@ -38,16 +40,25 @@ class DetailTransaksiActivity : AppCompatActivity() {
     private var latitude: String = ""
     private var longitude: String = ""
     private var statusAdmin: Boolean = false
+    private var onStartViewActive: String? = ""
+    private var keyRefresh: String = ""
 
     private lateinit var transaksi: TransaksiModel
     private var isAdmin: Boolean = false
     private var showAllItem = false
+
+    private val onBackInvokedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            onBekPressed()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailTransaksiBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        onBackPressedDispatcher.addCallback(this@DetailTransaksiActivity, onBackInvokedCallback)
         supportActionBar?.hide()
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
@@ -55,6 +66,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
 
         transaksi = intent.getParcelableExtra("trx") ?: TransaksiModel()
         isAdmin = intent.getBooleanExtra("isAdmin", false)
+        onStartViewActive = transaksi.statusPesanan
 
         val uidNow = auth.currentUser?.uid
         val timeBuy = "${convertTstmp(transaksi.timestamp!!.toLong())} WIB"
@@ -63,11 +75,31 @@ class DetailTransaksiActivity : AppCompatActivity() {
         dataTransaksi(uidNow, transaksi.idTransaksi)
 
         with(binding) {
-            appBar.setNavigationOnClickListener { onBackPressed() }
+            appBar.setNavigationOnClickListener { onBekPressed() }
 
             status.text = transaksi.statusPesanan
             noPesanan.text = transaksi.noPesanan
             waktuPembelian.text = timeBuy
+            if (isAdmin) tvStatusPesanan.text = transaksi.statusPesanan
+            containerChangeStatus.visibility = if (isAdmin) View.VISIBLE else View.GONE
+            btnUbahStatus.isEnabled = !(tvStatusPesanan.text == getString(R.string.status_selesai)
+                    || tvStatusPesanan.text == getString(R.string.status_dibatalkan))
+        }
+    }
+
+    private fun setStatusPesanan(path: String) {
+        binding.btnUbahStatus.setOnClickListener {
+            val bsStatusPsnn = BottomSheetStatusPesanan(this)
+            bsStatusPsnn.showDialog(this, trxRef.child(path), onStartViewActive)
+
+            bsStatusPsnn.dialog.setOnCancelListener {
+                if (bsStatusPsnn.selectedStatus.isNotEmpty() && bsStatusPsnn.selectedParent.isNotEmpty() && bsStatusPsnn.selected) {
+                    onStartViewActive = bsStatusPsnn.selectedStatus
+                    binding.status.text = bsStatusPsnn.selectedStatus
+                    binding.tvStatusPesanan.text = bsStatusPsnn.selectedStatus
+                    keyRefresh = "refresh_data"
+                }
+            }
         }
     }
 
@@ -75,7 +107,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
         if (!isAdmin) {
             val refTrxUser = trxRef.child("$uidNow/$idTransaksi")
             refTrxUser.get().addOnSuccessListener { snapshot ->
-                setDataView(snapshot, "$uidNow/$idTransaksi")
+                setDataDetailTrxView(snapshot, "$uidNow/$idTransaksi")
                 alamatPenerima(snapshot)
             }
         } else {
@@ -84,9 +116,10 @@ class DetailTransaksiActivity : AppCompatActivity() {
                 for (item in data.children) {
                     val snapshot = item.child("$idTransaksi")
                     if (snapshot.exists()) {
-                        setDataView(snapshot, "${item.key}/$idTransaksi")
+                        setDataDetailTrxView(snapshot, "${item.key}/$idTransaksi")
                         alamatPenerima(snapshot)
-                        getProfilData("${item.key}")
+                        getProfilData("${item.key}") //item.key == uid pemilik transaksi tersebut
+                        setStatusPesanan("${item.key}/$idTransaksi")
                     }
                 }
             }
@@ -106,7 +139,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
         }
     }
 
-    private fun setDataView(snapshot: DataSnapshot, uidnIdtrx: String) {
+    private fun setDataDetailTrxView(snapshot: DataSnapshot, uidnIdtrx: String) {
         val rp = snapshot.child("currency").value as String
         val totalItem = snapshot.child("totalItem").value as Long
         val ttlHarga = snapshot.child("totalHarga").value as Long
@@ -233,5 +266,14 @@ class DetailTransaksiActivity : AppCompatActivity() {
         Calendar.getInstance().timeInMillis = trxTimestamp
 
         return sdfTanggal.format(Date(trxTimestamp))
+    }
+
+    private fun onBekPressed() {
+        val resultIntent = Intent().apply {
+            putExtra("result_action", keyRefresh)
+            putExtra("trxUpdate", transaksi.noPesanan)
+        }
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 }

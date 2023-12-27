@@ -1,10 +1,13 @@
 package com.bekado.bekadoonline.ui.transaksi
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,14 +18,16 @@ import com.bekado.bekadoonline.RegisterActivity
 import com.bekado.bekadoonline.adapter.AdapterTransaksi
 import com.bekado.bekadoonline.databinding.FragmentTransaksiBinding
 import com.bekado.bekadoonline.helper.GridSpacingItemDecoration
+import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.model.AkunModel
-import com.bekado.bekadoonline.shimmer.ShimmerModel
 import com.bekado.bekadoonline.model.TransaksiModel
+import com.bekado.bekadoonline.shimmer.ShimmerModel
 import com.example.testnew.utils.HelperTransaksi.getData
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -43,6 +48,19 @@ class TransaksiFragment : Fragment() {
     private lateinit var akunRef: DatabaseReference
     private lateinit var transaksiRef: DatabaseReference
     private lateinit var transaksiListener: ValueEventListener
+
+    private val detailTransaksiLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val action = result.data?.getStringExtra("result_action")
+                val string = result.data?.getStringExtra("trxUpdate")
+                if (action == "refresh_data") {
+                    getRealtimeDataAkun(auth.currentUser)
+                    val snackbar = Snackbar.make(binding.root, "Status $string diperbarui", Snackbar.LENGTH_LONG)
+                    snackbar.setAction("Salin") { Helper.salinPesan(requireContext(), string.toString()) }.show()
+                }
+            }
+        }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTransaksiBinding.inflate(inflater, container, false)
@@ -157,7 +175,7 @@ class TransaksiFragment : Fragment() {
                 adapterTransaksi = AdapterTransaksi(dataTransaksi) { trx ->
                     val intent = Intent(context, DetailTransaksiActivity::class.java)
                         .putExtra("trx", trx).putExtra("isAdmin", isAdmin)
-                    startActivity(intent)
+                    detailTransaksiLauncher.launch(intent)
                 }
                 binding.rvDaftarTransaksi.adapter = adapterTransaksi
                 binding.transaksiKosong.visibility = if (adapterTransaksi.itemCount == 0) View.VISIBLE else View.GONE
