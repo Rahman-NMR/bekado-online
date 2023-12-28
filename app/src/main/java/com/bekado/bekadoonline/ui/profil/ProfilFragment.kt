@@ -11,6 +11,7 @@ import com.bekado.bekadoonline.LoginActivity
 import com.bekado.bekadoonline.MainActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.RegisterActivity
+import com.bekado.bekadoonline.UbahPasswordActivity
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.HelperAuth
@@ -72,7 +73,7 @@ class ProfilFragment : Fragment() {
 
             btnAkunSaya.setOnClickListener { startActivity(Intent(context, AkunSayaActivity::class.java)) }
             btnDetailAlamat.setOnClickListener { startActivity(Intent(context, AlamatActivity::class.java)) }
-            btnUbahPassword.setOnClickListener { Toast.makeText(requireContext(), getString(R.string.ubah_password), Toast.LENGTH_SHORT).show() }
+            btnUbahPassword.setOnClickListener { startActivity(Intent(context, UbahPasswordActivity::class.java)) }
             btnTentangKami.setOnClickListener { Toast.makeText(requireContext(), getString(R.string.tentang_kami), Toast.LENGTH_SHORT).show() }
             btnLogout.setOnClickListener { showAlertDialog() }
         }

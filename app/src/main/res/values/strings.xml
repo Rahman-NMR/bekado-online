@@ -16,6 +16,7 @@
     <!--    toast-->
     <string name="no_internet_connection">Tidak ada koneksi internet</string>
     <string name="email_pass_salah">Email atau Password salah</string>
+    <string name="pass_salah">Password salah</string>
     <string name="gagal_daftar_akun">Gagal mendaftarkan akun</string>
     <string name="berhasil_diupload">berhasil diupload</string>
     <string name="berhasil_mengubah">berhasil diubah</string>
@@ -194,4 +195,6 @@
     <string name="pilih_kategori">Pilih kategori</string>
     <string name="kategori">Kategori</string>
     <string name="lupa_password_desc">Masukkan email yang terkait dengan akun Anda untuk mengubah kata sandinya.</string>
+    <string name="password_baru">Password baru</string>
+    <string name="password_sekarang">Password sekarang</string>
 </resources>
