@@ -196,6 +196,7 @@ class ProfilFragment : Fragment() {
             requireContext(),
             requireContext().getColor(R.color.error)
         ) {
+            transaksiRef = db.getReference("transaksi")
             auth.signOut()
             googleSignInClient.signOut()
             startActivity(Intent(context, MainActivity::class.java))

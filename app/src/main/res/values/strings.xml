@@ -31,6 +31,7 @@
     <string name="berhasil_ditambahkan">berhasil ditambahkan</string>
     <string name="berhasil_diperbarui">berhasil diperbarui</string>
     <string name="tautan_reset_pw_sukses">Tautan reset password dikirim ke email Anda</string>
+    <string name="masalah_database">Terjadi masalah pada database</string>
 
     <!--    button-->
     <string name="login">Login</string>

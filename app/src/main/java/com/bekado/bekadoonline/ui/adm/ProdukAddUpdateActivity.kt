@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.ArrayAdapter
@@ -25,6 +24,7 @@ import com.bekado.bekadoonline.model.KategoriModel
 import com.bekado.bekadoonline.model.ProdukModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -86,7 +86,7 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
 
             appBar.title = if (isEdit) getString(R.string.edit_produk) else getString(R.string.tambah_produk)
             appBar.menu.findItem(R.id.menu_hapus).isVisible = isEdit
-            appBar.setNavigationOnClickListener { onBackPressed() }
+            appBar.setNavigationOnClickListener { finish() }
             appBar.setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.menu_hapus -> showAlertDialog()
@@ -147,8 +147,11 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
     }
 
     private fun pilihGambarIntent() {
-        val pickImageIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        pickImageLauncher.launch(pickImageIntent)
+        ImagePicker.with(this).galleryOnly().compress(2048)
+            .cropSquare().maxResultSize(1080, 1080)
+            .createIntent { intent ->
+                pickImageLauncher.launch(intent)
+            }
     }
 
     private fun setImage(selectedImageUri: Uri) {
@@ -179,7 +182,7 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
             storageReference.downloadUrl.addOnCompleteListener { task ->
                 produkRef.child("$produkId/fotoProduk").setValue(task.result.toString())
             }
-        }
+        }.addOnFailureListener { showToast(getString(R.string.masalah_database), this@ProdukAddUpdateActivity) }
     }
 
     private fun ActivityProdukAddUpdateBinding.validateNull(isEdit: Boolean) {
@@ -208,7 +211,7 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
 
         val ref = produkRef.child(produkId.toString())
         val reference = if (isEdit) ref.updateChildren(produkHash) else ref.setValue(produkHash)
-        val toastTxt = if (isEdit) getString(R.string.berhasil_ditambahkan) else getString(R.string.berhasil_diperbarui)
+        val toastTxt = if (isEdit) getString(R.string.berhasil_diperbarui) else getString(R.string.berhasil_ditambahkan)
         reference.addOnSuccessListener {
             showToast("$namaProduk $toastTxt", this)
             finish()
@@ -280,7 +283,7 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
     private fun showAlertDialog() {
         showAlertDialog(
             "Hapus ${produkData.namaProduk}?",
-            "Produk ${produkData.namaProduk} akan dihapus secara permanen.",
+            "${produkData.namaProduk} akan dihapus secara permanen.",
             getString(R.string.hapus_produk),
             this@ProdukAddUpdateActivity,
             getColor(R.color.error)

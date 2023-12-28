@@ -1,12 +1,16 @@
 package com.bekado.bekadoonline.ui.profil
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityAkunSayaBinding
@@ -15,6 +19,7 @@ import com.bekado.bekadoonline.helper.HelperConnection.isConnected
 import com.bekado.bekadoonline.model.AkunModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -23,16 +28,21 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
 
 class AkunSayaActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAkunSayaBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
+    private lateinit var storage: FirebaseStorage
 
     private lateinit var akunRef: DatabaseReference
     private lateinit var akunListener: ValueEventListener
     private lateinit var alamatRef: DatabaseReference
     private lateinit var alamatListener: ValueEventListener
+
+    private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
+    private var imageUri: Uri = Uri.parse("")
 
     private var namaUser: String = ""
     private var nohpUser: String = ""
@@ -46,15 +56,27 @@ class AkunSayaActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
+        storage = FirebaseStorage.getInstance()
         val currentUser = auth.currentUser
         akunRef = db.getReference("akun/${currentUser?.uid}")
         alamatRef = db.getReference("alamat/${currentUser?.uid}")
+        pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                val selectedImageUri: Uri? = data?.data
+                if (selectedImageUri != null) {
+                    imageUri = selectedImageUri
+                    uploadImgtoDb(selectedImageUri, currentUser?.uid)
+                }
+            } else if (result.resultCode == ImagePicker.RESULT_ERROR) showToast(ImagePicker.getError(result.data), this)
+            else showToast("Task Cancelled", this)
+        }
 
         getRealtimeDataAkun(currentUser)
 
         with(binding) {
-            appBar.setNavigationOnClickListener { onBackPressed() }
-            btnEditFoto.setOnClickListener { showToast("Sedang dalam perbaikan", this@AkunSayaActivity) }
+            appBar.setNavigationOnClickListener { finish() }
+            btnEditFoto.setOnClickListener { pickImage() }
             btnEditAlamat.setOnClickListener { startActivity(Intent(this@AkunSayaActivity, AlamatActivity::class.java)) }
 
             btnEditNama.setOnClickListener {
@@ -95,6 +117,27 @@ class AkunSayaActivity : AppCompatActivity() {
                 } else false
             }
         }
+    }
+
+    private fun pickImage() {
+        ImagePicker.with(this).galleryOnly().compress(1024)
+            .cropSquare().maxResultSize(1080, 1080)
+            .createIntent { intent ->
+                pickImageLauncher.launch(intent)
+            }
+    }
+
+    private fun uploadImgtoDb(selectedImageUri: Uri, uid: String?) {
+        val storageReference = storage.getReference("akun/$uid/$uid.png")
+
+        storageReference.putFile(selectedImageUri).addOnSuccessListener {
+            storageReference.downloadUrl.addOnCompleteListener { task ->
+                val imgLink = task.result.toString()
+                akunRef.child("fotoProfil").setValue(imgLink).addOnSuccessListener {
+                    showToast("Foto profil ${getString(R.string.berhasil_diperbarui)}", this@AkunSayaActivity)
+                }
+            }
+        }.addOnFailureListener { showToast(getString(R.string.masalah_database), this@AkunSayaActivity) }
     }
 
     private fun getRealtimeDataAkun(currentUser: FirebaseUser?) {
