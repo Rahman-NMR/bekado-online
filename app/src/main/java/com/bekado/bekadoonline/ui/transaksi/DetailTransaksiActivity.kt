@@ -165,8 +165,9 @@ class DetailTransaksiActivity : AppCompatActivity() {
                 rlLihatPembayaran.visibility = View.VISIBLE
                 lihatPembayaran.setOnClickListener {
                     val tent = Intent(this@DetailTransaksiActivity, PembayaranActivity::class.java)
-                    tent.putExtra("statusAdmin", statusAdmin)
-                    tent.putExtra("pathTrx", uidnIdtrx)
+                        .putExtra("statusAdmin", statusAdmin)
+                        .putExtra("pathTrx", uidnIdtrx)
+                        .putExtra("statusPesanan", transaksi.statusPesanan)
                     startActivity(tent)
                 }
             }

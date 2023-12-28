@@ -58,7 +58,7 @@ class ProdukListActivity : AppCompatActivity() {
             rvDaftarProduk.layoutManager = LinearLayoutManager(this@ProdukListActivity, LinearLayoutManager.VERTICAL, false)
             rvDaftarProduk.addItemDecoration(GridSpacingItemDecoration(1, padding, false))
 
-            appBar.setNavigationOnClickListener { onBackPressed() }
+            appBar.setNavigationOnClickListener { finish() }
             btnHapusKategori.setOnClickListener { showAlertDialog() }
             tvKategoriSekarang.text = kategoriData.namaKategori
             fabTambahProduk.setOnClickListener {
@@ -145,7 +145,7 @@ class ProdukListActivity : AppCompatActivity() {
     private fun showAlertDialog() {
         Helper.showAlertDialog(
             "Hapus Kategori ${kategoriData.namaKategori}?",
-            "Kategori ${kategoriData.namaKategori} akan dihapus secara permanen bersama dengan daftar produk didalamnya",
+            "Kategori ${kategoriData.namaKategori} akan dihapus secara permanen bersama dengan daftar produk didalamnya.",
             getString(R.string.hapus_kategori),
             this,
             getColor(R.color.error)

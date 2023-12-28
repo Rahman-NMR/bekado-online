@@ -37,6 +37,7 @@ class PembayaranActivity : AppCompatActivity() {
     private lateinit var trxRef: DatabaseReference
     private var isAdmin: Boolean = false
     private lateinit var uidnIdtrx: String
+    private lateinit var statusPesanan: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +61,7 @@ class PembayaranActivity : AppCompatActivity() {
 
         isAdmin = intent.getBooleanExtra("statusAdmin", false)
         uidnIdtrx = intent.getStringExtra("pathTrx") ?: ""
+        statusPesanan = intent.getStringExtra("statusPesanan") ?: ""
         if (uidnIdtrx.isNotEmpty()) trxRef = db.getReference("transaksi/$uidnIdtrx")
 
         getDataBuktiTrx()
@@ -68,17 +70,30 @@ class PembayaranActivity : AppCompatActivity() {
         val txtBuktiTrx = if (isAdmin) getString(R.string.belum_upload_bukti) else getString(R.string.tambah_bukti_pembayaran)
 
         with(binding) {
-            appBar.setNavigationOnClickListener { onBackPressed() }
+            appBar.setNavigationOnClickListener { finish() }
 
             salinNoRek.setOnClickListener { Helper.salinPesan(this@PembayaranActivity, noRek.text) }
             salinNominalTf.setOnClickListener { Helper.salinPesan(this@PembayaranActivity, nominalTf.text) }
 
-            btnUbahImageBukti.visibility = if (!isAdmin) View.VISIBLE else View.GONE
             tvBuktiPmbyrn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, drawableTop, 0, 0)
             tvBuktiPmbyrn.text = txtBuktiTrx
-            btnSimpanBuktPmbyrn.setOnClickListener { uploadImage() }
+            btnUbahImageBukti.visibility = if (!isAdmin) View.VISIBLE else View.GONE
             btnUbahImageBukti.setOnClickListener { pilihGambarIntent() }
+            btnSimpanBuktPmbyrn.setOnClickListener { uploadImage() }
+            btnSimpanBuktPmbyrn.isEnabled = imageUri != Uri.parse("")
             if (!isAdmin) binding.tvBuktiPmbyrn.setOnClickListener { pilihGambarIntent() }
+
+            val status = listOf(
+                getString(R.string.status_dalam_pengiriman),
+                getString(R.string.status_dalam_proses),
+                getString(R.string.status_dibatalkan),
+                getString(R.string.status_dibatalkan)
+            )
+
+            if (status.any { statusPesanan.contains(it) }) {
+                btnUbahImageBukti.visibility = View.GONE
+                btnSimpanBuktPmbyrn.visibility = View.GONE
+            }
         }
     }
 
@@ -146,6 +161,7 @@ class PembayaranActivity : AppCompatActivity() {
         binding.clImgBktiExist.visibility = View.VISIBLE
         binding.tvBuktiPmbyrn.visibility = View.GONE
         binding.btnSimpanBuktPmbyrn.visibility = View.VISIBLE
+        binding.btnSimpanBuktPmbyrn.isEnabled = true
     }
 
     private fun uploadImage() {
@@ -155,9 +171,11 @@ class PembayaranActivity : AppCompatActivity() {
             storageReference.downloadUrl.addOnCompleteListener { task ->
                 val imgLink = task.result.toString()
                 trxRef.child("buktiTransaksi/buktiTransaksi").setValue(imgLink).addOnSuccessListener {
-                    showToast("upload rtdb ok", this@PembayaranActivity)
-                }.addOnFailureListener { showToast("upload rtdb fail", this@PembayaranActivity) }
-            }.addOnFailureListener { showToast("upload downloadUrl fail", this@PembayaranActivity) }
-        }.addOnFailureListener { showToast("upload putFile fail", this@PembayaranActivity) }
+                    binding.btnSimpanBuktPmbyrn.isEnabled = false
+                    showToast("${getString(R.string.bukti_pembayaran)} ${getString(R.string.berhasil_diupload)}", this@PembayaranActivity)
+                }
+                trxRef.child("statusPesanan").setValue(getString(R.string.status_menunggu_konfirmasi))
+            }
+        }.addOnFailureListener { showToast(getString(R.string.masalah_database), this@PembayaranActivity) }
     }
 }

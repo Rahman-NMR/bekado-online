@@ -66,7 +66,7 @@ class CheckOutActivity : AppCompatActivity() {
         getAlamatPenerima()
 
         with(binding) {
-            appBar.setNavigationOnClickListener { onBackPressed() }
+            appBar.setNavigationOnClickListener { finish() }
             btnUbahAlamat.setOnClickListener { startActivity(Intent(this@CheckOutActivity, AlamatActivity::class.java)) }
             toggleButton.addOnButtonCheckedListener { _, checkedId, isChecked ->
                 if (isChecked)
@@ -236,8 +236,9 @@ class CheckOutActivity : AppCompatActivity() {
 
                     if (metodePembayaran == getString(R.string.transfer)) {
                         val flag = Intent(this, PembayaranActivity::class.java)
-                        flag.putExtra("statusAdmin", false)
-                        flag.putExtra("pathTrx", "$uidNow/$idTransaksi")
+                            .putExtra("statusAdmin", false)
+                            .putExtra("pathTrx", "$uidNow/$idTransaksi")
+                            .putExtra("statusPesanan", getString(R.string.status_menunggu_pembayaran))
                         flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
 
                         startActivity(flag)

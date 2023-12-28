@@ -17,6 +17,7 @@
     <string name="no_internet_connection">Tidak ada koneksi internet</string>
     <string name="email_pass_salah">Email atau Password salah</string>
     <string name="gagal_daftar_akun">Gagal mendaftarkan akun</string>
+    <string name="berhasil_diupload">berhasil diupload</string>
     <string name="berhasil_mengubah">berhasil diubah</string>
     <string name="gagal_mengubah">tidak berhasil diubah</string>
     <string name="tidak_dapat_kosong">tidak dapat kosong</string>
