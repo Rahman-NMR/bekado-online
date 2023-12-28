@@ -1,4 +1,4 @@
-package com.example.testnew.utils
+package com.bekado.bekadoonline.helper
 
 import com.bekado.bekadoonline.model.TransaksiModel
 import com.google.firebase.database.DataSnapshot
@@ -6,14 +6,15 @@ import com.google.firebase.database.DataSnapshot
 object HelperTransaksi {
     const val semua = 0
     const val nungguBayar = 11
-    const val ngantri = 22
+    const val nungguKonfirm = 22
     const val ngeproses = 33
     const val ngirim = 44
     const val selese = 55
+    const val dibatalin = 66
 
     const val day7 = 77
-    const val day30 = 300
-    const val day90 = 900
+    const val day30 = 3030
+    const val day90 = 9090
 
     fun getData(item: DataSnapshot, dataTransaksi: ArrayList<TransaksiModel>) {
         val idTrx = item.child("idTransaksi").value.toString()

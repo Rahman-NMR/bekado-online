@@ -21,7 +21,7 @@ class AdapterButton(private var buttonList: ArrayList<ButtonModel>, val onClick:
     override fun onBindViewHolder(holder: ButtonViewHolder, position: Int) {
         val button = buttonList[position]
         holder.buttonText.text = button.namaKategori
-        holder.itemView.isActivated = button.isActive
+        holder.buttonText.isActivated = button.isActive
     }
 
     override fun getItemCount(): Int = buttonList.size
@@ -30,7 +30,7 @@ class AdapterButton(private var buttonList: ArrayList<ButtonModel>, val onClick:
         val buttonText = binding.tombolActivated
 
         init {
-            binding.root.setOnClickListener {
+            buttonText.setOnClickListener {
                 val button = buttonList[adapterPosition]
                 if (!button.isActive) {
                     for (i in buttonList.indices) {

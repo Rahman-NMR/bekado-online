@@ -2,6 +2,14 @@
     <string name="app_name">Bekado Online</string>
     <string name="administrator">Administrator</string>
 
+    <!--    key filter-->
+    <string name="k2semua">Semua</string>
+
+    <string name="k2semua_tgltrx">Semua Tanggal Transaksi</string>
+    <string name="k2seminggu_lalu">Seminggu Terakhir</string>
+    <string name="k230hari">30 Hari Terakhir</string>
+    <string name="k290hari">90 Hari Terakhir</string>
+
     <!--    child db-->
     <string name="key_antrian">antrian</string>
     <string name="status_menunggu_pembayaran">Menunggu Pembayaran</string>
@@ -33,6 +41,7 @@
     <string name="berhasil_diperbarui">berhasil diperbarui</string>
     <string name="tautan_reset_pw_sukses">Tautan reset password dikirim ke email Anda</string>
     <string name="masalah_database">Terjadi masalah pada database</string>
+    <string name="status_pesanan_belom_pilih">Status pesanan belum dipilih</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -100,6 +109,8 @@
     <string name="urutkan_berdasarkan">Urutkan Berdasarkan</string>
     <string name="edit_kategori">Edit Kategori</string>
     <string name="pilih_status_pesanan">Pilih Status Pesanan</string>
+    <string name="status_pesanan">Status Pesanan</string>
+    <string name="pilih_tanggal">Pilih Tanggal</string>
 
     <!--    sub title-->
     <string name="tidak_dapat_diproses">Tidak dapat diproses</string>
@@ -197,4 +208,5 @@
     <string name="lupa_password_desc">Masukkan email yang terkait dengan akun Anda untuk mengubah kata sandinya.</string>
     <string name="password_baru">Password baru</string>
     <string name="password_sekarang">Password sekarang</string>
+    <string name="semua_tanggal">Semua Tanggal</string>
 </resources>

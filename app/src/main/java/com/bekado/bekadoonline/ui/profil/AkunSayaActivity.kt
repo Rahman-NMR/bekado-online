@@ -69,7 +69,6 @@ class AkunSayaActivity : AppCompatActivity() {
                     uploadImgtoDb(selectedImageUri, currentUser?.uid)
                 }
             } else if (result.resultCode == ImagePicker.RESULT_ERROR) showToast(ImagePicker.getError(result.data), this)
-            else showToast("Task Cancelled", this)
         }
 
         getRealtimeDataAkun(currentUser)

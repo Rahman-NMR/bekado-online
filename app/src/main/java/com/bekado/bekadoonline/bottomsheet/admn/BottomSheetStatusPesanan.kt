@@ -66,7 +66,7 @@ class BottomSheetStatusPesanan(context: Context) {
                                 dialog.cancel()
                             }
                         }
-                    else showToast("Status pesanan belum dipilih", context)
+                    else showToast(context.getString(R.string.status_pesanan_belom_pilih), context)
                 }
             }
         }

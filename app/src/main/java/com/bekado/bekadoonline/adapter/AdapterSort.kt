@@ -27,6 +27,7 @@ class AdapterSort(
         val sortItem = sortList[position]
         holder.bind(sortItem, listenerSort)
 
+        holder.binding.root.isActivated = sortItem.dipilih
         if (sortItem.dipilih) {
             holder.binding.root.setCompoundDrawablesRelativeWithIntrinsicBounds(
                 0, 0, R.drawable.icon_baseline_radio_button_checked_24, 0

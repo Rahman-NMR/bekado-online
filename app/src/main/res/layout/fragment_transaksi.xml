@@ -37,6 +37,62 @@
                 app:queryBackground="@null"
                 app:queryHint="Cari Transaksi" />
         </androidx.appcompat.widget.Toolbar>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingHorizontal="8dp"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_grup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:duplicateParentState="false"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="99dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp">
+
+                    <TextView
+                        android:id="@+id/filter_status_pesanan"
+                        style="@style/BtnLikeAChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/status_pesanan"
+                        app:drawableEndCompat="@drawable/icon_round_expand_more_24"
+                        app:drawableTint="@color/grey_700" />
+                </androidx.cardview.widget.CardView>
+
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="99dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp">
+
+                    <TextView
+                        android:id="@+id/filter_by_time"
+                        style="@style/BtnLikeAChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/semua_tanggal"
+                        app:drawableEndCompat="@drawable/icon_round_expand_more_24"
+                        app:drawableTint="@color/grey_700" />
+                </androidx.cardview.widget.CardView>
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
@@ -119,11 +175,11 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/null_layout"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:padding="16dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:visibility="gone">
 
         <TextView

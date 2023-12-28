@@ -9,54 +9,51 @@ import com.bekado.bekadoonline.adapter.AdapterSort
 import com.bekado.bekadoonline.databinding.BottomsheetSelectedTextBinding
 import com.bekado.bekadoonline.helper.DividerItemDecoration
 import com.bekado.bekadoonline.model.SortModel
-import com.bekado.bekadoonline.helper.HelperSort.sortNameAsc
-import com.bekado.bekadoonline.helper.HelperSort.sortNameDesc
-import com.bekado.bekadoonline.helper.HelperSort.sortPriceAsc
-import com.bekado.bekadoonline.helper.HelperSort.sortPriceDesc
-import com.bekado.bekadoonline.helper.HelperSort.sortRelevance
+import com.bekado.bekadoonline.helper.HelperTransaksi
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
-class SortProdukBottomSheet(context: Context) {
+class FilterDateBottomSheet(context: Context) {
     private var bindingBS: BottomsheetSelectedTextBinding
     var dialog: BottomSheetDialog
-    private var dataSort: ArrayList<SortModel>
+    private var dataDate: ArrayList<SortModel>
     private lateinit var adapterSort: AdapterSort
     var sortFilter: Int = 0
+    lateinit var filteredName: String
 
     init {
         bindingBS = BottomsheetSelectedTextBinding.inflate(LayoutInflater.from(context))
-        dataSort = ArrayList()
+        dataDate = ArrayList()
         dialog = BottomSheetDialog(context, R.style.AppBottomSheetDialogTheme)
         dialog.setContentView(bindingBS.root)
     }
 
-    fun showDialog(context: Context, idSortFilter: Int) {
+    fun showDialog(context: Context, idSortFilter: Int, filtered: String) {
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         val paddingHorizontal = context.resources.getDimensionPixelSize(R.dimen.normaldp)
         with(bindingBS) {
-            title.text = context.getString(R.string.urutkan_berdasarkan)
+            title.text = context.getString(R.string.pilih_tanggal)
             recyclerView.layoutManager = layoutManager
             recyclerView.addItemDecoration(DividerItemDecoration(context, R.drawable.divider, paddingHorizontal))
             loadingIndicator.visibility = View.GONE
         }
 
-        dataSort.add(SortModel(context.getString(R.string.rekomendasi), sortRelevance, true))
-        dataSort.add(SortModel(context.getString(R.string.sortir_a_z), sortNameAsc, false))
-        dataSort.add(SortModel(context.getString(R.string.sortir_z_a), sortNameDesc, false))
-        dataSort.add(SortModel(context.getString(R.string.harga_tertinggi), sortPriceDesc, false))
-        dataSort.add(SortModel(context.getString(R.string.harga_terendah), sortPriceAsc, false))
+        dataDate.add(SortModel(context.getString(R.string.k2semua_tgltrx), HelperTransaksi.semua, true))
+        dataDate.add(SortModel(context.getString(R.string.k2seminggu_lalu), HelperTransaksi.day7, false))
+        dataDate.add(SortModel(context.getString(R.string.k230hari), HelperTransaksi.day30, false))
+        dataDate.add(SortModel(context.getString(R.string.k290hari), HelperTransaksi.day90, false))
 
-        dataSort = dataSort.map { nilai ->
+        dataDate = dataDate.map { nilai ->
             nilai.dipilih = nilai.id == idSortFilter
             nilai
         } as ArrayList<SortModel>
 
-        adapterSort = AdapterSort(dataSort) { sortModel ->
-            for (nilai in dataSort) {
+        adapterSort = AdapterSort(dataDate) { sortModel ->
+            for (nilai in dataDate) {
                 nilai.dipilih = sortModel.dipilih
             }
 
             this.sortFilter = sortModel.id!!
+            this.filteredName = sortModel.nama!!
             sortModel.dipilih = true
 
             adapterSort.notifyDataSetChanged()
@@ -64,7 +61,10 @@ class SortProdukBottomSheet(context: Context) {
         }
         bindingBS.recyclerView.adapter = adapterSort
 
-        dialog.setOnShowListener { this.sortFilter = idSortFilter }
+        dialog.setOnShowListener {
+            this.sortFilter = idSortFilter
+            this.filteredName = filtered
+        }
         dialog.show()
     }
 }

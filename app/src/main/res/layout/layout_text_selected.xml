@@ -5,8 +5,7 @@
     android:layout_height="wrap_content"
     android:background="@color/cardview_pressed"
     android:gravity="center_vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="8dp"
+    android:padding="16dp"
     android:textColor="@color/grey_700"
     android:textSize="16sp"
-    app:drawableTint="?attr/colorPrimary" />
+    app:drawableTint="@color/drawable_tint_isactive" />
