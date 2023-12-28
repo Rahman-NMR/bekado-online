@@ -1,7 +1,9 @@
 package com.bekado.bekadoonline.helper
 
 import android.content.Context
+import android.view.MenuItem
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.helper.Helper.showToast
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.database.FirebaseDatabase
 
@@ -22,5 +24,11 @@ object HelperAuth {
         user["betaTester"] = false
         user["uid"] = uidAkun
         userRef.setValue(user)
+    }
+
+    fun adminKeranjangState(context: Context, item: MenuItem) {
+        when (item.itemId) {
+            R.id.menu_keranjang -> showToast("Admin tidak bisa ke keranjang", context)
+        }
     }
 }

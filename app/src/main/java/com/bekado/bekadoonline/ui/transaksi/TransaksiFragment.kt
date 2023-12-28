@@ -20,6 +20,7 @@ import com.bekado.bekadoonline.databinding.FragmentTransaksiBinding
 import com.bekado.bekadoonline.helper.GridSpacingItemDecoration
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.HelperAuth
+import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.model.AkunModel
 import com.bekado.bekadoonline.model.TransaksiModel
@@ -118,6 +119,10 @@ class TransaksiFragment : Fragment() {
                         if (data.statusAdmin) {
                             getTransaksiData(true)
                             searchTransaksi(true)
+                            binding.appBar.setOnMenuItemClickListener {
+                                adminKeranjangState(requireContext(), it)
+                                true
+                            }
 //                            binding.filterStatusPesanan.setOnClickListener { bottomSheetStatus(true) }
 //                            binding.filterByTime.setOnClickListener { bottomSheetDate(true) }
                             binding.swipeRefresh.setOnRefreshListener {

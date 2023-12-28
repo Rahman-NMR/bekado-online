@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.LoginActivity
 import com.bekado.bekadoonline.MainActivity
-import com.bekado.bekadoonline.ui.transaksi.KeranjangActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterButton
 import com.bekado.bekadoonline.adapter.AdapterProduk
@@ -22,14 +21,17 @@ import com.bekado.bekadoonline.databinding.FragmentBerandaBinding
 import com.bekado.bekadoonline.helper.GridSpacingItemDecoration
 import com.bekado.bekadoonline.helper.Helper.calculateSpanCount
 import com.bekado.bekadoonline.helper.HelperAuth
+import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperProduk.getAllProduk
 import com.bekado.bekadoonline.helper.HelperProduk.getFiltered
 import com.bekado.bekadoonline.helper.HorizontalSpacingItemDecoration
+import com.bekado.bekadoonline.model.AkunModel
 import com.bekado.bekadoonline.model.ButtonModel
 import com.bekado.bekadoonline.model.KategoriModel
 import com.bekado.bekadoonline.model.ProdukModel
 import com.bekado.bekadoonline.shimmer.ShimmerModel
+import com.bekado.bekadoonline.ui.transaksi.KeranjangActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
@@ -260,7 +262,15 @@ class BerandaFragment : Fragment() {
             val akunRef = db.getReference("akun/${currentUser.uid}")
             akunRef.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (!snapshot.exists()) {
+                    val data = snapshot.getValue(AkunModel::class.java)
+
+                    if (snapshot.exists()) {
+                        if (data!!.statusAdmin)
+                            binding.appBar.setOnMenuItemClickListener {
+                                adminKeranjangState(requireContext(), it)
+                                true
+                            }
+                    } else {
                         auth.signOut()
                         googleSignInClient.signOut()
                         startActivity(Intent(context, MainActivity::class.java))
