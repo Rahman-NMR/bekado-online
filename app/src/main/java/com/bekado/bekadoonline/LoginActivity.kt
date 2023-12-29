@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
@@ -70,10 +71,10 @@ class LoginActivity : AppCompatActivity() {
     private fun loginAuthManual(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) {
             if (it.isSuccessful) {
-                val flag = Intent(this@LoginActivity, MainActivity::class.java)
-                flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                startActivity(flag)
-                finish()
+                val uidAkun = auth.currentUser?.uid.toString()
+                val userRef = db.getReference("akun/$uidAkun")
+
+                validateUserRegistered(userRef)
             } else Toast.makeText(this, getString(R.string.email_pass_salah), Toast.LENGTH_SHORT).show()
         }
     }
@@ -126,27 +127,30 @@ class LoginActivity : AppCompatActivity() {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener(this) {
             if (it.isSuccessful) {
-                val currentUser = auth.currentUser
-                val uidAkun = currentUser?.uid.toString()
+                val uidAkun = auth.currentUser?.uid.toString()
                 val userRef = db.getReference("akun/$uidAkun")
 
-                userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        if (snapshot.exists()) {
-                            val flag = Intent(this@LoginActivity, MainActivity::class.java)
-                            flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                            startActivity(flag)
-                            finish()
-                        } else {
-                            startActivity(Intent(this@LoginActivity, RegisterGoogleActivity::class.java))
-                            finish()
-                        }
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {}
-                })
+                validateUserRegistered(userRef)
             }
         }
+    }
+
+    private fun validateUserRegistered(userRef: DatabaseReference) {
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val flag = Intent(this@LoginActivity, MainActivity::class.java)
+                    flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    startActivity(flag)
+                    finish()
+                } else {
+                    startActivity(Intent(this@LoginActivity, RegisterGoogleActivity::class.java))
+                    finish()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 
     override fun onStart() {
