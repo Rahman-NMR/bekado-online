@@ -38,6 +38,7 @@ class PembayaranActivity : AppCompatActivity() {
     private var isAdmin: Boolean = false
     private lateinit var uidnIdtrx: String
     private lateinit var statusPesanan: String
+    private lateinit var metodePembayaran: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +63,7 @@ class PembayaranActivity : AppCompatActivity() {
         isAdmin = intent.getBooleanExtra("statusAdmin", false)
         uidnIdtrx = intent.getStringExtra("pathTrx") ?: ""
         statusPesanan = intent.getStringExtra("statusPesanan") ?: ""
+        metodePembayaran = intent.getStringExtra("metodePembayaran") ?: ""
         if (uidnIdtrx.isNotEmpty()) trxRef = db.getReference("transaksi/$uidnIdtrx")
 
         getDataBuktiTrx()
@@ -86,7 +88,7 @@ class PembayaranActivity : AppCompatActivity() {
             val status = listOf(
                 getString(R.string.status_dalam_pengiriman),
                 getString(R.string.status_dalam_proses),
-                getString(R.string.status_dibatalkan),
+                getString(R.string.status_selesai),
                 getString(R.string.status_dibatalkan)
             )
 
@@ -177,5 +179,10 @@ class PembayaranActivity : AppCompatActivity() {
                 trxRef.child("statusPesanan").setValue(getString(R.string.status_menunggu_konfirmasi))
             }
         }.addOnFailureListener { showToast(getString(R.string.masalah_database), this@PembayaranActivity) }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (metodePembayaran.isNotEmpty()) if (metodePembayaran == getString(R.string.cod)) finish()
     }
 }

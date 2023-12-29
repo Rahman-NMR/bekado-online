@@ -51,7 +51,7 @@ class KeranjangActivity : AppCompatActivity() {
         kategoriRef = db.getReference("produk/kategori")
 
         with(binding) {
-            appBar.setNavigationOnClickListener { onBackPressed() }
+            appBar.setNavigationOnClickListener { finish() }
 
             val lmActive = LinearLayoutManager(this@KeranjangActivity, LinearLayoutManager.VERTICAL, false)
             val lmNonActive = LinearLayoutManager(this@KeranjangActivity, LinearLayoutManager.VERTICAL, false)
@@ -294,6 +294,7 @@ class KeranjangActivity : AppCompatActivity() {
 
     override fun onRestart() {
         super.onRestart()
+        dataKeranjang.clear()
         binding.llProdukSelected.visibility = View.GONE
         updateTotalHarga()
     }

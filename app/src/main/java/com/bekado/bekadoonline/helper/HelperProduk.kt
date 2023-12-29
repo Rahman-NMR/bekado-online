@@ -65,7 +65,7 @@ object HelperProduk {
         adapter.notifyDataSetChanged()
     }
 
-    fun sortProduk(dataProduk: ArrayList<ProdukModel>, sortFilter: Int?) {
+    private fun sortProduk(dataProduk: ArrayList<ProdukModel>, sortFilter: Int?) {
         when (sortFilter) {
             sortNameAsc -> dataProduk.sortBy { it.namaProduk }
             sortNameDesc -> dataProduk.sortByDescending { it.namaProduk }

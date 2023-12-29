@@ -233,21 +233,18 @@ class CheckOutActivity : AppCompatActivity() {
             showToastL(getString(R.string.pesanan_baru_berhasil), this)
             trxChildRef.child("alamatPenerima").setValue(dataAlamat)
             trxChildRef.child("buktiTransaksi").setValue(dataBuktiTrx)
-            trxChildRef.child("produkList").setValue(produkMap)
-                .addOnSuccessListener {
-                    selectedKeranjang.forEach { keranjangRef.child("${it.produkModel?.idProduk}").removeValue() }
+            trxChildRef.child("produkList").setValue(produkMap).addOnSuccessListener {
+                selectedKeranjang.forEach { keranjangRef.child("${it.produkModel?.idProduk}").removeValue() }
 
-                    if (metodePembayaran == getString(R.string.transfer)) {
-                        val flag = Intent(this, PembayaranActivity::class.java)
-                            .putExtra("statusAdmin", false)
-                            .putExtra("pathTrx", "$uidNow/$idTransaksi")
-                            .putExtra("statusPesanan", getString(R.string.status_menunggu_pembayaran))
-                        flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                val intent = Intent(this, PembayaranActivity::class.java)
+                    .putExtra("statusAdmin", false)
+                    .putExtra("pathTrx", "$uidNow/$idTransaksi")
+                    .putExtra("statusPesanan", getString(R.string.status_menunggu_pembayaran))
+                    .putExtra("metodePembayaran", metodePembayaran)
 
-                        startActivity(flag)
-                    }
-                    finish()
-                }
+                startActivity(intent)
+                finish()
+            }
         }
     }
 
