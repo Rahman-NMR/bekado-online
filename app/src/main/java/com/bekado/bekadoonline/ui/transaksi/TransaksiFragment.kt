@@ -86,8 +86,8 @@ class TransaksiFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
         googleSignInClient = GoogleSignIn.getClient(requireContext(), HelperAuth.clientGoogle(requireContext()))
-        namaStatusFilter = getString(R.string.k2semua)
-        namaDateFilter = getString(R.string.k2semua_tgltrx)
+        namaStatusFilter = getString(R.string.f_semua_stspsnn)
+        namaDateFilter = getString(R.string.f_semua_wktutrx)
 
         val currentUser = auth.currentUser
         akunRef = db.getReference("akun/${currentUser?.uid}")
@@ -201,9 +201,9 @@ class TransaksiFragment : Fragment() {
     }
 
     private fun updateFilterDisplay(binding: TextView, theText: String, isBsStatus: Boolean) {
-        val setColor = if (theText == getString(R.string.k2semua) || theText == getString(R.string.k2semua_tgltrx))
+        val setColor = if (theText == getString(R.string.f_semua_stspsnn) || theText == getString(R.string.f_semua_wktutrx))
             R.color.grey_700 else R.color.blue_700
-        val bgRes = if (theText == getString(R.string.k2semua) || theText == getString(R.string.k2semua_tgltrx))
+        val bgRes = if (theText == getString(R.string.f_semua_stspsnn) || theText == getString(R.string.f_semua_wktutrx))
             R.drawable.btn_like_a_chip_selector else R.drawable.background_alpha_stroke1_99
         val textColor = ContextCompat.getColor(requireContext(), setColor)
 
@@ -211,8 +211,8 @@ class TransaksiFragment : Fragment() {
         DrawableCompat.setTint(drawable, textColor)
 
         binding.setTextColor(textColor)
-        if (isBsStatus) binding.text = if (theText == getString(R.string.k2semua)) getString(R.string.status_pesanan) else theText
-        else binding.text = if (theText == getString(R.string.k2semua_tgltrx)) getString(R.string.semua_tanggal) else theText
+        if (isBsStatus) binding.text = if (theText == getString(R.string.f_semua_stspsnn)) getString(R.string.status_pesanan) else theText
+        else binding.text = if (theText == getString(R.string.f_semua_wktutrx)) getString(R.string.semua_waktu) else theText
         binding.setBackgroundResource(bgRes)
     }
 
@@ -265,7 +265,7 @@ class TransaksiFragment : Fragment() {
     }
 
     private fun filteredBy() {
-        if (namaStatusFilter != getString(R.string.k2semua)) {
+        if (namaStatusFilter != getString(R.string.f_semua_stspsnn)) {
             val filteredByStatus = dataTransaksi.filter { data ->
                 data.statusPesanan.toString().contains(namaStatusFilter, false)
             } as ArrayList<TransaksiModel>
@@ -276,7 +276,7 @@ class TransaksiFragment : Fragment() {
             }
         }
 
-        if (namaDateFilter != getString(R.string.k2semua_tgltrx)) {
+        if (namaDateFilter != getString(R.string.f_semua_wktutrx)) {
             val filteredByDate = dataTransaksi.filter { data ->
                 val transactionDate = Calendar.getInstance()
                 transactionDate.timeInMillis = data.timestamp!!.toLong()

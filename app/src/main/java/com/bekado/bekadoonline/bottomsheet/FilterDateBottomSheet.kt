@@ -31,16 +31,16 @@ class FilterDateBottomSheet(context: Context) {
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         val paddingHorizontal = context.resources.getDimensionPixelSize(R.dimen.normaldp)
         with(bindingBS) {
-            title.text = context.getString(R.string.pilih_tanggal)
+            title.text = context.getString(R.string.pilih_waktu)
             recyclerView.layoutManager = layoutManager
             recyclerView.addItemDecoration(DividerItemDecoration(context, R.drawable.divider, paddingHorizontal))
             loadingIndicator.visibility = View.GONE
         }
 
-        dataDate.add(SortModel(context.getString(R.string.k2semua_tgltrx), HelperTransaksi.semua, true))
-        dataDate.add(SortModel(context.getString(R.string.k2seminggu_lalu), HelperTransaksi.day7, false))
-        dataDate.add(SortModel(context.getString(R.string.k230hari), HelperTransaksi.day30, false))
-        dataDate.add(SortModel(context.getString(R.string.k290hari), HelperTransaksi.day90, false))
+        dataDate.add(SortModel(context.getString(R.string.f_semua_wktutrx), HelperTransaksi.semua, true))
+        dataDate.add(SortModel(context.getString(R.string.f_seminggu_lalu), HelperTransaksi.day7, false))
+        dataDate.add(SortModel(context.getString(R.string.f_30hari), HelperTransaksi.day30, false))
+        dataDate.add(SortModel(context.getString(R.string.f_90hari), HelperTransaksi.day90, false))
 
         dataDate = dataDate.map { nilai ->
             nilai.dipilih = nilai.id == idSortFilter

@@ -87,7 +87,7 @@
                         style="@style/BtnLikeAChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/semua_tanggal"
+                        android:text="@string/semua_waktu"
                         app:drawableEndCompat="@drawable/icon_round_expand_more_24"
                         app:drawableTint="@color/grey_700" />
                 </androidx.cardview.widget.CardView>

@@ -37,7 +37,7 @@ class FilterStatusBottomSheet(context: Context) {
             loadingIndicator.visibility = View.GONE
         }
 
-        dataStatus.add(SortModel(context.getString(R.string.k2semua), HelperTransaksi.semua, true))
+        dataStatus.add(SortModel(context.getString(R.string.f_semua_stspsnn), HelperTransaksi.semua, true))
         dataStatus.add(SortModel(context.getString(R.string.status_menunggu_pembayaran), HelperTransaksi.nungguBayar, false))
         dataStatus.add(SortModel(context.getString(R.string.status_menunggu_konfirmasi), HelperTransaksi.nungguKonfirm, false))
         dataStatus.add(SortModel(context.getString(R.string.status_dalam_proses), HelperTransaksi.ngeproses, false))

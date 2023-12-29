@@ -3,12 +3,11 @@
     <string name="administrator">Administrator</string>
 
     <!--    key filter-->
-    <string name="k2semua">Semua</string>
-
-    <string name="k2semua_tgltrx">Semua Tanggal Transaksi</string>
-    <string name="k2seminggu_lalu">Seminggu Terakhir</string>
-    <string name="k230hari">30 Hari Terakhir</string>
-    <string name="k290hari">90 Hari Terakhir</string>
+    <string name="f_semua_stspsnn">Semua Status Pesanan</string>
+    <string name="f_semua_wktutrx">Semua Waktu Transaksi</string>
+    <string name="f_seminggu_lalu">Seminggu Terakhir</string>
+    <string name="f_30hari">30 Hari Terakhir</string>
+    <string name="f_90hari">90 Hari Terakhir</string>
 
     <!--    child db-->
     <string name="key_antrian">antrian</string>
@@ -110,7 +109,7 @@
     <string name="edit_kategori">Edit Kategori</string>
     <string name="pilih_status_pesanan">Pilih Status Pesanan</string>
     <string name="status_pesanan">Status Pesanan</string>
-    <string name="pilih_tanggal">Pilih Tanggal</string>
+    <string name="pilih_waktu">Pilih Waktu</string>
 
     <!--    sub title-->
     <string name="tidak_dapat_diproses">Tidak dapat diproses</string>
@@ -210,5 +209,5 @@
     <string name="lupa_password_desc">Masukkan email yang terkait dengan akun Anda untuk mengubah kata sandinya.</string>
     <string name="password_baru">Password baru</string>
     <string name="password_sekarang">Password sekarang</string>
-    <string name="semua_tanggal">Semua Tanggal</string>
+    <string name="semua_waktu">Semua Waktu</string>
 </resources>
