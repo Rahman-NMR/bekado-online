@@ -1,11 +1,11 @@
 package com.bekado.bekadoonline.ui.profil
 
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.bekado.bekadoonline.R
@@ -40,11 +40,18 @@ class AlamatActivity : AppCompatActivity() {
     private var alamatLengkap: String = ""
     private var kodePosAlamat: String = ""
 
+    private val onBackInvokedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            onBekPressed()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAlamatBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        onBackPressedDispatcher.addCallback(this@AlamatActivity, onBackInvokedCallback)
         supportActionBar?.hide()
 
         auth = FirebaseAuth.getInstance()
@@ -62,7 +69,7 @@ class AlamatActivity : AppCompatActivity() {
             alamat.addTextChangedListener(alamatTextWatcher)
             kodePos.addTextChangedListener(alamatTextWatcher)
 
-            appBar.setNavigationOnClickListener { onBackPressed() }
+            appBar.setNavigationOnClickListener { onBekPressed() }
             btnGetTitikLokasi.setOnClickListener { if (HelperConnection.isConnected(this@AlamatActivity)) getLokasi() }
             btnSimpanPerubahan.setOnClickListener {
                 if (HelperConnection.isConnected(this@AlamatActivity)) {
@@ -198,7 +205,7 @@ class AlamatActivity : AppCompatActivity() {
                 val geoCoder = Geocoder(this, Locale.getDefault())
                 val adress = geoCoder.getFromLocation(lat, lang, 10)
                 val namaJalan = if (adress!![0].thoroughfare != null) adress[0].thoroughfare else ""
-                val noRumah = if (adress[0].subThoroughfare != null) "No.${adress[0].subThoroughfare}," else ""
+                val noRumah = if (adress[0].subThoroughfare != null) "${adress[0].subThoroughfare}," else ""
                 val komplek = if (adress[0].subLocality != null) "${adress[0].subLocality}," else ""
                 val camatKel = if (adress[0].locality != null) "${adress[0].locality}," else ""
                 val kotaKab = if (adress[0].subAdminArea != null) "${adress[0].subAdminArea}," else ""
@@ -216,15 +223,6 @@ class AlamatActivity : AppCompatActivity() {
                         val snackbar = Snackbar.make(binding.root, getString(R.string.lokasi_sekarang_disave), Snackbar.LENGTH_SHORT)
                         snackbar.setAction("Oke") { finish() }.show()
                     }
-
-//                val snackbar = Snackbar.make(binding.root, "Lokasi sudah benar?", Snackbar.LENGTH_LONG)//todo:for admin
-//                snackbar.setAction("Periksa") {
-//                    val gmmIntentUri = Uri.parse("geo:0,0?q=$lat,$lang")
-//                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-//                    mapIntent.setPackage("com.google.android.apps.maps")
-//
-//                    startActivity(mapIntent)
-//                }.show()
             }
         }
     }
@@ -275,21 +273,14 @@ class AlamatActivity : AppCompatActivity() {
         }
     }
 
-    private fun showAlertDialog() {
+    private fun onBekPressed() {
         Helper.showAlertDialog(
             getString(R.string.keluar_halaman),
             getString(R.string.msg_alamat),
             getString(R.string.keluar),
             this,
             getColor(R.color.blue_grey_700)
-        ) {
-            finish()
-        }
-    }
-
-    @SuppressLint("MissingSuperCall")
-    override fun onBackPressed() {
-        showAlertDialog()
+        ) { finish() }
     }
 
     override fun onDestroy() {
