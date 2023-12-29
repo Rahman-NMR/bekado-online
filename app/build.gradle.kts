@@ -17,7 +17,7 @@ android {
 //        big update
 //        feature
 //        stable
-//        tester, bug fixing,
+//        tester, bug fixing
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
