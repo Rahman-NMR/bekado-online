@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.LayoutTransaksiBinding
@@ -40,58 +41,59 @@ class AdapterTransaksi(
         private val calendar = Calendar.getInstance()
 
         fun bind(transaksiModel: TransaksiModel, listenerTransaksi: (TransaksiModel) -> Unit, context: Context) {
-            val totalHarga =
+            val sumPrice =
                 if (transaksiModel.totalBelanja!! >= 1)
                     transaksiModel.currency + Helper.addcoma3digit(transaksiModel.totalBelanja)
                 else "Gratis"
-            val jumlahItem = "${transaksiModel.jumlahProduk} item"
+            val itemCount = "${transaksiModel.jumlahProduk} item"
 
             val time = transaksiModel.timestamp?.toLong()
-            if (time != null) {
-                calendar.timeInMillis = time
-                val waktunya = SimpleDateFormat("d MMMM yyyy", Locale.getDefault()).format(Date(time))
-                binding.tanggalPesan.text = waktunya
-            } else binding.tanggalPesan.text = context.getString(R.string.tidak_ada_data)
+            with(binding) {
+                if (time != null) {
+                    calendar.timeInMillis = time
+                    val waktunya = SimpleDateFormat("d MMMM yyyy", Locale.getDefault()).format(Date(time))
+                    tanggalPesan.text = waktunya
+                } else tanggalPesan.text = context.getString(R.string.tidak_ada_data)
 
-            binding.noPesanan.text = transaksiModel.noPesanan
-            binding.namaProduk.text = transaksiModel.namaProduk
-            binding.jumlahItem.text = jumlahItem
-            binding.totalHarga.text = totalHarga
-            binding.statusPesanan.text = transaksiModel.statusPesanan
-//            when (transaksiModel.statusPesanan) {
-//                context.getString(R.string.status_menunggu_pembayaran) -> {
-//                    binding.statusPesanan.setTextColor(ContextCompat.getColor(context, R.color.white))
-//                    binding.statusPesanan.backgroundTintList =
-//                        ColorStateList.valueOf(ContextCompat.getColor(context, R.color.grey_500))
-//                }
-//
-//                context.getString(R.string.status_selesai) -> {
-//                    binding.statusPesanan.setTextColor(ContextCompat.getColor(context, R.color.white))
-//                    binding.statusPesanan.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.purple_700))
-//                }
-//
-//                context.getString(R.string.status_dibatalkan) -> {
-//                    binding.statusPesanan.setTextColor(ContextCompat.getColor(context, R.color.white))
-//                    binding.statusPesanan.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.error))
-//                }
-//
-//                else -> {
-//                    binding.statusPesanan.setTextColor(ContextCompat.getColor(context, R.color.purple_700))
-//                    binding.statusPesanan.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.purple_500))
-//                }
-//            } todo: icon & warnanya aja
+                noPesanan.text = transaksiModel.noPesanan
+                namaProduk.text = transaksiModel.namaProduk
+                jumlahItem.text = itemCount
+                totalHarga.text = sumPrice
+                statusPesanan.text = transaksiModel.statusPesanan
+                when (transaksiModel.statusPesanan) {
+                    context.getString(R.string.status_menunggu_pembayaran) -> {
+                        statusPesanan.setTextColor(ContextCompat.getColor(context, R.color.outline))
+                        statusPesanan.setBackgroundResource(R.drawable.background_stroke1_99)
+                    }
 
-            if (transaksiModel.produkLainnya!! >= 2) {
-                val produkLainnya = "+${transaksiModel.produkLainnya - 1} produk lainnya"
+                    context.getString(R.string.status_selesai) -> {
+                        statusPesanan.setTextColor(ContextCompat.getColor(context, R.color.done))
+                        statusPesanan.setBackgroundResource(R.drawable.background_stroke1_done_99)
+                    }
 
-                binding.produkLainnya.visibility = View.VISIBLE
-                binding.produkLainnya.text = produkLainnya
-            } else binding.produkLainnya.visibility = View.GONE
-            Glide.with(binding.root.context).load(transaksiModel.fotoProduk)
-                .apply(RequestOptions()).centerCrop()
-                .placeholder(R.drawable.img_broken_image).into(binding.gambarProduk)
+                    context.getString(R.string.status_dibatalkan) -> {
+                        statusPesanan.setTextColor(ContextCompat.getColor(context, R.color.error))
+                        statusPesanan.setBackgroundResource(R.drawable.background_stroke1_red_99)
+                    }
 
-            binding.ll.setOnClickListener { listenerTransaksi(transaksiModel) }
+                    else -> {
+                        statusPesanan.setTextColor(ContextCompat.getColor(context, R.color.blue_700))
+                        statusPesanan.setBackgroundResource(R.drawable.background_stroke1_primary_99)
+                    }
+                }
+
+                if (transaksiModel.produkLainnya!! >= 2) {
+                    val moreProduk = "+${transaksiModel.produkLainnya - 1} produk lainnya"
+
+                    produkLainnya.visibility = View.VISIBLE
+                    produkLainnya.text = moreProduk
+                } else produkLainnya.visibility = View.GONE
+                Glide.with(root.context).load(transaksiModel.fotoProduk)
+                    .apply(RequestOptions()).centerCrop()
+                    .placeholder(R.drawable.img_broken_image).into(gambarProduk)
+
+                ll.setOnClickListener { listenerTransaksi(transaksiModel) }
+            }
         }
     }
 

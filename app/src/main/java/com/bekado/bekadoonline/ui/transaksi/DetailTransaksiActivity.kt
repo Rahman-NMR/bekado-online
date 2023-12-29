@@ -98,6 +98,9 @@ class DetailTransaksiActivity : AppCompatActivity() {
                     binding.status.text = bsStatusPsnn.selectedStatus
                     binding.tvStatusPesanan.text = bsStatusPsnn.selectedStatus
                     keyRefresh = "refresh_data"
+
+                    binding.btnUbahStatus.isEnabled = !(binding.status.text == getString(R.string.status_selesai)
+                            || binding.status.text == getString(R.string.status_dibatalkan))
                 }
             }
         }
