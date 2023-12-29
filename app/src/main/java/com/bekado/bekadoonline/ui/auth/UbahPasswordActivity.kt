@@ -1,9 +1,10 @@
-package com.bekado.bekadoonline
+package com.bekado.bekadoonline.ui.auth
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityUbahPasswordBinding
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection

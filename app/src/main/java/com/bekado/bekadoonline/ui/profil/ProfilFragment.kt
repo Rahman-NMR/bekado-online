@@ -7,11 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.bekado.bekadoonline.LoginActivity
-import com.bekado.bekadoonline.MainActivity
+import com.bekado.bekadoonline.ui.auth.LoginActivity
+import com.bekado.bekadoonline.ui.MainActivity
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.RegisterActivity
-import com.bekado.bekadoonline.UbahPasswordActivity
+import com.bekado.bekadoonline.ui.auth.RegisterActivity
+import com.bekado.bekadoonline.ui.auth.UbahPasswordActivity
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.HelperAuth

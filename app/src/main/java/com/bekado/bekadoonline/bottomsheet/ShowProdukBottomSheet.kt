@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
-import com.bekado.bekadoonline.LoginActivity
+import com.bekado.bekadoonline.ui.auth.LoginActivity
 import com.bumptech.glide.Glide
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.BottomsheetShowProdukBinding

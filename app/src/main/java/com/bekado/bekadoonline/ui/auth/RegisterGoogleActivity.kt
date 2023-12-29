@@ -1,4 +1,4 @@
-package com.bekado.bekadoonline
+package com.bekado.bekadoonline.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,6 +6,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.bekado.bekadoonline.ui.MainActivity
+import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityRegisterGoogleBinding
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection

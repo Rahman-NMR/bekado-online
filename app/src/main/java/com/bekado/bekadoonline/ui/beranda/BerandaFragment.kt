@@ -10,8 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bekado.bekadoonline.LoginActivity
-import com.bekado.bekadoonline.MainActivity
+import com.bekado.bekadoonline.ui.auth.LoginActivity
+import com.bekado.bekadoonline.ui.MainActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterButton
 import com.bekado.bekadoonline.adapter.AdapterProduk

@@ -19,11 +19,11 @@
         android:theme="@style/Theme.BekadoOnline"
         tools:targetApi="31">
         <activity
-            android:name=".UbahPasswordActivity"
+            android:name=".ui.auth.UbahPasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".LupaPasswordActivity"
+            android:name=".ui.auth.LupaPasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
@@ -58,19 +58,19 @@
             android:name=".ui.transaksi.KeranjangActivity"
             android:exported="false" />
         <activity
-            android:name=".RegisterActivity"
+            android:name=".ui.auth.RegisterActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".RegisterGoogleActivity"
+            android:name=".ui.auth.RegisterGoogleActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.auth.LoginActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

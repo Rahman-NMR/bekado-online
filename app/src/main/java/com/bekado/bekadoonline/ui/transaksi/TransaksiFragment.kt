@@ -14,10 +14,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bekado.bekadoonline.LoginActivity
-import com.bekado.bekadoonline.MainActivity
+import com.bekado.bekadoonline.ui.auth.LoginActivity
+import com.bekado.bekadoonline.ui.MainActivity
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.RegisterActivity
+import com.bekado.bekadoonline.ui.auth.RegisterActivity
 import com.bekado.bekadoonline.adapter.AdapterTransaksi
 import com.bekado.bekadoonline.bottomsheet.FilterDateBottomSheet
 import com.bekado.bekadoonline.bottomsheet.FilterStatusBottomSheet

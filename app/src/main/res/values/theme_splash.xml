@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.BekadoOnline.splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/img_ic_bekado_online</item>
+        <item name="postSplashScreenTheme">@style/Theme.BekadoOnline</item>
+    </style>
+</resources>
