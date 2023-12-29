@@ -57,7 +57,6 @@
         style="@style/iconOnly"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:cornerRadius="99dp"
-        app:icon="@drawable/icon_round_mode_edit_24"
-        app:iconTint="?attr/colorSecondaryVariant" />
+        app:cornerRadius="16dp"
+        app:icon="@drawable/icon_round_mode_edit_24" />
 </LinearLayout>

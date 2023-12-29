@@ -100,7 +100,6 @@
                 android:layout_height="wrap_content"
                 app:cornerRadius="16dp"
                 app:icon="@drawable/icon_round_mode_edit_24"
-                app:iconTint="?attr/colorSecondaryVariant"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/ll_text"

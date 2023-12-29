@@ -16,8 +16,11 @@ object HelperAuth {
     fun registerAkun(uidAkun: String, db: FirebaseDatabase, email: String, nama: String, noHp: String) {
         val userRef = db.getReference("akun/$uidAkun")
         val user = HashMap<String, Any>()
+        val defImgLink = "https://firebasestorage.googleapis.com/v0/b/bekado-online.appspot.com/o/img_profile.png"
+        val token = "d5508c9e-43ea-4ddb-a42a-9e52de8b5c4c"
+
         user["email"] = email
-        user["fotoProfil"] = ""
+        user["fotoProfil"] = "$defImgLink?alt=media&token=$token"
         user["nama"] = nama
         user["noHp"] = noHp
         user["statusAdmin"] = false
