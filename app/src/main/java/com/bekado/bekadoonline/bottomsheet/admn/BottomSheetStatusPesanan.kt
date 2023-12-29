@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.TextView
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.BottomsheetSetStatusPesananBinding
+import com.bekado.bekadoonline.helper.Helper.showAlertDialog
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -58,20 +59,30 @@ class BottomSheetStatusPesanan(context: Context) {
             }
 
             btnPilihStatus.setOnClickListener {
-                if (HelperConnection.isConnected(context)) {
-                    if (selectedParent.isNotEmpty())
-                        trxRef.child("parentStatus").setValue(selectedParent).addOnSuccessListener {
-                            trxRef.child("statusPesanan").setValue(selectedStatus).addOnSuccessListener {
-                                selected = true
-                                dialog.cancel()
-                            }
-                        }
-                    else showToast(context.getString(R.string.status_pesanan_belom_pilih), context)
-                }
+                showAlertDialog(
+                    context.getString(R.string.ubah_status_pesanan),
+                    "${context.getString(R.string.sts_psnsn_ubah_mjd)} '$selectedStatus'.",
+                    context.getString(R.string.ubah),
+                    context,
+                    context.getColor(R.color.blue_grey_700)
+                ) { setStatusValue(context, trxRef) }
             }
         }
 
         dialog.show()
+    }
+
+    private fun setStatusValue(context: Context, trxRef: DatabaseReference) {
+        if (HelperConnection.isConnected(context)) {
+            if (selectedParent.isNotEmpty())
+                trxRef.child("parentStatus").setValue(selectedParent).addOnSuccessListener {
+                    trxRef.child("statusPesanan").setValue(selectedStatus).addOnSuccessListener {
+                        selected = true
+                        dialog.cancel()
+                    }
+                }
+            else showToast(context.getString(R.string.status_pesanan_belom_pilih), context)
+        }
     }
 
     private fun updateIsActivatedStatus(textView: TextView) {

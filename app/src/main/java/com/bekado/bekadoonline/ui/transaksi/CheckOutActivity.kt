@@ -178,6 +178,9 @@ class CheckOutActivity : AppCompatActivity() {
         val trxChildRef = transaksiRef.child(idTransaksi)
         val currentTime = Date().time.toString()
         val noPesanan = generateIdPesanan(currentTime)
+        val statusPesananMetode =
+            if (metodePembayaran == getString(R.string.transfer)) getString(R.string.status_menunggu_pembayaran)
+            else getString(R.string.status_menunggu_konfirmasi)
 
         val dataBuktiTrx = hashMapOf<String, Any>()
         val produkMap = mutableMapOf<String, Any>()
@@ -186,7 +189,7 @@ class CheckOutActivity : AppCompatActivity() {
             "noPesanan" to noPesanan,
             "timestamp" to currentTime,
             "parentStatus" to getString(R.string.key_antrian),
-            "statusPesanan" to getString(R.string.status_menunggu_pembayaran),
+            "statusPesanan" to statusPesananMetode,
 
             "metodePembayaran" to metodePembayaran,
             "currency" to "Rp",
