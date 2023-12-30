@@ -19,6 +19,9 @@
         android:theme="@style/Theme.BekadoOnline"
         tools:targetApi="31">
         <activity
+            android:name=".ui.profil.AboutBekadoActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.auth.UbahPasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

@@ -130,7 +130,7 @@
     <string name="detail_alamat">Detail Alamat</string>
     <string name="ubah_password">Ubah Password</string>
     <string name="kategori_produk">Kategori/Produk</string>
-    <string name="tentang_kami">Tentang Kami</string>
+    <string name="informasi_toko">Informasi Toko</string>
 
     <!--    title dialog-->
     <string name="logout_akun">Logout Akun?</string>
@@ -210,4 +210,8 @@
     <string name="password_baru">Password baru</string>
     <string name="password_sekarang">Password sekarang</string>
     <string name="semua_waktu">Semua Waktu</string>
+    <string name="alamat_toko">Alamat Toko</string>
+    <string name="kontak_toko">Kontak Toko</string>
+    <string name="jam_toko">Jam Operasional Toko</string>
+    <string name="nama_toko">Nama Toko</string>
 </resources>

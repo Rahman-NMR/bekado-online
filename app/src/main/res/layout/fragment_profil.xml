@@ -332,11 +332,11 @@
                             tools:visibility="visible" />
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_tentang_kami"
+                            android:id="@+id/btn_informasi_toko"
                             style="@style/materialTextListButtonIcon.grey"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/tentang_kami"
+                            android:text="@string/informasi_toko"
                             app:icon="@drawable/icon_outline_store_24" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>

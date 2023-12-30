@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bekado.bekadoonline.ui.auth.LoginActivity
 import com.bekado.bekadoonline.ui.MainActivity
@@ -74,7 +73,7 @@ class ProfilFragment : Fragment() {
             btnAkunSaya.setOnClickListener { startActivity(Intent(context, AkunSayaActivity::class.java)) }
             btnDetailAlamat.setOnClickListener { startActivity(Intent(context, AlamatActivity::class.java)) }
             btnUbahPassword.setOnClickListener { startActivity(Intent(context, UbahPasswordActivity::class.java)) }
-            btnTentangKami.setOnClickListener { Toast.makeText(requireContext(), getString(R.string.tentang_kami), Toast.LENGTH_SHORT).show() }
+            btnInformasiToko.setOnClickListener { startActivity(Intent(context, AboutBekadoActivity::class.java)) }
             btnLogout.setOnClickListener { showAlertDialog() }
         }
     }

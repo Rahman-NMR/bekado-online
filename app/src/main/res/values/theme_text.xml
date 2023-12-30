@@ -60,4 +60,19 @@
         <item name="android:textColor">?attr/colorSecondaryVariant</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <!--    textView about-->
+    <style name="sub.title.about" parent="Theme.BekadoOnline">
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="text.about" parent="Theme.BekadoOnline">
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:textColor">@color/grey_700</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:text">@string/strip</item>
+    </style>
 </resources>
