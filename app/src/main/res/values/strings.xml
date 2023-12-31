@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Bekado Online</string>
-    <string name="administrator">Administrator</string>
+    <string name="administrator">Admin Toko2</string>
 
     <!--    key filter-->
     <string name="f_semua_stspsnn">Semua Status Pesanan</string>
@@ -89,7 +89,7 @@
     <string name="lokasi_sekarang_disave">Lokasi sekarang di simpan</string>
 
     <!--    sort-->
-    <string name="rekomendasi">Random</string>
+    <string name="rekomendasi">Default</string>
     <string name="sortir_a_z">Sortir A-Z</string>
     <string name="sortir_z_a">Sortir Z-A</string>
     <string name="harga_tertinggi">Harga Tertinggi</string>
