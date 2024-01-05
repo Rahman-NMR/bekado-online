@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Bekado Online</string>
-    <string name="administrator">Admin Toko2</string>
+    <string name="administrator">Admin Toko</string>
 
     <!--    key filter-->
     <string name="f_semua_stspsnn">Semua Status Pesanan</string>
