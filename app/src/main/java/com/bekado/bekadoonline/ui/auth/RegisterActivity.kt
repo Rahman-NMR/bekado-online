@@ -1,12 +1,16 @@
 package com.bekado.bekadoonline.ui.auth
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.util.Patterns
+import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bekado.bekadoonline.ui.MainActivity
 import com.bekado.bekadoonline.R
@@ -18,6 +22,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -30,9 +35,11 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var db: FirebaseDatabase
     private lateinit var googleSignInClient: GoogleSignInClient
 
-    companion object {
-        private const val RC_SIGN_IN = 45697
-        const val TAG = "RegisterActivity"
+    private lateinit var signInClient: ActivityResultLauncher<Intent>
+    private val onBackInvokedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            signOut()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,9 +48,26 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.hide()
+        onBackPressedDispatcher.addCallback(this@RegisterActivity, onBackInvokedCallback)
+
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
         googleSignInClient = GoogleSignIn.getClient(this, HelperAuth.clientGoogle(this))
+        signInClient = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+
+                if (task.isSuccessful)
+                    try {
+                        val account = task.getResult(ApiException::class.java)
+                        loginAuthWithGoogle(account.idToken)
+                    } catch (_: ApiException) {
+                    }
+            }
+        }
+
+        val currentUser = auth.currentUser
 
         with(binding) {
             namaDaftar.addTextChangedListener(daftarTextWatcher)
@@ -51,6 +75,8 @@ class RegisterActivity : AppCompatActivity() {
             emailDaftar.addTextChangedListener(daftarTextWatcher)
             passwordDaftar.addTextChangedListener(daftarTextWatcher)
             konfirmasiPasswordDaftar.addTextChangedListener(daftarTextWatcher)
+
+            updateUI(currentUser)
 
             btnRegister.setOnClickListener {
                 val email = binding.emailDaftar.text.toString().trim()
@@ -69,7 +95,7 @@ class RegisterActivity : AppCompatActivity() {
                         if (konfirmPasswordInput.toString() != passwordInput.toString()) {
                             val snackbar = Snackbar.make(binding.root, getString(R.string.password_berbeda), Snackbar.LENGTH_LONG)
                             snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                        } else registerAuthManual(email, password)
+                        } else registerAuth(email, password, currentUser)
                     } else {
                         val snackbar = Snackbar.make(binding.root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
                         snackbar.setAction("Oke") { snackbar.dismiss() }.show()
@@ -77,25 +103,44 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
             googleAutoLogin.setOnClickListener {
-                if (HelperConnection.isConnected(this@RegisterActivity)) startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
+                if (currentUser == null)
+                    if (HelperConnection.isConnected(this@RegisterActivity))
+                        signInClient.launch(googleSignInClient.signInIntent)
             }
+            btnCancel.setOnClickListener { if (currentUser != null) signOut() }
         }
     }
 
-    private fun registerAuthManual(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this) {
+    private fun ActivityRegisterBinding.updateUI(currentUser: FirebaseUser?) {
+        if (currentUser != null) {
+            if (currentUser.displayName != null) namaDaftar.setText(currentUser.displayName)
+            if (currentUser.email != null) emailDaftar.setText(currentUser.email)
+        }
+
+        emailDaftar.isEnabled = currentUser == null
+        outlineEmailDaftar.isEnabled = currentUser == null
+        btnCancel.visibility = if (currentUser != null) View.VISIBLE else View.GONE
+        googleAutoLogin.visibility = if (currentUser != null) View.GONE else View.VISIBLE
+        lineGuide.visibility = if (currentUser != null) View.GONE else View.VISIBLE
+    }
+
+    private fun registerAuth(email: String, password: String, currentUser: FirebaseUser?) {
+        val regist = currentUser?.updatePassword(binding.passwordDaftar.text.toString()) ?: auth.createUserWithEmailAndPassword(email, password)
+
+        regist.addOnCompleteListener(this) {
             if (it.isSuccessful) {
-                registerAkunRtdb()
+                registerAkunRtdb(currentUser)
+
                 val flag = Intent(this@RegisterActivity, MainActivity::class.java)
                 flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+
                 startActivity(flag)
                 finish()
             } else Toast.makeText(this, getString(R.string.gagal_daftar_akun), Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun registerAkunRtdb() {
-        val currentUser = auth.currentUser
+    private fun registerAkunRtdb(currentUser: FirebaseUser?) {
         val email = binding.emailDaftar.text.toString().trim()
         val nama = binding.namaDaftar.text.toString().trim()
         val noHp = binding.nohpDaftar.text.toString().trim()
@@ -164,10 +209,11 @@ class RegisterActivity : AppCompatActivity() {
                         if (snapshot.exists()) {
                             val flag = Intent(this@RegisterActivity, MainActivity::class.java)
                             flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+
                             startActivity(flag)
                             finish()
                         } else {
-                            startActivity(Intent(this@RegisterActivity, RegisterGoogleActivity::class.java))
+                            startActivity(Intent(this@RegisterActivity, RegisterActivity::class.java))
                             finish()
                         }
                     }
@@ -178,27 +224,9 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            val exception = task.exception
-
-            if (task.isSuccessful) {
-                try {
-                    val account = task.getResult(ApiException::class.java)
-                    loginAuthWithGoogle(account.idToken)
-                } catch (e: ApiException) {
-                    Log.d(TAG, "Google Sign In Failed:", e)
-                }
-            } else {
-                Log.d(TAG, exception.toString())
-            }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        if (auth.currentUser != null) finish()
+    private fun signOut() {
+        googleSignInClient.signOut()
+        auth.signOut()
+        finish()
     }
 }

@@ -1,18 +1,20 @@
 package com.bekado.bekadoonline.ui.auth
 
+import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
-import com.bekado.bekadoonline.ui.MainActivity
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityLoginBinding
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
+import com.bekado.bekadoonline.ui.MainActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
@@ -31,10 +33,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var db: FirebaseDatabase
     private lateinit var googleSignInClient: GoogleSignInClient
 
-    companion object {
-        private const val RC_SIGN_IN = 78235
-        const val TAG = "LoginActivity"
-    }
+    private lateinit var signInClient: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +44,19 @@ class LoginActivity : AppCompatActivity() {
         db = FirebaseDatabase.getInstance()
         auth = FirebaseAuth.getInstance()
         googleSignInClient = GoogleSignIn.getClient(this, HelperAuth.clientGoogle(this))
+        signInClient = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+
+                if (task.isSuccessful)
+                    try {
+                        val account = task.getResult(ApiException::class.java)
+                        loginAuthWithGoogle(account.idToken)
+                    } catch (_: ApiException) {
+                    }
+            }
+        }
 
         with(binding) {
             emailLogin.addTextChangedListener(loginTextWatcher)
@@ -54,6 +66,7 @@ class LoginActivity : AppCompatActivity() {
             btnLogin.setOnClickListener {
                 val email = binding.emailLogin.text.toString().trim()
                 val password = binding.passwordLogin.text.toString()
+
                 if (HelperConnection.isConnected(this@LoginActivity)) {
                     if (binding.outlineEmailLogin.helperText == null && binding.outlinePasswordLogin.helperText == null)
                         loginAuthManual(email, password)
@@ -65,7 +78,7 @@ class LoginActivity : AppCompatActivity() {
             }
             btnLupaPassword.setOnClickListener { startActivity(Intent(this@LoginActivity, LupaPasswordActivity::class.java)) }
             googleAutoLogin.setOnClickListener {
-                if (HelperConnection.isConnected(this@LoginActivity)) startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
+                if (HelperConnection.isConnected(this@LoginActivity)) signInClient.launch(googleSignInClient.signInIntent)
             }
         }
     }
@@ -108,23 +121,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            val exception = task.exception
-
-            if (task.isSuccessful) {
-                try {
-                    val account = task.getResult(ApiException::class.java)
-                    loginAuthWithGoogle(account.idToken)
-                } catch (e: ApiException) {
-                    Log.d(TAG, "Google Sign In Failed:", e)
-                }
-            } else Log.d(TAG, exception.toString())
-        }
-    }
-
     private fun loginAuthWithGoogle(idToken: String?) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener(this) {
@@ -143,12 +139,10 @@ class LoginActivity : AppCompatActivity() {
                 if (snapshot.exists()) {
                     val flag = Intent(this@LoginActivity, MainActivity::class.java)
                     flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+
                     startActivity(flag)
                     finish()
-                } else {
-                    startActivity(Intent(this@LoginActivity, RegisterGoogleActivity::class.java))
-                    finish()
-                }
+                } else startActivity(Intent(this@LoginActivity, RegisterActivity::class.java))
             }
 
             override fun onCancelled(error: DatabaseError) {}
