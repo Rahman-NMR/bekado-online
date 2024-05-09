@@ -25,7 +25,7 @@
     <!--    textView salin-->
     <style name="textView.salin" parent="Theme.BekadoOnline">
         <item name="android:layout_marginStart">8dp</item>
-        <item name="android:background">@color/cardview_pressed</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:gravity">center</item>

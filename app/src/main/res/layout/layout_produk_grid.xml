@@ -4,7 +4,7 @@
     android:id="@+id/produk_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="@color/cardview_pressed"
+    android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
     app:cardCornerRadius="16dp">

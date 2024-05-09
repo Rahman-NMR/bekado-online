@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="@color/cardview_pressed"
+            android:foreground="?android:attr/selectableItemBackground"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
             android:paddingVertical="12dp">
