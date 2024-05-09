@@ -1,27 +1,32 @@
 package com.bekado.bekadoonline.ui.profil
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import com.bekado.bekadoonline.ui.auth.LoginActivity
-import com.bekado.bekadoonline.ui.MainActivity
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.ViewModelProvider
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.ui.auth.RegisterActivity
-import com.bekado.bekadoonline.ui.auth.UbahPasswordActivity
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
+import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperAuth
-import com.bekado.bekadoonline.model.AkunModel
+import com.bekado.bekadoonline.helper.constval.VariableConstant
+import com.bekado.bekadoonline.model.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.ui.adm.KategoriListActivity
+import com.bekado.bekadoonline.ui.auth.LoginActivity
+import com.bekado.bekadoonline.ui.auth.RegisterActivity
+import com.bekado.bekadoonline.ui.auth.UbahPasswordActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -34,10 +39,12 @@ class ProfilFragment : Fragment() {
     private lateinit var db: FirebaseDatabase
     private lateinit var googleSignInClient: GoogleSignInClient
 
+    private lateinit var akunViewModel: AkunViewModel
     private lateinit var akunRef: DatabaseReference
-    private lateinit var akunListener: ValueEventListener
+
     private lateinit var transaksiRef: DatabaseReference
     private lateinit var transaksiListener: ValueEventListener
+    private lateinit var signInResult: ActivityResultLauncher<Intent>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentProfilBinding.inflate(inflater, container, false)
@@ -58,16 +65,23 @@ class ProfilFragment : Fragment() {
         }
         val currentUser = auth.currentUser
         akunRef = db.getReference("akun/${currentUser?.uid}")
-        akunListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {}
 
-            override fun onCancelled(error: DatabaseError) {}
+        akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
+        signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data?.getStringExtra(VariableConstant.resultLogin)
+
+                if (data == VariableConstant.refreshLogin) {
+                    dataLoader()
+                    showToast("Login berhasil", requireContext())
+                }
+            }
         }
 
-        getRealtimeDataAkun(currentUser)
+        dataHandler()
 
         with(binding) {
-            btnLogin.setOnClickListener { startActivity(Intent(context, LoginActivity::class.java)) }
+            btnLogin.setOnClickListener { signInResult.launch(Intent(context, LoginActivity::class.java)) }
             btnRegister.setOnClickListener { startActivity(Intent(context, RegisterActivity::class.java)) }
 
             btnAkunSaya.setOnClickListener { startActivity(Intent(context, AkunSayaActivity::class.java)) }
@@ -78,58 +92,55 @@ class ProfilFragment : Fragment() {
         }
     }
 
-    private fun getRealtimeDataAkun(currentUser: FirebaseUser?) {
-        if (currentUser != null && isAdded) {
-            binding.notNullLayout.visibility = View.VISIBLE
+    private fun dataHandler() {
+        dataLoader()
 
-            akunListener = object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val data = snapshot.getValue(AkunModel::class.java)
+        akunViewModel.currentUser.observe(viewLifecycleOwner) { currentUser ->
+            binding.notNullLayout.visibility = if (currentUser == null) View.GONE else View.VISIBLE
+            binding.nullLayout.visibility = if (currentUser == null) View.VISIBLE else View.GONE
+        }
+        akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
+            if (akunModel != null) {
+                with(binding) {
+                    akunSaya.visibility = View.VISIBLE
+                    shimmerAkunSaya.visibility = View.GONE
+                    shimmerAkunSaya.stopShimmer()
 
-                    if (snapshot.exists()) {
-                        binding.namaProfil.text = data!!.nama
-                        binding.emailProfil.text = data.email
-                        if (isAdded) {
-                            Glide.with(requireContext()).load(data.fotoProfil)
-                                .apply(RequestOptions()).centerCrop()
-                                .placeholder(R.drawable.img_broken_image_circle).into(binding.fotoProfil)
-                        }
-                        val refAdmin = if (data.statusAdmin) "transaksi" else "transaksi/${currentUser.uid}"
-                        transaksiRef = db.getReference(refAdmin)
+                    badgeAdmin.visibility = if (akunModel.statusAdmin) View.VISIBLE else View.GONE
+                    btnAdminKategoriProduk.visibility = if (akunModel.statusAdmin) View.VISIBLE else View.GONE
 
-                        if (data.statusAdmin) {
-                            binding.btnAdminKategoriProduk.visibility = View.VISIBLE
-                            binding.badgeAdmin.visibility = View.VISIBLE
-                            getRealtimeDataTransaksi(true)
-                            binding.btnAdminKategoriProduk.setOnClickListener { startActivity(Intent(context, KategoriListActivity::class.java)) }
-                        } else {
-                            binding.btnAdminKategoriProduk.visibility = View.GONE
-                            binding.badgeAdmin.visibility = View.GONE
-                            getRealtimeDataTransaksi(false)
-                        }
-                    } else {
-                        auth.signOut()
-                        googleSignInClient.signOut()
-                        startActivity(Intent(context, MainActivity::class.java))
-                        requireActivity().finish()
-                    }
+                    namaProfil.text = akunModel.nama
+                    emailProfil.text = akunModel.email
+                    Glide.with(requireContext()).load(akunModel.fotoProfil)
+                        .apply(RequestOptions()).centerCrop()
+                        .placeholder(R.drawable.img_broken_image_circle).into(fotoProfil)
 
-                    with(binding) {
-                        akunSaya.visibility = View.VISIBLE
-                        shimmerAkunSaya.visibility = View.GONE
-                        shimmerAkunSaya.stopShimmer()
-                    }
+                    btnAdminKategoriProduk.setOnClickListener { startActivity(Intent(context, KategoriListActivity::class.java)) }
                 }
 
-                override fun onCancelled(error: DatabaseError) {
-                    with(binding) {
-                        akunSaya.visibility = View.GONE
-                        shimmerAkunSaya.visibility = View.VISIBLE
-                        shimmerAkunSaya.startShimmer()
-                    }
+                val refAdmin = if (akunModel.statusAdmin) "transaksi" else "transaksi/${akunModel.uid}"
+                transaksiRef = db.getReference(refAdmin)
+
+                getRealtimeDataTransaksi(akunModel.statusAdmin)
+            } else {
+                with(binding) {
+                    akunSaya.visibility = View.GONE
+                    shimmerAkunSaya.visibility = View.VISIBLE
+                    shimmerAkunSaya.startShimmer()
                 }
             }
-            akunRef.addValueEventListener(akunListener)
+        }
+
+        val combinedLiveData = MediatorLiveData<Boolean>()
+
+        combinedLiveData.addSource(akunViewModel.currentUser) { currentUser ->
+            combinedLiveData.value = currentUser != null && !akunViewModel.isExists.value!!
+        }
+        combinedLiveData.addSource(akunViewModel.isExists) { isExist ->
+            combinedLiveData.value = akunViewModel.currentUser.value != null && !isExist
+        }
+        combinedLiveData.observe(viewLifecycleOwner) { isRegister ->
+            if (isRegister) startActivity(Intent(context, RegisterActivity::class.java))
         }
     }
 
@@ -199,23 +210,21 @@ class ProfilFragment : Fragment() {
             transaksiRef = db.getReference("transaksi")
             auth.signOut()
             googleSignInClient.signOut()
-            startActivity(Intent(context, MainActivity::class.java))
-            requireActivity().finish()
+
+            dataLoader()
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            binding.notNullLayout.visibility = View.GONE
-            binding.nullLayout.visibility = View.VISIBLE
-        }
+    private fun dataLoader() {
+        akunViewModel.loadCurrentUser()
+        akunViewModel.loadAkunData()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        akunRef.removeEventListener(akunListener)
+        akunViewModel.loadAkunData()
+        akunViewModel.removeListener(akunRef)
+
         transaksiRef.removeEventListener(transaksiListener)
     }
 }

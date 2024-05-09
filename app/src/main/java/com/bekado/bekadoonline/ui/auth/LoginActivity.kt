@@ -14,18 +14,14 @@ import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityLoginBinding
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.ui.MainActivity
+import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -85,12 +81,8 @@ class LoginActivity : AppCompatActivity() {
 
     private fun loginAuthManual(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) {
-            if (it.isSuccessful) {
-                val uidAkun = auth.currentUser?.uid.toString()
-                val userRef = db.getReference("akun/$uidAkun")
-
-                validateUserRegistered(userRef)
-            } else Toast.makeText(this, getString(R.string.email_pass_salah), Toast.LENGTH_SHORT).show()
+            if (it.isSuccessful) signInSuccess()
+            else Toast.makeText(this, getString(R.string.email_pass_salah), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -124,33 +116,21 @@ class LoginActivity : AppCompatActivity() {
     private fun loginAuthWithGoogle(idToken: String?) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener(this) {
-            if (it.isSuccessful) {
-                val uidAkun = auth.currentUser?.uid.toString()
-                val userRef = db.getReference("akun/$uidAkun")
-
-                validateUserRegistered(userRef)
-            }
+            if (it.isSuccessful) signInSuccess()
         }
     }
 
-    private fun validateUserRegistered(userRef: DatabaseReference) {
-        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    val flag = Intent(this@LoginActivity, MainActivity::class.java)
-                    flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-
-                    startActivity(flag)
-                    finish()
-                } else startActivity(Intent(this@LoginActivity, RegisterActivity::class.java))
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-        })
+    private fun signInSuccess() {
+        val resultIntent = Intent().apply {
+            putExtra(VariableConstant.resultLogin, VariableConstant.refreshLogin)
+        }
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 
     override fun onStart() {
         super.onStart()
-        if (auth.currentUser != null) finish()
+        val currentUser = auth.currentUser
+        if (currentUser != null) signInSuccess()
     }
 }
