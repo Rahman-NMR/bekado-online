@@ -12,11 +12,11 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.bekado.bekadoonline.ui.MainActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityRegisterBinding
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
+import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
@@ -24,10 +24,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
@@ -38,7 +35,8 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var signInClient: ActivityResultLauncher<Intent>
     private val onBackInvokedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            signOut()
+            if (auth.currentUser != null) signOut()
+            else finish()
         }
     }
 
@@ -130,12 +128,7 @@ class RegisterActivity : AppCompatActivity() {
         regist.addOnCompleteListener(this) {
             if (it.isSuccessful) {
                 registerAkunRtdb(currentUser)
-
-                val flag = Intent(this@RegisterActivity, MainActivity::class.java)
-                flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-
-                startActivity(flag)
-                finish()
+                signInSuccess()
             } else Toast.makeText(this, getString(R.string.gagal_daftar_akun), Toast.LENGTH_SHORT).show()
         }
     }
@@ -199,34 +192,21 @@ class RegisterActivity : AppCompatActivity() {
     private fun loginAuthWithGoogle(idToken: String?) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener(this) {
-            if (it.isSuccessful) {
-                val currentUser = auth.currentUser
-                val uidAkun = currentUser?.uid.toString()
-                val userRef = db.getReference("akun/$uidAkun")
-
-                userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        if (snapshot.exists()) {
-                            val flag = Intent(this@RegisterActivity, MainActivity::class.java)
-                            flag.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-
-                            startActivity(flag)
-                            finish()
-                        } else {
-                            startActivity(Intent(this@RegisterActivity, RegisterActivity::class.java))
-                            finish()
-                        }
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {}
-                })
-            }
+            if (it.isSuccessful) signInSuccess()
         }
+    }
+
+    private fun signInSuccess() {
+        val resultIntent = Intent().apply {
+            putExtra(VariableConstant.signInResult, VariableConstant.refreshUI)
+        }
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 
     private fun signOut() {
         googleSignInClient.signOut()
         auth.signOut()
-        finish()
+        signInSuccess()
     }
 }

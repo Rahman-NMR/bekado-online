@@ -58,7 +58,6 @@ class LoginActivity : AppCompatActivity() {
             emailLogin.addTextChangedListener(loginTextWatcher)
             passwordLogin.addTextChangedListener(loginTextWatcher)
 
-            btnDaftarBaru.setOnClickListener { startActivity(Intent(this@LoginActivity, RegisterActivity::class.java)) }
             btnLogin.setOnClickListener {
                 val email = binding.emailLogin.text.toString().trim()
                 val password = binding.passwordLogin.text.toString()
@@ -122,15 +121,9 @@ class LoginActivity : AppCompatActivity() {
 
     private fun signInSuccess() {
         val resultIntent = Intent().apply {
-            putExtra(VariableConstant.resultLogin, VariableConstant.refreshLogin)
+            putExtra(VariableConstant.signInResult, VariableConstant.refreshUI)
         }
         setResult(RESULT_OK, resultIntent)
         finish()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        val currentUser = auth.currentUser
-        if (currentUser != null) signInSuccess()
     }
 }

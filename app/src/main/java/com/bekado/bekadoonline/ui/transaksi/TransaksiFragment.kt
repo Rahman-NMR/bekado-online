@@ -13,9 +13,9 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.ui.auth.LoginActivity
-import com.bekado.bekadoonline.ui.MainActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.ui.auth.RegisterActivity
 import com.bekado.bekadoonline.adapter.AdapterTransaksi
@@ -28,15 +28,15 @@ import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperTransaksi
-import com.bekado.bekadoonline.model.AkunModel
 import com.bekado.bekadoonline.model.TransaksiModel
 import com.bekado.bekadoonline.shimmer.ShimmerModel
 import com.bekado.bekadoonline.helper.HelperTransaksi.getData
+import com.bekado.bekadoonline.helper.constval.VariableConstant
+import com.bekado.bekadoonline.model.viewmodel.AkunViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -62,13 +62,15 @@ class TransaksiFragment : Fragment() {
     private var idDateFilter = 0
     private lateinit var namaDateFilter: String
 
+    private lateinit var akunViewModel: AkunViewModel
+    private lateinit var signInResult: ActivityResultLauncher<Intent>
     private val detailTransaksiLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 val action = result.data?.getStringExtra("result_action")
                 val string = result.data?.getStringExtra("trxUpdate")
                 if (action == "refresh_data") {
-                    getRealtimeDataAkun(auth.currentUser)
+//                    getRealtimeDataAkun(auth.currentUser)
                     val snackbar = Snackbar.make(binding.root, "Status $string diperbarui", Snackbar.LENGTH_LONG)
                     snackbar.setAction("Salin") { Helper.salinPesan(requireContext(), string.toString()) }.show()
                 }
@@ -89,90 +91,34 @@ class TransaksiFragment : Fragment() {
         namaStatusFilter = getString(R.string.f_semua_stspsnn)
         namaDateFilter = getString(R.string.f_semua_wktutrx)
 
-        val currentUser = auth.currentUser
-        akunRef = db.getReference("akun/${currentUser?.uid}")
+        akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
+        signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val dataLogin = result.data?.getStringExtra(VariableConstant.signInResult)
+
+                if (dataLogin == VariableConstant.refreshUI) {
+                    viewModelLoader()
+                }
+            }
+        }
 
         val paddingBottom = resources.getDimensionPixelSize(R.dimen.maxBottomdp)
         val padding = resources.getDimensionPixelSize(R.dimen.normaldp)
         val lmTransaksi = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         val lmShimmer = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-        getRealtimeDataAkun(currentUser)
+        dataAkunHandler()
         HelperConnection.shimmerTransaksi(lmShimmer, binding.rvDaftarTransaksiShimmer, padding, dataShimmer)
 
         with(binding) {
-            btnLogin.setOnClickListener { startActivity(Intent(context, LoginActivity::class.java)) }
-            btnRegister.setOnClickListener { startActivity(Intent(context, RegisterActivity::class.java)) }
+            btnLogin.setOnClickListener { signInResult.launch(Intent(context, LoginActivity::class.java)) }
+            btnRegister.setOnClickListener { signInResult.launch(Intent(context, RegisterActivity::class.java)) }
 
-            appBar.setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.menu_keranjang -> {
-                        if (auth.currentUser != null) requireContext().startActivity(Intent(context, KeranjangActivity::class.java))
-                        else requireContext().startActivity(Intent(context, LoginActivity::class.java))
-                    }
-                }
-                true
-            }
             rvDaftarTransaksi.apply {
                 layoutManager = lmTransaksi
                 addItemDecoration(GridSpacingItemDecoration(1, padding, true))
                 setPadding(0, 0, 0, paddingBottom)
             }
-        }
-    }
-
-    private fun getRealtimeDataAkun(currentUser: FirebaseUser?) {
-        if (currentUser != null && isAdded) {
-            akunRef.addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val data = snapshot.getValue(AkunModel::class.java)
-
-                    if (snapshot.exists()) {
-                        val refAdmin = if (data!!.statusAdmin) "transaksi" else "transaksi/${currentUser.uid}"
-                        transaksiRef = db.getReference(refAdmin)
-                        if (data.statusAdmin) {
-                            getTransaksiData(true)
-                            searchTransaksi(true)
-                            binding.appBar.setOnMenuItemClickListener {
-                                adminKeranjangState(requireContext(), it)
-                                true
-                            }
-                            binding.filterStatusPesanan.setOnClickListener { bottomSheetStatus(true) }
-                            binding.filterByTime.setOnClickListener { bottomSheetDate(true) }
-                            binding.swipeRefresh.setOnRefreshListener {
-                                if (HelperConnection.isConnected(requireContext())) getTransaksiData(true)
-                                binding.swipeRefresh.isRefreshing = false
-                            }
-                        } else {
-                            getTransaksiData(false)
-                            searchTransaksi(false)
-                            binding.filterStatusPesanan.setOnClickListener { bottomSheetStatus(false) }
-                            binding.filterByTime.setOnClickListener { bottomSheetDate(false) }
-                            binding.swipeRefresh.setOnRefreshListener {
-                                if (HelperConnection.isConnected(requireContext())) getTransaksiData(false)
-                                binding.swipeRefresh.isRefreshing = false
-                            }
-                        }
-                    } else {
-                        auth.signOut()
-                        googleSignInClient.signOut()
-                        startActivity(Intent(context, MainActivity::class.java))
-                        requireActivity().finish()
-                    }
-
-                    binding.appBarLayout.visibility = if (snapshot.exists()) View.VISIBLE else View.GONE
-                    binding.clDaftarTransaksi.visibility = if (snapshot.exists()) View.VISIBLE else View.GONE
-                    binding.nullLayout.visibility = if (snapshot.exists()) View.GONE else View.VISIBLE
-
-                    binding.filterStatusPesanan.alpha = 1.0f
-                    binding.filterByTime.alpha = 1.0f
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    binding.filterStatusPesanan.alpha = 0.3f
-                    binding.filterByTime.alpha = 0.3f
-                }
-            })
         }
     }
 
@@ -346,13 +292,74 @@ class TransaksiFragment : Fragment() {
         binding.searchTransaksi.setOnQueryTextListener(search)
     }
 
-    override fun onStart() {
-        super.onStart()
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            binding.appBarLayout.visibility = View.GONE
-            binding.clDaftarTransaksi.visibility = View.GONE
-            binding.nullLayout.visibility = View.VISIBLE
+    private fun dataAkunHandler() {
+        viewModelLoader()
+
+        akunViewModel.currentUser.observe(viewLifecycleOwner) { currentUser ->
+            akunRef = db.getReference("akun/${currentUser?.uid}")
+            binding.appBarLayout.visibility = if (currentUser != null) View.VISIBLE else View.GONE
+            binding.clDaftarTransaksi.visibility = if (currentUser != null) View.VISIBLE else View.GONE
+            binding.nullLayout.visibility = if (currentUser != null) View.GONE else View.VISIBLE
+
+            binding.appBar.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.menu_keranjang -> {
+                        if (currentUser != null) startActivity(Intent(context, KeranjangActivity::class.java))
+                        else signInResult.launch(Intent(context, LoginActivity::class.java))
+                    }
+                }
+                true
+            }
         }
+        akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
+            if (akunModel != null) {
+                val refAdmin = if (akunModel.statusAdmin) "transaksi" else "transaksi/${akunModel.uid}"
+                transaksiRef = db.getReference(refAdmin)
+
+                val isAdmin = akunModel.statusAdmin
+
+                getTransaksiData(isAdmin)
+                searchTransaksi(isAdmin)
+
+                binding.filterStatusPesanan.alpha = 1.0f
+                binding.filterByTime.alpha = 1.0f
+
+                binding.filterStatusPesanan.setOnClickListener { bottomSheetStatus(isAdmin) }
+                binding.filterByTime.setOnClickListener { bottomSheetDate(isAdmin) }
+                binding.swipeRefresh.setOnRefreshListener {
+                    if (HelperConnection.isConnected(requireContext())) getTransaksiData(isAdmin)
+                    binding.swipeRefresh.isRefreshing = false
+                }
+                binding.appBar.setOnMenuItemClickListener {
+                    if (isAdmin) adminKeranjangState(requireContext(), it)
+                    true
+                }
+            } else {
+                binding.filterStatusPesanan.alpha = 0.3f
+                binding.filterByTime.alpha = 0.3f
+            }
+
+            validateDataAkun()
+        }
+    }
+
+    private fun validateDataAkun() {
+        akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading == false) {
+                if (auth.currentUser != null && akunViewModel.akunModel.value == null) {
+                    signInResult.launch(Intent(context, RegisterActivity::class.java))
+                }
+            }
+        }
+    }
+
+    private fun viewModelLoader() {
+        akunViewModel.loadCurrentUser()
+        akunViewModel.loadAkunData()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        akunViewModel.removeAkunListener(akunRef)
     }
 }

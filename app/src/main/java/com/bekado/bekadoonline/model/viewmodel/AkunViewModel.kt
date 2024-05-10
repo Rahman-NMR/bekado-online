@@ -19,46 +19,51 @@ class AkunViewModel : ViewModel() {
     private val _akunModel = MutableLiveData<AkunModel?>(null)
     val akunModel: LiveData<AkunModel?> = _akunModel
 
-    private val _isExists = MutableLiveData<Boolean>()
-    val isExists: LiveData<Boolean> = _isExists
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
-    private lateinit var listener: ValueEventListener
+    private var akunListener: ValueEventListener = object : ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            if (dataSnapshot.exists()) {
+                val akunModel = dataSnapshot.getValue(AkunModel::class.java)
+                _akunModel.value = akunModel
+                _isLoading.value = false
+            } else {
+                _akunModel.value = null
+                _isLoading.value = false
+            }
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {
+            _akunModel.value = null
+            _isLoading.value = true
+        }
+    }
 
     fun loadCurrentUser() {
         _currentUser.value = FirebaseAuth.getInstance().currentUser
     }
 
     fun loadAkunData() {
-        val currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUser = currentUser.value
         val database = FirebaseDatabase.getInstance()
 
         if (currentUser != null) {
             val userId = currentUser.uid
+            _isLoading.value = true
 
             val akunRef = database.getReference("akun/$userId")
-            listener = object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        val akunModel = dataSnapshot.getValue(AkunModel::class.java)
-                        _akunModel.value = akunModel
-                        _isExists.value = true
-                    } else {
-                        _akunModel.value = null
-                        _isExists.value = false
-                    }
-                }
-
-                override fun onCancelled(databaseError: DatabaseError) {
-                    _akunModel.value = null
-                }
-            }
-
-            akunRef.removeEventListener(listener)
-            akunRef.addValueEventListener(listener)
+            akunRef.removeEventListener(akunListener)
+            akunRef.addValueEventListener(akunListener)
         }
     }
 
-    fun removeListener(akunRef: DatabaseReference) {
-        akunRef.removeEventListener(listener)
+    fun clearAkunData() {
+        _akunModel.value = null
+        _currentUser.value = null
+    }
+
+    fun removeAkunListener(akunRef: DatabaseReference) {
+        akunRef.removeEventListener(akunListener)
     }
 }

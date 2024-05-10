@@ -1,17 +1,20 @@
 package com.bekado.bekadoonline.ui.beranda
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.ui.auth.LoginActivity
-import com.bekado.bekadoonline.ui.MainActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterButton
 import com.bekado.bekadoonline.adapter.AdapterProduk
@@ -26,16 +29,17 @@ import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperProduk.getAllProduk
 import com.bekado.bekadoonline.helper.HelperProduk.getFiltered
 import com.bekado.bekadoonline.helper.HorizontalSpacingItemDecoration
-import com.bekado.bekadoonline.model.AkunModel
+import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.model.ButtonModel
 import com.bekado.bekadoonline.model.KategoriModel
 import com.bekado.bekadoonline.model.ProdukModel
+import com.bekado.bekadoonline.model.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.shimmer.ShimmerModel
+import com.bekado.bekadoonline.ui.auth.RegisterActivity
 import com.bekado.bekadoonline.ui.transaksi.KeranjangActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -58,6 +62,9 @@ class BerandaFragment : Fragment() {
     private lateinit var produkRef: DatabaseReference
     private lateinit var produkListener: ValueEventListener
 
+    private lateinit var akunViewModel: AkunViewModel
+    private lateinit var signInResult: ActivityResultLauncher<Intent>
+
     var sortFilter = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -71,11 +78,19 @@ class BerandaFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
         googleSignInClient = GoogleSignIn.getClient(requireContext(), HelperAuth.clientGoogle(requireContext()))
-
-        val currentUser = auth.currentUser
-        akunRef = db.getReference("akun/${currentUser?.uid}")
         produkRef = db.getReference("produk")
         adapterButton = AdapterButton(dataButton) {}
+
+        akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
+        signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val dataLogin = result.data?.getStringExtra(VariableConstant.signInResult)
+
+                if (dataLogin == VariableConstant.refreshUI) {
+                    viewModelLoader()
+                }
+            }
+        }
 
         val paddingBottom = resources.getDimensionPixelSize(R.dimen.maxBottomdp)
         val padding = resources.getDimensionPixelSize(R.dimen.smalldp)
@@ -83,22 +98,13 @@ class BerandaFragment : Fragment() {
         val lmButton = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         val lmShimmer = GridLayoutManager(context, calculateSpanCount(requireContext()))
 
-        getRealtimeDataAkun(currentUser)
+        dataAkunHandler()
         getDataAllProduk()
         searchProduk()
         fabScrollToTop()
         HelperConnection.shimmerProduk(lmShimmer, binding.rvProdukShimmer, padding, dataShimmer)
 
         with(binding) {
-            appBar.setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.menu_keranjang -> {
-                        if (auth.currentUser != null) requireContext().startActivity(Intent(context, KeranjangActivity::class.java))
-                        else requireContext().startActivity(Intent(context, LoginActivity::class.java))
-                    }
-                }
-                true
-            }
             swipeRefresh.setOnRefreshListener {
                 if (HelperConnection.isConnected(requireContext())) getDataAllProduk()
                 binding.swipeRefresh.isRefreshing = false
@@ -257,29 +263,50 @@ class BerandaFragment : Fragment() {
         binding.searchProduk.setOnQueryTextListener(search)
     }
 
-    private fun getRealtimeDataAkun(currentUser: FirebaseUser?) {
-        if (currentUser != null && isAdded) {
-            val akunRef = db.getReference("akun/${currentUser.uid}")
-            akunRef.addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val data = snapshot.getValue(AkunModel::class.java)
+    private fun dataAkunHandler() {
+        viewModelLoader()
 
-                    if (snapshot.exists()) {
-                        if (data!!.statusAdmin)
-                            binding.appBar.setOnMenuItemClickListener {
-                                adminKeranjangState(requireContext(), it)
-                                true
-                            }
-                    } else {
-                        auth.signOut()
-                        googleSignInClient.signOut()
-                        startActivity(Intent(context, MainActivity::class.java))
-                        requireActivity().finish()
+        akunViewModel.currentUser.observe(viewLifecycleOwner) { currentUser ->
+            akunRef = db.getReference("akun/${currentUser?.uid}")
+            binding.appBar.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.menu_keranjang -> {
+                        if (currentUser != null) startActivity(Intent(context, KeranjangActivity::class.java))
+                        else signInResult.launch(Intent(context, LoginActivity::class.java))
                     }
                 }
-
-                override fun onCancelled(error: DatabaseError) {}
-            })
+                true
+            }
         }
+        akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
+            if (akunModel != null) {
+                binding.appBar.setOnMenuItemClickListener {
+                    if (akunModel.statusAdmin) adminKeranjangState(requireContext(), it)
+                    true
+                }
+            }
+
+            validateDataAkun()
+        }
+    }
+
+    private fun validateDataAkun() {
+        akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading == false) {
+                if (auth.currentUser != null && akunViewModel.akunModel.value == null) {
+                    signInResult.launch(Intent(context, RegisterActivity::class.java))
+                }
+            }
+        }
+    }
+
+    private fun viewModelLoader() {
+        akunViewModel.loadCurrentUser()
+        akunViewModel.loadAkunData()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        akunViewModel.removeAkunListener(akunRef)
     }
 }

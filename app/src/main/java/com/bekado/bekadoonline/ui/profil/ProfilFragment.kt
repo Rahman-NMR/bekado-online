@@ -9,12 +9,10 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModelProvider
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
-import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.model.viewmodel.AkunViewModel
@@ -39,11 +37,11 @@ class ProfilFragment : Fragment() {
     private lateinit var db: FirebaseDatabase
     private lateinit var googleSignInClient: GoogleSignInClient
 
-    private lateinit var akunViewModel: AkunViewModel
     private lateinit var akunRef: DatabaseReference
-
     private lateinit var transaksiRef: DatabaseReference
     private lateinit var transaksiListener: ValueEventListener
+
+    private lateinit var akunViewModel: AkunViewModel
     private lateinit var signInResult: ActivityResultLauncher<Intent>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -63,26 +61,23 @@ class ProfilFragment : Fragment() {
 
             override fun onCancelled(error: DatabaseError) {}
         }
-        val currentUser = auth.currentUser
-        akunRef = db.getReference("akun/${currentUser?.uid}")
 
         akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
         signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val data = result.data?.getStringExtra(VariableConstant.resultLogin)
+                val dataLogin = result.data?.getStringExtra(VariableConstant.signInResult)
 
-                if (data == VariableConstant.refreshLogin) {
-                    dataLoader()
-                    showToast("Login berhasil", requireContext())
+                if (dataLogin == VariableConstant.refreshUI) {
+                    viewModelLoader()
                 }
             }
         }
 
-        dataHandler()
+        dataAkunHandler()
 
         with(binding) {
             btnLogin.setOnClickListener { signInResult.launch(Intent(context, LoginActivity::class.java)) }
-            btnRegister.setOnClickListener { startActivity(Intent(context, RegisterActivity::class.java)) }
+            btnRegister.setOnClickListener { signInResult.launch(Intent(context, RegisterActivity::class.java)) }
 
             btnAkunSaya.setOnClickListener { startActivity(Intent(context, AkunSayaActivity::class.java)) }
             btnDetailAlamat.setOnClickListener { startActivity(Intent(context, AlamatActivity::class.java)) }
@@ -92,10 +87,11 @@ class ProfilFragment : Fragment() {
         }
     }
 
-    private fun dataHandler() {
-        dataLoader()
+    private fun dataAkunHandler() {
+        viewModelLoader()
 
         akunViewModel.currentUser.observe(viewLifecycleOwner) { currentUser ->
+            akunRef = db.getReference("akun/${currentUser?.uid}")
             binding.notNullLayout.visibility = if (currentUser == null) View.GONE else View.VISIBLE
             binding.nullLayout.visibility = if (currentUser == null) View.VISIBLE else View.GONE
         }
@@ -129,18 +125,18 @@ class ProfilFragment : Fragment() {
                     shimmerAkunSaya.startShimmer()
                 }
             }
-        }
 
-        val combinedLiveData = MediatorLiveData<Boolean>()
+            validateDataAkun()
+        }
+    }
 
-        combinedLiveData.addSource(akunViewModel.currentUser) { currentUser ->
-            combinedLiveData.value = currentUser != null && !akunViewModel.isExists.value!!
-        }
-        combinedLiveData.addSource(akunViewModel.isExists) { isExist ->
-            combinedLiveData.value = akunViewModel.currentUser.value != null && !isExist
-        }
-        combinedLiveData.observe(viewLifecycleOwner) { isRegister ->
-            if (isRegister) startActivity(Intent(context, RegisterActivity::class.java))
+    private fun validateDataAkun() {
+        akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading == false) {
+                if (auth.currentUser != null && akunViewModel.akunModel.value == null) {
+                    signInResult.launch(Intent(context, RegisterActivity::class.java))
+                }
+            }
         }
     }
 
@@ -210,21 +206,19 @@ class ProfilFragment : Fragment() {
             transaksiRef = db.getReference("transaksi")
             auth.signOut()
             googleSignInClient.signOut()
-
-            dataLoader()
+            akunViewModel.clearAkunData()
         }
     }
 
-    private fun dataLoader() {
+    private fun viewModelLoader() {
         akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        akunViewModel.loadAkunData()
-        akunViewModel.removeListener(akunRef)
 
+        akunViewModel.removeAkunListener(akunRef)
         transaksiRef.removeEventListener(transaksiListener)
     }
 }
