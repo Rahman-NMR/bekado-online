@@ -86,9 +86,8 @@ class BerandaFragment : Fragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val dataLogin = result.data?.getStringExtra(VariableConstant.signInResult)
 
-                if (dataLogin == VariableConstant.refreshUI) {
-                    viewModelLoader()
-                }
+                if (dataLogin == VariableConstant.refreshUI) viewModelLoader()
+                if (dataLogin == VariableConstant.signOut) akunViewModel.clearAkunData()
             }
         }
 
@@ -192,7 +191,7 @@ class BerandaFragment : Fragment() {
                     }
                 }
                 adapterProduk = AdapterProduk(dataProduk) { produk ->
-                    ShowProdukBottomSheet(requireContext()).showDialog(requireContext(), produk, auth, db)
+                    ShowProdukBottomSheet(requireContext()).showDialog(requireContext(), produk, auth.currentUser, db, signInResult)
                 }
                 getAllProduk(snapshot, dataProduk, dataKategori, adapterProduk, sortFilter)
                 with(binding) {
@@ -268,29 +267,18 @@ class BerandaFragment : Fragment() {
 
         akunViewModel.currentUser.observe(viewLifecycleOwner) { currentUser ->
             akunRef = db.getReference("akun/${currentUser?.uid}")
+        }
+        akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
             binding.appBar.setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.menu_keranjang -> {
-                        if (currentUser != null) startActivity(Intent(context, KeranjangActivity::class.java))
-                        else signInResult.launch(Intent(context, LoginActivity::class.java))
+                if (auth.currentUser != null) {
+                    if (akunModel != null) {
+                        if (akunModel.statusAdmin) adminKeranjangState(requireContext(), it)
+                        else startActivity(Intent(context, KeranjangActivity::class.java))
                     }
-                }
+                } else signInResult.launch(Intent(context, LoginActivity::class.java))
                 true
             }
         }
-        akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
-            if (akunModel != null) {
-                binding.appBar.setOnMenuItemClickListener {
-                    if (akunModel.statusAdmin) adminKeranjangState(requireContext(), it)
-                    true
-                }
-            }
-
-            validateDataAkun()
-        }
-    }
-
-    private fun validateDataAkun() {
         akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             if (isLoading == false) {
                 if (auth.currentUser != null && akunViewModel.akunModel.value == null) {

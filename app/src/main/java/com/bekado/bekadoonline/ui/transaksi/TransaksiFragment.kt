@@ -70,7 +70,7 @@ class TransaksiFragment : Fragment() {
                 val action = result.data?.getStringExtra("result_action")
                 val string = result.data?.getStringExtra("trxUpdate")
                 if (action == "refresh_data") {
-//                    getRealtimeDataAkun(auth.currentUser)
+                    dataAkunHandler()
                     val snackbar = Snackbar.make(binding.root, "Status $string diperbarui", Snackbar.LENGTH_LONG)
                     snackbar.setAction("Salin") { Helper.salinPesan(requireContext(), string.toString()) }.show()
                 }
@@ -96,9 +96,8 @@ class TransaksiFragment : Fragment() {
             if (result.resultCode == RESULT_OK) {
                 val dataLogin = result.data?.getStringExtra(VariableConstant.signInResult)
 
-                if (dataLogin == VariableConstant.refreshUI) {
-                    viewModelLoader()
-                }
+                if (dataLogin == VariableConstant.refreshUI) viewModelLoader()
+                if (dataLogin == VariableConstant.signOut) akunViewModel.clearAkunData()
             }
         }
 
@@ -300,18 +299,18 @@ class TransaksiFragment : Fragment() {
             binding.appBarLayout.visibility = if (currentUser != null) View.VISIBLE else View.GONE
             binding.clDaftarTransaksi.visibility = if (currentUser != null) View.VISIBLE else View.GONE
             binding.nullLayout.visibility = if (currentUser != null) View.GONE else View.VISIBLE
-
-            binding.appBar.setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.menu_keranjang -> {
-                        if (currentUser != null) startActivity(Intent(context, KeranjangActivity::class.java))
-                        else signInResult.launch(Intent(context, LoginActivity::class.java))
-                    }
-                }
-                true
-            }
         }
         akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
+            binding.appBar.setOnMenuItemClickListener {
+                if (auth.currentUser != null) {
+                    if (akunModel != null) {
+                        if (akunModel.statusAdmin) adminKeranjangState(requireContext(), it)
+                        else startActivity(Intent(context, KeranjangActivity::class.java))
+                    }
+                } else signInResult.launch(Intent(context, LoginActivity::class.java))
+                true
+            }
+
             if (akunModel != null) {
                 val refAdmin = if (akunModel.statusAdmin) "transaksi" else "transaksi/${akunModel.uid}"
                 transaksiRef = db.getReference(refAdmin)
@@ -330,20 +329,11 @@ class TransaksiFragment : Fragment() {
                     if (HelperConnection.isConnected(requireContext())) getTransaksiData(isAdmin)
                     binding.swipeRefresh.isRefreshing = false
                 }
-                binding.appBar.setOnMenuItemClickListener {
-                    if (isAdmin) adminKeranjangState(requireContext(), it)
-                    true
-                }
             } else {
                 binding.filterStatusPesanan.alpha = 0.3f
                 binding.filterByTime.alpha = 0.3f
             }
-
-            validateDataAkun()
         }
-    }
-
-    private fun validateDataAkun() {
         akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             if (isLoading == false) {
                 if (auth.currentUser != null && akunViewModel.akunModel.value == null) {

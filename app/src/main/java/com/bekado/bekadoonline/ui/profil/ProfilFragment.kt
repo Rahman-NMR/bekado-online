@@ -67,9 +67,8 @@ class ProfilFragment : Fragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val dataLogin = result.data?.getStringExtra(VariableConstant.signInResult)
 
-                if (dataLogin == VariableConstant.refreshUI) {
-                    viewModelLoader()
-                }
+                if (dataLogin == VariableConstant.refreshUI) viewModelLoader()
+                if (dataLogin == VariableConstant.signOut) akunViewModel.clearAkunData()
             }
         }
 
@@ -126,11 +125,7 @@ class ProfilFragment : Fragment() {
                 }
             }
 
-            validateDataAkun()
         }
-    }
-
-    private fun validateDataAkun() {
         akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             if (isLoading == false) {
                 if (auth.currentUser != null && akunViewModel.akunModel.value == null) {

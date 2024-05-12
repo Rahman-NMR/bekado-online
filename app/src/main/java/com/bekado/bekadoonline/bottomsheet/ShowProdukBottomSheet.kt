@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
 import com.bekado.bekadoonline.ui.auth.LoginActivity
 import com.bumptech.glide.Glide
 import com.bekado.bekadoonline.R
@@ -13,7 +14,7 @@ import com.bekado.bekadoonline.helper.HelperProduk
 import com.bekado.bekadoonline.model.ProdukModel
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -33,7 +34,13 @@ class ShowProdukBottomSheet(context: Context) {
         dialog.setContentView(bindingPBS.root)
     }
 
-    fun showDialog(context: Context, produk: ProdukModel, auth: FirebaseAuth, db: FirebaseDatabase) {
+    fun showDialog(
+        context: Context,
+        produk: ProdukModel,
+        currentUser: FirebaseUser?,
+        db: FirebaseDatabase,
+        signInResult: ActivityResultLauncher<Intent>
+    ) {
         val hargaProdukShows = produk.currency + Helper.addcoma3digit(produk.hargaProduk)
 
         with(bindingPBS) {
@@ -44,18 +51,14 @@ class ShowProdukBottomSheet(context: Context) {
             hargaProduk.text = hargaProdukShows
         }
 
-        val currentUser = auth.currentUser
         if (currentUser != null) {
             keranjangRef = db.getReference("keranjang/${currentUser.uid}/${produk.idProduk}")
-            setupValueEventListener(keranjangRef)
-            checkDataExistence(keranjangRef)
-            plusMinusJumlah(keranjangRef)
+            setupValueEventListener(produk.namaProduk, context)
+            checkDataExistence()
+            plusMinusJumlah(produk.namaProduk, context)
 
-            dialog.setOnDismissListener {
-                keranjangListener.let {
-                    keranjangRef.removeEventListener(it)
-                }
-            }
+            dialog.setOnDismissListener { keranjangListener.let { keranjangRef.removeEventListener(it) } }
+            dialog.setOnCancelListener { keranjangListener.let { keranjangRef.removeEventListener(it) } }
         } else {
             with(bindingPBS) {
                 btnTambahKeranjang.visibility = View.VISIBLE
@@ -68,20 +71,21 @@ class ShowProdukBottomSheet(context: Context) {
             if (currentUser != null) {
                 val keranjangRef = db.getReference("keranjang/${currentUser.uid}")
                 HelperProduk.addToKeranjang(produk, keranjangRef, context)
-                dialog.cancel()
-            } else context.startActivity(Intent(context, LoginActivity::class.java))
+            } else signInResult.launch(Intent(context, LoginActivity::class.java))
+
+            dialog.cancel()
         }
 
         dialog.show()
     }
 
-    private fun setupValueEventListener(keranjangRef: DatabaseReference) {
+    private fun setupValueEventListener(namaProduk: String?, context: Context) {
         keranjangListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val jumlahPesan = snapshot.child("jumlahProduk").getValue(Long::class.java) ?: 0
                 jumlahPesanV = jumlahPesan.toInt()
                 bindingPBS.jumlahProduk.text = jumlahPesan.toString()
-                plusMinusJumlah(keranjangRef)
+                plusMinusJumlah(namaProduk, context)
             }
 
             override fun onCancelled(error: DatabaseError) {}
@@ -90,20 +94,21 @@ class ShowProdukBottomSheet(context: Context) {
         keranjangRef.addValueEventListener(keranjangListener)
     }
 
-    private fun plusMinusJumlah(ref: DatabaseReference) {
+    private fun plusMinusJumlah(namaProduk: String?, context: Context) {
         bindingPBS.tambahJumlahProduk.apply {
-            isEnabled = jumlahPesanV != 100
-            setOnClickListener { HelperProduk.plusMinus(ref, true) }
+            isEnabled = jumlahPesanV < 100
+            setOnClickListener { HelperProduk.plusMinus(keranjangRef, true) }
         }
         bindingPBS.kurangJumlahProduk.setOnClickListener {
-            if (jumlahPesanV == 1) {
-                ref.removeValue()
+            if (jumlahPesanV <= 1) {
+                keranjangRef.removeValue()
+                Helper.showToast("$namaProduk dihapus dari keranjang", context)
                 dialog.cancel()
-            } else HelperProduk.plusMinus(ref, false)
+            } else HelperProduk.plusMinus(keranjangRef, false)
         }
     }
 
-    private fun checkDataExistence(keranjangRef: DatabaseReference) {
+    private fun checkDataExistence() {
         keranjangRef.get().addOnSuccessListener { dataSnapshot ->
             with(bindingPBS) {
                 btnTambahKeranjang.visibility = if (dataSnapshot.exists()) View.GONE else View.VISIBLE

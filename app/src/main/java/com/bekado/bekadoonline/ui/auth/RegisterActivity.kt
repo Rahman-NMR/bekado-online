@@ -207,6 +207,11 @@ class RegisterActivity : AppCompatActivity() {
     private fun signOut() {
         googleSignInClient.signOut()
         auth.signOut()
-        signInSuccess()
+
+        val resultIntent = Intent().apply {
+            putExtra(VariableConstant.signInResult, VariableConstant.signOut)
+        }
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 }
