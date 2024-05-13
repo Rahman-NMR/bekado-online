@@ -292,9 +292,4 @@ class BerandaFragment : Fragment() {
         akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        akunViewModel.removeAkunListener(akunRef)
-    }
 }

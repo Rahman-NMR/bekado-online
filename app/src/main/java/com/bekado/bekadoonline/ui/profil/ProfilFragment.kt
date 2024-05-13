@@ -16,6 +16,7 @@ import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.model.viewmodel.AkunViewModel
+import com.bekado.bekadoonline.model.viewmodel.TransaksiViewModel
 import com.bekado.bekadoonline.ui.adm.KategoriListActivity
 import com.bekado.bekadoonline.ui.auth.LoginActivity
 import com.bekado.bekadoonline.ui.auth.RegisterActivity
@@ -25,11 +26,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 
 class ProfilFragment : Fragment() {
     private lateinit var binding: FragmentProfilBinding
@@ -39,9 +37,10 @@ class ProfilFragment : Fragment() {
 
     private lateinit var akunRef: DatabaseReference
     private lateinit var transaksiRef: DatabaseReference
-    private lateinit var transaksiListener: ValueEventListener
 
+    private var adminStatus: Boolean = false
     private lateinit var akunViewModel: AkunViewModel
+    private lateinit var transaksiViewModel: TransaksiViewModel
     private lateinit var signInResult: ActivityResultLauncher<Intent>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -55,14 +54,9 @@ class ProfilFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
         googleSignInClient = GoogleSignIn.getClient(requireContext(), HelperAuth.clientGoogle(requireContext()))
-        transaksiRef = db.getReference("transaksi")
-        transaksiListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {}
-
-            override fun onCancelled(error: DatabaseError) {}
-        }
 
         akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
+        transaksiViewModel = ViewModelProvider(requireActivity())[TransaksiViewModel::class.java]
         signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val dataLogin = result.data?.getStringExtra(VariableConstant.signInResult)
@@ -73,6 +67,7 @@ class ProfilFragment : Fragment() {
         }
 
         dataAkunHandler()
+        dataTransaksiHandler()
 
         with(binding) {
             btnLogin.setOnClickListener { signInResult.launch(Intent(context, LoginActivity::class.java)) }
@@ -115,8 +110,9 @@ class ProfilFragment : Fragment() {
 
                 val refAdmin = if (akunModel.statusAdmin) "transaksi" else "transaksi/${akunModel.uid}"
                 transaksiRef = db.getReference(refAdmin)
+                adminStatus = akunModel.statusAdmin
 
-                getRealtimeDataTransaksi(akunModel.statusAdmin)
+                transaksiViewModel.loadTransaksiData(transaksiRef, akunModel.statusAdmin)
             } else {
                 with(binding) {
                     akunSaya.visibility = View.GONE
@@ -135,48 +131,17 @@ class ProfilFragment : Fragment() {
         }
     }
 
-    private fun getRealtimeDataTransaksi(isAdmin: Boolean) {
-        transaksiListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                var totalAntrian = 0
-                var totalProses = 0
-                var totalSelesai = 0
-
-                if (isAdded) {
-                    if (isAdmin) {
-                        for (userTransaksi in snapshot.children) {
-                            for (item in userTransaksi.children) {
-                                when (item.child("parentStatus").value.toString()) {
-                                    getString(R.string.key_antrian) -> totalAntrian++
-                                    getString(R.string.key_proses) -> totalProses++
-                                    getString(R.string.key_selesai) -> totalSelesai++
-                                }
-                            }
-                        }
-                    } else {
-                        for (item in snapshot.children) {
-                            when (item.child("parentStatus").value.toString()) {
-                                getString(R.string.key_antrian) -> totalAntrian++
-                                getString(R.string.key_proses) -> totalProses++
-                                getString(R.string.key_selesai) -> totalSelesai++
-                            }
-                        }
-                    }
-                }
-
-                with(binding) {
-                    countAntrian.text = totalAntrian.toString()
-                    countProses.text = totalProses.toString()
-                    countSelesai.text = totalSelesai.toString()
-
+    private fun dataTransaksiHandler() {
+        transaksiViewModel.totalAntrian.observe(viewLifecycleOwner) { binding.countAntrian.text = it.toString() }
+        transaksiViewModel.totalProses.observe(viewLifecycleOwner) { binding.countProses.text = it.toString() }
+        transaksiViewModel.totalSelesai.observe(viewLifecycleOwner) { binding.countSelesai.text = it.toString() }
+        transaksiViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            with(binding) {
+                if (!isLoading) {
                     transaksiSaya.visibility = View.VISIBLE
                     shimmerTransaksiSaya.visibility = View.GONE
                     shimmerTransaksiSaya.stopShimmer()
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                with(binding) {
+                } else {
                     transaksiSaya.visibility = View.GONE
                     shimmerTransaksiSaya.visibility = View.VISIBLE
                     shimmerTransaksiSaya.startShimmer()
@@ -187,7 +152,6 @@ class ProfilFragment : Fragment() {
                 }
             }
         }
-        transaksiRef.addValueEventListener(transaksiListener)
     }
 
     private fun showAlertDialog() {
@@ -214,6 +178,6 @@ class ProfilFragment : Fragment() {
         super.onDestroy()
 
         akunViewModel.removeAkunListener(akunRef)
-        transaksiRef.removeEventListener(transaksiListener)
+        transaksiViewModel.removeTransaksiListener(transaksiRef, adminStatus)
     }
 }

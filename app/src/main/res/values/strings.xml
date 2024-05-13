@@ -45,7 +45,6 @@
     <!--    button-->
     <string name="login">Login</string>
     <string name="lupa_password">Lupa password?</string>
-    <string name="daftar_baru">Daftar akun baru</string>
     <string name="register">Register</string>
     <string name="batalkan">Batalkan</string>
     <string name="logout">Logout</string>
