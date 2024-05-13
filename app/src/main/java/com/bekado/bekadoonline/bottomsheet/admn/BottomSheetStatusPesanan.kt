@@ -51,6 +51,7 @@ class BottomSheetStatusPesanan(context: Context) {
                 }
 
                 selectedStatus = (view as TextView).text.toString()
+                btnPilihStatus.isEnabled = startActive != selectedStatus
                 view.isActivated = true
             }
 
