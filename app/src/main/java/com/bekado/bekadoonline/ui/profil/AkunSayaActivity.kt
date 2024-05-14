@@ -12,22 +12,21 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityAkunSayaBinding
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection.isConnected
-import com.bekado.bekadoonline.model.AkunModel
+import com.bekado.bekadoonline.model.viewmodel.AkunViewModel
+import com.bekado.bekadoonline.model.viewmodel.AlamatViewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 
 class AkunSayaActivity : AppCompatActivity() {
@@ -37,9 +36,9 @@ class AkunSayaActivity : AppCompatActivity() {
     private lateinit var storage: FirebaseStorage
 
     private lateinit var akunRef: DatabaseReference
-    private lateinit var akunListener: ValueEventListener
     private lateinit var alamatRef: DatabaseReference
-    private lateinit var alamatListener: ValueEventListener
+    private lateinit var akunViewModel: AkunViewModel
+    private lateinit var alamatViewModel: AlamatViewModel
 
     private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
     private var imageUri: Uri = Uri.parse("")
@@ -58,8 +57,9 @@ class AkunSayaActivity : AppCompatActivity() {
         db = FirebaseDatabase.getInstance()
         storage = FirebaseStorage.getInstance()
         val currentUser = auth.currentUser
-        akunRef = db.getReference("akun/${currentUser?.uid}")
-        alamatRef = db.getReference("alamat/${currentUser?.uid}")
+
+        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
+        alamatViewModel = ViewModelProvider(this)[AlamatViewModel::class.java]
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
@@ -71,12 +71,12 @@ class AkunSayaActivity : AppCompatActivity() {
             } else if (result.resultCode == ImagePicker.RESULT_ERROR) showToast(ImagePicker.getError(result.data), this)
         }
 
-        getRealtimeDataAkun(currentUser)
+        dataAkunHandler()
 
         with(binding) {
             appBar.setNavigationOnClickListener { finish() }
             btnEditFoto.setOnClickListener { pickImage() }
-            btnEditAlamat.setOnClickListener { startActivity(Intent(this@AkunSayaActivity, AlamatActivity::class.java)) }
+            btnGotoAlamat.setOnClickListener { startActivity(Intent(this@AkunSayaActivity, AlamatActivity::class.java)) }
 
             btnEditNama.setOnClickListener {
                 toggleEditView(namaEdit, namaView, btnEditNama, btnCancelNama, btnEditNohp)
@@ -139,47 +139,73 @@ class AkunSayaActivity : AppCompatActivity() {
         }.addOnFailureListener { showToast(getString(R.string.masalah_database), this@AkunSayaActivity) }
     }
 
-    private fun getRealtimeDataAkun(currentUser: FirebaseUser?) {
-        if (currentUser != null) {
-            akunListener = object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val data = snapshot.getValue(AkunModel::class.java)
+    private fun dataAkunHandler() {
+        viewModelLoader()
 
-                    namaUser = data!!.nama.toString()
-                    nohpUser = data.noHp.toString()
+        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
+        akunViewModel.akunModel.observe(this) { akunModel ->
+            if (akunModel != null) {
+                akunRef = db.getReference("akun/${akunModel.uid}")
+                alamatRef = db.getReference("alamat/${akunModel.uid}")
 
-                    binding.namaView.text = data.nama.toString()
-                    if (!data.noHp.isNullOrEmpty()) binding.nohpView.text = data.noHp.toString()
-                    else binding.nohpView.text = getString(R.string.tidak_ada_data)
-                    binding.emailView.text = data.email.toString()
-                    if (!isDestroyed) Glide.with(this@AkunSayaActivity).load(data.fotoProfil)
-                        .apply(RequestOptions()).centerCrop()
-                        .placeholder(R.drawable.img_broken_image_circle).into(binding.fotoProfil)
+                namaUser = akunModel.nama.toString()
+                nohpUser = akunModel.noHp.toString()
 
-                    binding.namaEdit.setText(data.nama.toString())
-                    binding.nohpEdit.setText(data.noHp.toString())
+                binding.namaView.text = akunModel.nama.toString()
+                if (!akunModel.noHp.isNullOrEmpty()) binding.nohpView.text = akunModel.noHp.toString()
+                else binding.nohpView.text = getString(R.string.tidak_ada_data)
+                binding.emailView.text = akunModel.email.toString()
+                if (!isDestroyed) Glide.with(this@AkunSayaActivity).load(akunModel.fotoProfil)
+                    .apply(RequestOptions()).centerCrop()
+                    .placeholder(R.drawable.img_broken_image_circle).into(binding.fotoProfil)
 
-                    alamatListener = object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            if (snapshot.exists()) {
-                                val alamat = snapshot.child("alamatLengkap").value.toString()
-                                val kodePos = snapshot.child("kodePos").value.toString()
-                                val alamatn = "$alamat, $kodePos"
-
-                                binding.alamatView.text = alamatn
-                            } else binding.alamatView.text = getString(R.string.tidak_ada_data)
-
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {}
-                    }
-                    alamatRef.addValueEventListener(alamatListener)
-                }
-
-                override fun onCancelled(error: DatabaseError) {}
+                binding.namaEdit.setText(akunModel.nama.toString())
+                binding.nohpEdit.setText(akunModel.noHp.toString())
+            } else {
+                akunRef = db.getReference("akun")
+                alamatRef = db.getReference("alamat")
             }
-            akunRef.addValueEventListener(akunListener)
         }
+        akunViewModel.isLoading.observe(this) { isLoading ->
+            binding.btnEditFoto.isEnabled = !isLoading
+            binding.btnEditNama.isEnabled = !isLoading
+            binding.btnEditNohp.isEnabled = !isLoading
+
+            loadingTextColor(binding.namaView, isLoading)
+            loadingTextColor(binding.nohpView, isLoading)
+            loadingTextColor(binding.emailView, isLoading)
+
+            if (isLoading) {
+                loadingDisplayText(binding.namaView)
+                loadingDisplayText(binding.nohpView)
+                loadingDisplayText(binding.emailView)
+            }
+        }
+        alamatViewModel.alamatModel.observe(this) { alamatModel ->
+            if (alamatModel != null) {
+                if (!alamatModel.alamatLengkap.isNullOrEmpty() && !alamatModel.kodePos.isNullOrEmpty()) {
+                    val alamatn = "${alamatModel.alamatLengkap}, ${alamatModel.kodePos}"
+                    binding.alamatView.text = alamatn
+                } else binding.alamatView.text = getString(R.string.tidak_ada_data)
+            } else binding.alamatView.text = getString(R.string.tidak_ada_data)
+        }
+        alamatViewModel.isLoading.observe(this) { isLoading ->
+            loadingTextColor(binding.alamatView, isLoading)
+            if (isLoading) loadingDisplayText(binding.alamatView)
+        }
+    }
+
+    private fun loadingDisplayText(textView: TextView) {
+        val txtLoading = "Loading..."
+        textView.text = txtLoading
+    }
+
+    private fun loadingTextColor(textView: TextView, isLoading: Boolean) {
+        val colorLoading = ContextCompat.getColor(this, R.color.outline_variant)
+        val colorReady = ContextCompat.getColor(this, R.color.grey_700)
+        val setColor = if (isLoading) colorLoading else colorReady
+
+        textView.setTextColor(setColor)
     }
 
     private fun toggleEditView(
@@ -215,11 +241,18 @@ class AkunSayaActivity : AppCompatActivity() {
         } else showToast("$string ${getString(R.string.tidak_dapat_kosong)}", this)
     }
 
+    private fun viewModelLoader() {
+        akunViewModel.loadCurrentUser()
+        akunViewModel.loadAkunData()
+        alamatViewModel.loadCurrentUser()
+        alamatViewModel.loadAlamatData()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         if (auth.currentUser != null) {
-            akunRef.removeEventListener(akunListener)
-            alamatRef.removeEventListener(alamatListener)
+            akunViewModel.removeAkunListener(akunRef)
+            alamatViewModel.removeAlamatListener(alamatRef)
         }
     }
 }

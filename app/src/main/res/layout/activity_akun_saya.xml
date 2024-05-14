@@ -278,7 +278,7 @@
                             tools:visibility="visible" />
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_edit_alamat"
+                            android:id="@+id/btn_goto_alamat"
                             style="@style/iconOnly.button"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"

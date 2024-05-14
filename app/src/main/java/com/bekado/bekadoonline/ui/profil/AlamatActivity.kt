@@ -5,24 +5,24 @@ import android.location.Geocoder
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityAlamatBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.model.AkunModel
+import com.bekado.bekadoonline.model.viewmodel.AkunViewModel
+import com.bekado.bekadoonline.model.viewmodel.AlamatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import java.util.Locale
 
 class AlamatActivity : AppCompatActivity() {
@@ -31,9 +31,10 @@ class AlamatActivity : AppCompatActivity() {
     private lateinit var db: FirebaseDatabase
     private lateinit var latLang: FusedLocationProviderClient
 
+    private lateinit var akunRef: DatabaseReference
     private lateinit var alamatRef: DatabaseReference
-    private lateinit var alamatListener: ValueEventListener
-    private lateinit var latLongListener: ValueEventListener
+    private lateinit var akunViewModel: AkunViewModel
+    private lateinit var alamatViewModel: AlamatViewModel
 
     private var namaAlamat: String = ""
     private var nohpAlamat: String = ""
@@ -57,11 +58,11 @@ class AlamatActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
         latLang = LocationServices.getFusedLocationProviderClient(this)
-        val currentUser = auth.currentUser
-        alamatRef = db.getReference("alamat/${currentUser?.uid}")
 
-        getDataAlamat()
-        getDataLatLong()
+        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
+        alamatViewModel = ViewModelProvider(this)[AlamatViewModel::class.java]
+
+        dataAkunHandler()
 
         with(binding) {
             namaAlamat.addTextChangedListener(alamatTextWatcher)
@@ -101,91 +102,85 @@ class AlamatActivity : AppCompatActivity() {
         }
     }
 
-    private fun getDataAlamat() {
-        val uidNow = auth.currentUser!!.uid
-        val profilRef = db.getReference("akun/$uidNow")
-
-        alamatListener = object : ValueEventListener {
-            override fun onDataChange(snapshotAlamat: DataSnapshot) {
-                if (snapshotAlamat.exists()) {
-                    namaAlamat = snapshotAlamat.child("nama").value?.toString() ?: ""
-                    nohpAlamat = snapshotAlamat.child("noHp").value?.toString() ?: ""
-                    alamatLengkap = snapshotAlamat.child("alamatLengkap").value?.toString() ?: ""
-                    kodePosAlamat = snapshotAlamat.child("kodePos").value?.toString() ?: ""
-
-                    binding.namaAlamat.setText(namaAlamat)
-                    binding.nohpAlamat.setText(nohpAlamat)
-                    binding.alamat.setText(alamatLengkap)
-                    binding.kodePos.setText(kodePosAlamat)
-                } else {
-                    profilRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshotAkun: DataSnapshot) {
-                            val data = snapshotAkun.getValue(AkunModel::class.java)
-                            binding.namaAlamat.setText(data?.nama.toString())
-                            binding.nohpAlamat.setText(data?.noHp.toString())
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {}
-                    })
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-        }
-
-        alamatRef.addValueEventListener(alamatListener)
-    }
-
     private fun saveAlamat() {
         val address = HashMap<String, Any>()
         address["nama"] = binding.namaAlamat.text.toString().trim()
         address["noHp"] = binding.nohpAlamat.text.toString().trim()
         address["alamatLengkap"] = binding.alamat.text.toString().trim()
         address["kodePos"] = binding.kodePos.text.toString().trim()
-        alamatRef.updateChildren(address)
-            .addOnSuccessListener {
-                with(binding) {
-                    namaAlamat.clearFocus()
-                    nohpAlamat.clearFocus()
-                    alamat.clearFocus()
-                    kodePos.clearFocus()
-                    btnSimpanPerubahan.isEnabled = false
+        alamatRef.updateChildren(address).addOnSuccessListener {
+            with(binding) {
+                namaAlamat.clearFocus()
+                nohpAlamat.clearFocus()
+                alamat.clearFocus()
+                kodePos.clearFocus()
+                btnSimpanPerubahan.isEnabled = false
 
-                    val snackbar = Snackbar.make(binding.root, getString(R.string.alamat_berhasil_save), Snackbar.LENGTH_SHORT)
-                    snackbar.setAction("Oke") { finish() }.show()
-                }
-                getDataAlamat()
+                val snackbar = Snackbar.make(binding.root, getString(R.string.alamat_berhasil_save), Snackbar.LENGTH_SHORT)
+                snackbar.setAction("Oke") { finish() }.show()
             }
+        }
     }
 
-    private fun getDataLatLong() {
-        latLongListener = object : ValueEventListener {
-            override fun onDataChange(snapshotAlamat: DataSnapshot) {
-                if (snapshotAlamat.exists()) {
-                    val latitude = snapshotAlamat.child("latitude").value?.toString() ?: ""
-                    val longitude = snapshotAlamat.child("longitude").value?.toString() ?: ""
+    private fun dataAkunHandler() {
+        viewModelLoader()
 
-                    if (latitude.isNotEmpty() && longitude.isNotEmpty()) {
-                        val geoCoder = Geocoder(this@AlamatActivity, Locale.getDefault())
-                        val adress = geoCoder.getFromLocation(latitude.toDouble(), longitude.toDouble(), 10)
-                        val namaJalan = if (adress!![0].thoroughfare != null) adress[0].thoroughfare else ""
-                        val noRumah = if (adress[0].subThoroughfare != null) "${adress[0].subThoroughfare}," else ""
-                        val komplek = if (adress[0].subLocality != null) "${adress[0].subLocality}," else ""
-                        val camatKel = if (adress[0].locality != null) "${adress[0].locality}," else ""
-                        val kotaKab = if (adress[0].subAdminArea != null) "${adress[0].subAdminArea}," else ""
-                        val provinsi = if (adress[0].adminArea != null) "${adress[0].adminArea}," else ""
-                        val kodePos = if (adress[0].postalCode != null) adress[0].postalCode else ""
+        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
+        akunViewModel.akunModel.observe(this) { akunModel ->
+            if (akunModel != null) {
+                akunRef = db.getReference("akun/${akunModel.uid}")
+                alamatRef = db.getReference("alamat/${akunModel.uid}")
 
-                        val fullAlamat = "$namaJalan $noRumah $komplek $camatKel $kotaKab $provinsi $kodePos"
-                        binding.tvTitikLokasi.text = fullAlamat
-                    }
+                if (namaAlamat.isEmpty() && nohpAlamat.isEmpty()) {
+                    binding.namaAlamat.setText(akunModel.nama)
+                    binding.nohpAlamat.setText(akunModel.noHp)
                 }
+            } else {
+                akunRef = db.getReference("akun")
+                alamatRef = db.getReference("alamat")
             }
-
-            override fun onCancelled(error: DatabaseError) {}
         }
+        alamatViewModel.alamatModel.observe(this) { alamatModel ->
+            if (alamatModel != null) {
+                namaAlamat = alamatModel.nama ?: ""
+                nohpAlamat = alamatModel.noHp ?: ""
+                alamatLengkap = alamatModel.alamatLengkap ?: ""
+                kodePosAlamat = alamatModel.kodePos ?: ""
 
-        alamatRef.addListenerForSingleValueEvent(latLongListener)
+                if (namaAlamat.isNotEmpty()) binding.namaAlamat.setText(namaAlamat)
+                if (nohpAlamat.isNotEmpty()) binding.nohpAlamat.setText(nohpAlamat)
+                binding.alamat.setText(alamatLengkap)
+                binding.kodePos.setText(kodePosAlamat)
+
+                val latitude = alamatModel.latitude ?: ""
+                val longitude = alamatModel.longitude ?: ""
+
+                if (latitude.isNotEmpty() && longitude.isNotEmpty()) {
+                    val geoCoder = Geocoder(this@AlamatActivity, Locale.getDefault())
+                    val adress = geoCoder.getFromLocation(latitude.toDouble(), longitude.toDouble(), 10)
+                    val namaJalan = if (adress!![0].thoroughfare != null) adress[0].thoroughfare else ""
+                    val noRumah = if (adress[0].subThoroughfare != null) "${adress[0].subThoroughfare}," else ""
+                    val komplek = if (adress[0].subLocality != null) "${adress[0].subLocality}," else ""
+                    val camatKel = if (adress[0].locality != null) "${adress[0].locality}," else ""
+                    val kotaKab = if (adress[0].subAdminArea != null) "${adress[0].subAdminArea}," else ""
+                    val provinsi = if (adress[0].adminArea != null) "${adress[0].adminArea}," else ""
+                    val kodePos = if (adress[0].postalCode != null) adress[0].postalCode else ""
+
+                    val fullAlamat = "$namaJalan $noRumah $komplek $camatKel $kotaKab $provinsi $kodePos"
+                    binding.tvTitikLokasi.text = fullAlamat
+                } else binding.tvTitikLokasi.text = getString(R.string.titik_lokasi)
+            } else binding.tvTitikLokasi.text = getString(R.string.titik_lokasi)
+        }
+        alamatViewModel.isLoading.observe(this) { isLoading ->
+            with(binding) {
+                btnGetTitikLokasi.isEnabled = !isLoading
+                namaAlamat.isEnabled = !isLoading
+                nohpAlamat.isEnabled = !isLoading
+                alamat.isEnabled = !isLoading
+                kodePos.isEnabled = !isLoading
+                progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            }
+        }
     }
 
     private fun getLokasi() {
@@ -200,29 +195,13 @@ class AlamatActivity : AppCompatActivity() {
 
         latLang.lastLocation.addOnSuccessListener {
             if (it != null) {
-                val lat = it.latitude
-                val lang = it.longitude
-                val geoCoder = Geocoder(this, Locale.getDefault())
-                val adress = geoCoder.getFromLocation(lat, lang, 10)
-                val namaJalan = if (adress!![0].thoroughfare != null) adress[0].thoroughfare else ""
-                val noRumah = if (adress[0].subThoroughfare != null) "${adress[0].subThoroughfare}," else ""
-                val komplek = if (adress[0].subLocality != null) "${adress[0].subLocality}," else ""
-                val camatKel = if (adress[0].locality != null) "${adress[0].locality}," else ""
-                val kotaKab = if (adress[0].subAdminArea != null) "${adress[0].subAdminArea}," else ""
-                val provinsi = if (adress[0].adminArea != null) "${adress[0].adminArea}," else ""
-                val kodePos = if (adress[0].postalCode != null) adress[0].postalCode else ""
-
                 val address = HashMap<String, Any>()
-                address["latitude"] = lat.toString()
-                address["longitude"] = lang.toString()
-                alamatRef.updateChildren(address)
-                    .addOnSuccessListener {
-                        val fullAlamat = "$namaJalan $noRumah $komplek $camatKel $kotaKab $provinsi $kodePos"
-                        binding.tvTitikLokasi.text = fullAlamat
-
-                        val snackbar = Snackbar.make(binding.root, getString(R.string.lokasi_sekarang_disave), Snackbar.LENGTH_SHORT)
-                        snackbar.setAction("Oke") { finish() }.show()
-                    }
+                address["latitude"] = it.latitude.toString()
+                address["longitude"] = it.longitude.toString()
+                alamatRef.updateChildren(address).addOnSuccessListener {
+                    val snackbar = Snackbar.make(binding.root, getString(R.string.lokasi_sekarang_disave), Snackbar.LENGTH_SHORT)
+                    snackbar.setAction("Oke") { finish() }.show()
+                }
             }
         }
     }
@@ -283,8 +262,18 @@ class AlamatActivity : AppCompatActivity() {
         ) { finish() }
     }
 
+    private fun viewModelLoader() {
+        akunViewModel.loadCurrentUser()
+        akunViewModel.loadAkunData()
+        alamatViewModel.loadCurrentUser()
+        alamatViewModel.loadAlamatData()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        alamatRef.removeEventListener(alamatListener)
+        if (auth.currentUser != null) {
+            akunViewModel.removeAkunListener(akunRef)
+            alamatViewModel.removeAlamatListener(alamatRef)
+        }
     }
 }
