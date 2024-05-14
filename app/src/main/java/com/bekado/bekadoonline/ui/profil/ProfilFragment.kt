@@ -114,6 +114,7 @@ class ProfilFragment : Fragment() {
 
                 transaksiViewModel.loadTransaksiData(transaksiRef, akunModel.statusAdmin)
             } else {
+                transaksiRef = db.getReference("transaksi")
                 with(binding) {
                     akunSaya.visibility = View.GONE
                     shimmerAkunSaya.visibility = View.VISIBLE

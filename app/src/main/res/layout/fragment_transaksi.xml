@@ -105,6 +105,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <TextView
+            android:id="@+id/transaksi_kosong_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:alpha="0.85"
@@ -116,6 +117,7 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/transaksi_kosong_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:alpha="0.85"

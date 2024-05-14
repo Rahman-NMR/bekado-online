@@ -153,8 +153,8 @@
     <string name="desc_transaksi_kosong">Anda masih belum melakukan transaksi.</string>
     <string name="msg_beranda_kosong">Produk masih kosong</string>
     <string name="desc_beranda_kosong">Kategori ini belum memiliki produk.</string>
-    <!--    <string name="msg_cari_kosong">Tidak ada hasil</string>-->
-    <!--    <string name="desc_cari_kosong">Tidak dapat menemukan produk yang dicari.</string>-->
+    <string name="msg_cari_kosong">Hasil Pencarian Kosong</string>
+    <string name="desc_cari_kosong_trx">Tidak dapat menemukan transaksi yang dicari.</string>
 
     <string name="atau">Atau masuk dengan</string>
     <string name="email">Email</string>
