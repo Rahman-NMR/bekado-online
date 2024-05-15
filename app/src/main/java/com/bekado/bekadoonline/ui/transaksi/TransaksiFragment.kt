@@ -62,18 +62,7 @@ class TransaksiFragment : Fragment() {
     private lateinit var akunViewModel: AkunViewModel
     private lateinit var transaksiListVM: TransaksiListViewModel
     private lateinit var signInResult: ActivityResultLauncher<Intent>
-    private val detailTransaksiLauncher: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val action = result.data?.getStringExtra("result_action")
-                val string = result.data?.getStringExtra("trxUpdate")
-                if (action == "refresh_data") {
-                    dataTransaksiHandler()
-                    val snackbar = Snackbar.make(binding.root, "Status $string diperbarui", Snackbar.LENGTH_LONG)
-                    snackbar.setAction("Salin") { Helper.salinPesan(requireContext(), string.toString()) }.show()
-                }
-            }
-        }
+    private lateinit var detailTransaksiLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTransaksiBinding.inflate(inflater, container, false)
@@ -93,10 +82,22 @@ class TransaksiFragment : Fragment() {
         transaksiListVM = ViewModelProvider(requireActivity())[TransaksiListViewModel::class.java]
         signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
-                val dataLogin = result.data?.getStringExtra(VariableConstant.signInResult)
+                val dataLogin = result.data?.getStringExtra(VariableConstant.ACTION_SIGN_IN_RESULT)
 
-                if (dataLogin == VariableConstant.refreshUI) viewModelLoader()
-                if (dataLogin == VariableConstant.signOut) akunViewModel.clearAkunData()
+                if (dataLogin == VariableConstant.ACTION_REFRESH_UI) viewModelLoader()
+                if (dataLogin == VariableConstant.ACTION_SIGN_OUT) akunViewModel.clearAkunData()
+            }
+        }
+        detailTransaksiLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val action = result.data?.getStringExtra(VariableConstant.RESULT_ACTION)
+                val string = result.data?.getStringExtra(VariableConstant.UPDATE_TRANSACTION)
+
+                if (action == VariableConstant.REFRESH_DATA) {
+                    dataTransaksiHandler()
+                    val snackbar = Snackbar.make(binding.root, "Status $string diperbarui", Snackbar.LENGTH_LONG)
+                    snackbar.setAction("Salin") { Helper.salinPesan(requireContext(), string.toString()) }.show()
+                }
             }
         }
 

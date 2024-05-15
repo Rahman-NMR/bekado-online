@@ -198,7 +198,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun signInSuccess() {
         val resultIntent = Intent().apply {
-            putExtra(VariableConstant.signInResult, VariableConstant.refreshUI)
+            putExtra(VariableConstant.ACTION_SIGN_IN_RESULT, VariableConstant.ACTION_REFRESH_UI)
         }
         setResult(RESULT_OK, resultIntent)
         finish()
@@ -209,7 +209,7 @@ class RegisterActivity : AppCompatActivity() {
         auth.signOut()
 
         val resultIntent = Intent().apply {
-            putExtra(VariableConstant.signInResult, VariableConstant.signOut)
+            putExtra(VariableConstant.ACTION_SIGN_IN_RESULT, VariableConstant.ACTION_SIGN_OUT)
         }
         setResult(RESULT_OK, resultIntent)
         finish()

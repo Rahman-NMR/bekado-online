@@ -84,10 +84,10 @@ class BerandaFragment : Fragment() {
         akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
         signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val dataLogin = result.data?.getStringExtra(VariableConstant.signInResult)
+                val dataLogin = result.data?.getStringExtra(VariableConstant.ACTION_SIGN_IN_RESULT)
 
-                if (dataLogin == VariableConstant.refreshUI) viewModelLoader()
-                if (dataLogin == VariableConstant.signOut) akunViewModel.clearAkunData()
+                if (dataLogin == VariableConstant.ACTION_REFRESH_UI) viewModelLoader()
+                if (dataLogin == VariableConstant.ACTION_SIGN_OUT) akunViewModel.clearAkunData()
             }
         }
 

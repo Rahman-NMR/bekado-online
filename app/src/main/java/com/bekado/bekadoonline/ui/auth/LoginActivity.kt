@@ -121,7 +121,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun signInSuccess() {
         val resultIntent = Intent().apply {
-            putExtra(VariableConstant.signInResult, VariableConstant.refreshUI)
+            putExtra(VariableConstant.ACTION_SIGN_IN_RESULT, VariableConstant.ACTION_REFRESH_UI)
         }
         setResult(RESULT_OK, resultIntent)
         finish()
