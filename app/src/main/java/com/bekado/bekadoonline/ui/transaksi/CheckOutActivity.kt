@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import java.util.Date
+import java.util.Locale
 
 class CheckOutActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCheckOutBinding
@@ -118,11 +119,11 @@ class CheckOutActivity : AppCompatActivity() {
 
                     if (latitude.isNotEmpty() && longitude.isNotEmpty()) {
                         val distance = Helper.calcDistance(latitude.toDouble(), longitude.toDouble(), lati, longi)
-                        val jarakPerKm = String.format("%.0f", distance)
+                        val jarakPerKm = String.format(Locale.getDefault(),"%.0f", distance)
                         val jarakT = if (distance < 1) {
                             val distanceInMeter = (distance * 1000).toInt()
                             "$distanceInMeter m"
-                        } else String.format("%.1f km", distance)
+                        } else String.format(Locale.getDefault(), "%.1f km", distance)
                         val jarakOngkirTxt = "${getString(R.string.total_ongkos_kirim)} ($jarakT)"
 
                         binding.ongkirTxt.text = jarakOngkirTxt
@@ -158,6 +159,7 @@ class CheckOutActivity : AppCompatActivity() {
         binding.rvDaftarProduk.layoutManager = layoutManager
 
         val adapterCheckout = AdapterCheckout(selectedKeranjang)
+        adapterCheckout.isExpanded = true
         binding.rvDaftarProduk.adapter = adapterCheckout
     }
 

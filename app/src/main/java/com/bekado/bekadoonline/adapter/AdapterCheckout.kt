@@ -11,9 +11,10 @@ import com.bekado.bekadoonline.model.CombinedKeranjangModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 
-class AdapterCheckout(var checkoutModelList: ArrayList<CombinedKeranjangModel>) :
+class AdapterCheckout(private var checkoutModelList: ArrayList<CombinedKeranjangModel>) :
     RecyclerView.Adapter<AdapterCheckout.ViewHolder>() {
     lateinit var context: Context
+    var isExpanded = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -22,7 +23,9 @@ class AdapterCheckout(var checkoutModelList: ArrayList<CombinedKeranjangModel>) 
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = checkoutModelList.size
+    override fun getItemCount(): Int {
+        return if (isExpanded) checkoutModelList.size else 1
+    }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(checkoutModelList[position])
@@ -35,7 +38,7 @@ class AdapterCheckout(var checkoutModelList: ArrayList<CombinedKeranjangModel>) 
             val hargaProduk = "${checkoutPr?.currency}${addcoma3digit(checkoutPr?.hargaProduk)} × ${checkoutKe?.jumlahProduk}"
             val hargaTotal = "${checkoutPr?.currency}${addcoma3digit(checkoutKe?.jumlahProduk!! * checkoutPr?.hargaProduk!!)}"
 
-            with(binding){
+            with(binding) {
                 Glide.with(root.context).load(checkoutPr.fotoProduk)
                     .apply(RequestOptions()).centerCrop()
                     .placeholder(R.drawable.img_broken_image).into(gambarProduk)
@@ -44,5 +47,10 @@ class AdapterCheckout(var checkoutModelList: ArrayList<CombinedKeranjangModel>) 
                 totalHarga.text = hargaTotal
             }
         }
+    }
+
+    fun setExpanded() {
+        isExpanded = !isExpanded
+        notifyItemRangeChanged(1, checkoutModelList.size)
     }
 }

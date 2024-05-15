@@ -148,7 +148,16 @@
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="16dp">
 
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressbar_status_pesanan"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/smallBottomdp"
+                        android:indeterminate="true" />
+
                     <LinearLayout
+                        android:id="@+id/layout_status_pesanan"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -293,17 +302,27 @@
                     android:background="@color/white"
                     app:cardCornerRadius="16dp">
 
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressbar_daftar_produk"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/smallBottomdp"
+                        android:indeterminate="true" />
+
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_daftar_produk"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"
                         android:overScrollMode="never"
+                        android:visibility="gone"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:itemCount="1"
-                        tools:listitem="@layout/rv_checkout_produk_list" />
+                        tools:listitem="@layout/rv_checkout_produk_list"
+                        tools:visibility="visible" />
                 </androidx.cardview.widget.CardView>
 
                 <com.google.android.material.button.MaterialButton
@@ -326,17 +345,27 @@
                     android:text="@string/info_pengiriman" />
 
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/ll_info_pengiriman"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/white"
                     app:cardCornerRadius="16dp">
 
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressbar_informasi_pengiriman"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/smallBottomdp"
+                        android:indeterminate="true" />
+
                     <LinearLayout
+                        android:id="@+id/layout_informasi_pengiriman"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:visibility="gone"
+                        tools:visibility="visible">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -428,13 +457,24 @@
                     android:background="@color/white"
                     app:cardCornerRadius="16dp">
 
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressbar_rincian_pembayaran"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/smallBottomdp"
+                        android:indeterminate="true" />
+
                     <LinearLayout
+                        android:id="@+id/layout_rincian_pembayaran"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clipChildren="false"
                         android:clipToPadding="false"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:visibility="gone"
+                        tools:visibility="visible">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"

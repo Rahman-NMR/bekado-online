@@ -33,6 +33,7 @@ import com.bekado.bekadoonline.model.viewmodel.TransaksiListViewModel
 import com.bekado.bekadoonline.shimmer.ShimmerModel
 import com.bekado.bekadoonline.ui.auth.LoginActivity
 import com.bekado.bekadoonline.ui.auth.RegisterActivity
+import com.bekado.bekadoonline.ui.transaksi.DetailTransaksiActivity.Companion
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.snackbar.Snackbar
@@ -267,9 +268,9 @@ class TransaksiFragment : Fragment() {
                 searchTransaksi(transaksiModel)
 
                 adapterTransaksi = AdapterTransaksi(transaksiModel) { trx ->
-                    val intent = Intent(context, DetailTransaksiActivity::class.java)
-                        .putExtra("trx", trx).putExtra("isAdmin", true)
-                    detailTransaksiLauncher.launch(intent)
+                    Companion.detailTransaksi = trx
+
+                    detailTransaksiLauncher.launch(Intent(context, DetailTransaksiActivity::class.java))
                 }
 
                 binding.rvDaftarTransaksi.adapter = adapterTransaksi
