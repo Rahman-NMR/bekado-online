@@ -2,7 +2,6 @@ package com.bekado.bekadoonline.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.example.testnew.model.KeranjangModel
 
 data class CombinedKeranjangModel(
     var produkModel: ProdukModel?,

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bekado.bekadoonline.model.CombinedKeranjangModel
 import com.bekado.bekadoonline.model.ProdukModel
-import com.example.testnew.model.KeranjangModel
+import com.bekado.bekadoonline.model.KeranjangModel
 import com.google.firebase.database.DatabaseReference
 
 class DaftarProdukTransaksiViewModel : ViewModel() {

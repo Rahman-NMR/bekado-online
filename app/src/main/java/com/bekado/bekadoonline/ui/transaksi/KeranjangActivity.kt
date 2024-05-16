@@ -16,7 +16,7 @@ import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperProduk
 import com.bekado.bekadoonline.model.CombinedKeranjangModel
 import com.bekado.bekadoonline.model.ProdukModel
-import com.example.testnew.model.KeranjangModel
+import com.bekado.bekadoonline.model.KeranjangModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
