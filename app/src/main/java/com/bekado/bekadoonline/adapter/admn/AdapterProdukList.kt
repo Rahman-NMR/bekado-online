@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.RvDaftarProdukBinding
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
-import com.bekado.bekadoonline.model.ProdukModel
+import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import java.util.ArrayList

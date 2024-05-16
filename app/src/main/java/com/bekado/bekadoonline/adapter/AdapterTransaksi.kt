@@ -11,7 +11,7 @@ import com.bekado.bekadoonline.databinding.LayoutTransaksiBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.bekado.bekadoonline.model.TransaksiModel
+import com.bekado.bekadoonline.data.model.TransaksiModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date

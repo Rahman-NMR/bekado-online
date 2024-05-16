@@ -9,9 +9,9 @@ import com.bekado.bekadoonline.helper.HelperSort.sortNameAsc
 import com.bekado.bekadoonline.helper.HelperSort.sortNameDesc
 import com.bekado.bekadoonline.helper.HelperSort.sortPriceDesc
 import com.bekado.bekadoonline.helper.HelperSort.sortPriceAsc
-import com.bekado.bekadoonline.model.CombinedKeranjangModel
-import com.bekado.bekadoonline.model.KategoriModel
-import com.bekado.bekadoonline.model.ProdukModel
+import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
+import com.bekado.bekadoonline.data.model.KategoriModel
+import com.bekado.bekadoonline.data.model.ProdukModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError

@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.shimmer.AdapterProdukShimmer
 import com.bekado.bekadoonline.shimmer.AdapterTransaksiShimmer
 import com.bekado.bekadoonline.shimmer.ShimmerModel
@@ -31,7 +32,7 @@ object HelperConnection {
 
     fun shimmerProduk(lmShimmer: GridLayoutManager, rv: RecyclerView, padding: Int, dataShimmer: ArrayList<ShimmerModel>) {
         rv.layoutManager = lmShimmer
-        rv.addItemDecoration(GridSpacingItemDecoration(lmShimmer.spanCount, padding, true))
+        rv.addItemDecoration(GridSpacing(lmShimmer.spanCount, padding, true))
 
         dataShimmer.add(ShimmerModel(0))
         dataShimmer.add(ShimmerModel(0))
@@ -45,7 +46,7 @@ object HelperConnection {
 
     fun shimmerTransaksi(lmShimmer: LinearLayoutManager, rv: RecyclerView, padding: Int, dataShimmer: ArrayList<ShimmerModel>) {
         rv.layoutManager = lmShimmer
-        rv.addItemDecoration(GridSpacingItemDecoration(1, padding, true))
+        rv.addItemDecoration(GridSpacing(1, padding, true))
 
         dataShimmer.add(ShimmerModel(0))
         dataShimmer.add(ShimmerModel(0))

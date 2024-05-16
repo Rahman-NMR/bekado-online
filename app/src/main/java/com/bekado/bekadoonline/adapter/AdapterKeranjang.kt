@@ -10,7 +10,7 @@ import com.bekado.bekadoonline.databinding.LayoutKeranjangListBinding
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperProduk.plusMinus
-import com.bekado.bekadoonline.model.CombinedKeranjangModel
+import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth

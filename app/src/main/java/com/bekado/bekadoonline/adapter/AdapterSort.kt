@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.LayoutTextSelectedBinding
-import com.bekado.bekadoonline.model.SortModel
+import com.bekado.bekadoonline.data.model.SortModel
 
 class AdapterSort(
     private var sortList: ArrayList<SortModel>,

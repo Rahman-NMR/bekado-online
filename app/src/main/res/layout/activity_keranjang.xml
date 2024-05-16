@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/surface_container"
-    tools:context=".ui.transaksi.KeranjangActivity">
+    tools:context=".ui.activities.transaksi.KeranjangActivity">
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/loading_indicator"

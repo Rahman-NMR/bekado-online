@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.databinding.RvLayoutButtonSelectorBinding
-import com.bekado.bekadoonline.model.ButtonModel
+import com.bekado.bekadoonline.data.model.ButtonModel
 
 class AdapterButton(private var buttonList: ArrayList<ButtonModel>, val onClick: (ButtonModel) -> Unit) :
     RecyclerView.Adapter<AdapterButton.ButtonViewHolder>() {

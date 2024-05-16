@@ -19,57 +19,57 @@
         android:theme="@style/Theme.BekadoOnline"
         tools:targetApi="31">
         <activity
-            android:name=".ui.profil.AboutBekadoActivity"
+            android:name=".ui.activities.profil.AboutBekadoActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.auth.UbahPasswordActivity"
+            android:name=".ui.activities.auth.UbahPasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.auth.LupaPasswordActivity"
+            android:name=".ui.activities.auth.LupaPasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.adm.ProdukAddUpdateActivity"
+            android:name=".ui.activities.admn.ProdukAddUpdateActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.adm.ProdukListActivity"
+            android:name=".ui.activities.admn.ProdukListActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.adm.KategoriListActivity"
+            android:name=".ui.activities.admn.KategoriListActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.transaksi.DetailTransaksiActivity"
+            android:name=".ui.activities.transaksi.DetailTransaksiActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.transaksi.PembayaranActivity"
+            android:name=".ui.activities.transaksi.PembayaranActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.transaksi.CheckOutActivity"
+            android:name=".ui.activities.transaksi.CheckOutActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.profil.AlamatActivity"
+            android:name=".ui.activities.profil.AlamatActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.profil.AkunSayaActivity"
+            android:name=".ui.activities.profil.AkunSayaActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.transaksi.KeranjangActivity"
+            android:name=".ui.activities.transaksi.KeranjangActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.auth.RegisterActivity"
+            android:name=".ui.activities.auth.RegisterActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.auth.LoginActivity"
+            android:name=".ui.activities.auth.LoginActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.BekadoOnline.splash"
             android:windowSoftInputMode="adjustResize">

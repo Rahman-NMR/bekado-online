@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.LayoutKategoriListBinding
-import com.bekado.bekadoonline.helper.ItemTouchHelperListener
-import com.bekado.bekadoonline.model.KategoriModel
+import com.bekado.bekadoonline.helper.dragndrop.ItemTouchHelperListener
+import com.bekado.bekadoonline.data.model.KategoriModel
 import java.util.Collections
 
 class AdapterKategoriList(
