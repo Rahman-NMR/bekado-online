@@ -153,7 +153,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_margin="@dimen/smallBottomdp"
+                        android:padding="@dimen/smallBottomdp"
                         android:indeterminate="true" />
 
                     <LinearLayout
@@ -307,7 +307,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_margin="@dimen/smallBottomdp"
+                        android:padding="@dimen/smallBottomdp"
                         android:indeterminate="true" />
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -355,7 +355,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_margin="@dimen/smallBottomdp"
+                        android:padding="@dimen/smallBottomdp"
                         android:indeterminate="true" />
 
                     <LinearLayout
@@ -462,7 +462,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_margin="@dimen/smallBottomdp"
+                        android:padding="@dimen/smallBottomdp"
                         android:indeterminate="true" />
 
                     <LinearLayout

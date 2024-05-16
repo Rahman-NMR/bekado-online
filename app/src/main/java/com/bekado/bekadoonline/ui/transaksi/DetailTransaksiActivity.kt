@@ -1,10 +1,13 @@
 package com.bekado.bekadoonline.ui.transaksi
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,6 +54,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
     private var onStartViewActive: String? = ""
     private var keyRefresh: String = ""
 
+    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private val onBackInvokedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             onBackPress()
@@ -67,6 +71,13 @@ class DetailTransaksiActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
 
+        resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data?.getStringExtra(VariableConstant.RESULT_ACTION)
+
+                if (data == VariableConstant.ACTION_REFRESH_UI) detailTransaksiHandler()
+            }
+        }
         akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
         transaksiViewModel = ViewModelProvider(this)[TransaksiDetailViewModel::class.java]
         clientDataViewModel = ViewModelProvider(this)[ClientDataViewModel::class.java]
@@ -114,6 +125,8 @@ class DetailTransaksiActivity : AppCompatActivity() {
 
                 val ref = if (akunModel.statusAdmin) "transaksi" else "transaksi/${akunModel.uid}/${detailTransaksi.idTransaksi}"
                 akunRef = db.getReference("akun/${akunModel.uid}")
+                if (!akunModel.statusAdmin) uidnIdtrx = "${akunModel.uid}/${detailTransaksi.idTransaksi}"
+
                 trxRef = db.getReference(ref)
                 statusAdmin = akunModel.statusAdmin
 
@@ -139,7 +152,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
                     binding.lihatPembayaran.setOnClickListener {
                         BuktiDetailTransaksi = detailTransaksi
 
-                        startActivity(Intent(this@DetailTransaksiActivity, PembayaranActivity::class.java))
+                        resultLauncher.launch(Intent(this@DetailTransaksiActivity, PembayaranActivity::class.java))
                     }
                 }
             }
