@@ -61,114 +61,125 @@
             android:textSize="18sp" />
     </LinearLayout>
 
-    <androidx.core.widget.NestedScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:orientation="vertical"
-                android:paddingHorizontal="16dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="@dimen/maxBottomdp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_max="700dp">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <LinearLayout
-                    android:id="@+id/ll_produk_selected"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone"
-                    tools:visibility="visible">
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="@dimen/maxBottomdp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintWidth_max="700dp">
 
-                    <TextView
-                        android:id="@+id/x_produk_terpilih"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:id="@+id/ll_produk_selected"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="8dp"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:textColor="@color/blue_grey_700"
-                        android:textSize="16sp" />
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        tools:visibility="visible">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_delete_di_ceklis"
-                        style="@style/materialOutlinedButton.red"
-                        android:layout_width="wrap_content"
+                        <TextView
+                            android:id="@+id/x_produk_terpilih"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="8dp"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="@color/blue_grey_700"
+                            android:textSize="16sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_delete_di_ceklis"
+                            style="@style/materialOutlinedButton.red"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="32dp"
+                            android:text="@string/hapus"
+                            android:textSize="14sp"
+                            app:strokeColor="?attr/colorPrimary" />
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_daftar_pesanan"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:minHeight="32dp"
-                        android:text="@string/hapus"
-                        android:textSize="14sp"
-                        app:strokeColor="?attr/colorPrimary" />
+                        android:layout_marginBottom="32dp"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="gone"
+                        tools:itemCount="2"
+                        tools:listitem="@layout/layout_keranjang_list"
+                        tools:visibility="visible" />
+
+                    <LinearLayout
+                        android:id="@+id/ll_produk_no_proses"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="8dp"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:text="@string/tidak_dapat_diproses"
+                            android:textColor="@color/blue_grey_700"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_delall_produk_dihide"
+                            style="@style/materialOutlinedButton.red"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="40dp"
+                            android:text="@string/hapus_semua"
+                            android:textSize="14sp"
+                            app:strokeColor="?attr/colorPrimary" />
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_daftar_pesanan_hide"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="gone"
+                        tools:itemCount="3"
+                        tools:listitem="@layout/layout_keranjang_list"
+                        tools:visibility="visible" />
                 </LinearLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_daftar_pesanan"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="32dp"
-                    android:nestedScrollingEnabled="false"
-                    tools:itemCount="2"
-                    tools:listitem="@layout/layout_keranjang_list" />
-
-                <LinearLayout
-                    android:id="@+id/ll_produk_no_proses"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone"
-                    tools:visibility="visible">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="8dp"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:text="@string/tidak_dapat_diproses"
-                        android:textColor="@color/blue_grey_700"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_delall_produk_dihide"
-                        style="@style/materialOutlinedButton.red"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minHeight="40dp"
-                        android:text="@string/hapus_semua"
-                        android:textSize="14sp"
-                        app:strokeColor="?attr/colorPrimary" />
-                </LinearLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_daftar_pesanan_hide"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    tools:itemCount="3"
-                    tools:listitem="@layout/layout_keranjang_list" />
-            </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/ll_container_pesanan"

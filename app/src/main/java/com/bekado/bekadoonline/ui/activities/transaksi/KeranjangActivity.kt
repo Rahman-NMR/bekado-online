@@ -4,39 +4,42 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterKeranjang
+import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
+import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
+import com.bekado.bekadoonline.data.viewmodel.KeranjangViewModel
 import com.bekado.bekadoonline.databinding.ActivityKeranjangBinding
-import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.helper.HelperProduk
-import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
-import com.bekado.bekadoonline.data.model.ProdukModel
-import com.bekado.bekadoonline.data.model.KeranjangModel
+import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 
 class KeranjangActivity : AppCompatActivity() {
     private lateinit var binding: ActivityKeranjangBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
-    private lateinit var adapterKeranjang: AdapterKeranjang
-    private var dataKeranjang: ArrayList<CombinedKeranjangModel> = ArrayList()
-    private lateinit var adapterKeranjangHide: AdapterKeranjang
-    private var dataKeranjangHide: ArrayList<CombinedKeranjangModel> = ArrayList()
 
+    private lateinit var adapterKeranjang: AdapterKeranjang
+    private lateinit var adapterKeranjangHide: AdapterKeranjang
+
+    private lateinit var akunRef: DatabaseReference
     private lateinit var keranjangRef: DatabaseReference
-    private lateinit var keranjangListener: ValueEventListener
     private lateinit var produkRef: DatabaseReference
     private lateinit var kategoriRef: DatabaseReference
+
+    private lateinit var akunViewModel: AkunViewModel
+    private lateinit var keranjangViewModel: KeranjangViewModel
+
+    private var available = false
+    private var unavailable = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,202 +49,124 @@ class KeranjangActivity : AppCompatActivity() {
         supportActionBar?.hide()
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
-        keranjangRef = db.getReference("keranjang/${auth.currentUser?.uid}")
+
+        val currentUser = auth.currentUser
+        keranjangRef = db.getReference("keranjang/${currentUser?.uid}")
         produkRef = db.getReference("produk/produk")
         kategoriRef = db.getReference("produk/kategori")
 
+        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
+        keranjangViewModel = ViewModelProvider(this)[KeranjangViewModel::class.java]
+
+        val lmActive = LinearLayoutManager(this@KeranjangActivity, LinearLayoutManager.VERTICAL, false)
+        val lmNonActive = LinearLayoutManager(this@KeranjangActivity, LinearLayoutManager.VERTICAL, false)
+        val padding = resources.getDimensionPixelSize(R.dimen.smalldp)
+
         with(binding) {
             appBar.setNavigationOnClickListener { finish() }
-
-            val lmActive = LinearLayoutManager(this@KeranjangActivity, LinearLayoutManager.VERTICAL, false)
-            val lmNonActive = LinearLayoutManager(this@KeranjangActivity, LinearLayoutManager.VERTICAL, false)
-            val padding = resources.getDimensionPixelSize(R.dimen.smalldp)
 
             rvDaftarPesanan.layoutManager = lmActive
             rvDaftarPesanan.addItemDecoration(GridSpacing(1, padding, false))
             rvDaftarPesananHide.layoutManager = lmNonActive
             rvDaftarPesananHide.addItemDecoration(GridSpacing(1, padding, false))
 
-            if (auth.currentUser != null) {
-                getDataKeranjang()
+            swipeRefresh.setOnRefreshListener {
+                if (HelperConnection.isConnected(this@KeranjangActivity)) setDataHandler()
+                binding.swipeRefresh.isRefreshing = false
+            }
+        }
 
-                binding.btnPesanSekarang.setOnClickListener { checkout() }
+        setDataHandler()
+    }
+
+    private fun setDataHandler() {
+        viewModelLoader()
+        setAkunObserve()
+        setupAdapter()
+        setKeranjangOberve()
+    }
+
+    private fun setAkunObserve() {
+        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
+        akunViewModel.akunModel.observe(this) { akunModel ->
+            akunRef = if (akunModel != null) db.getReference("akun/${akunModel.uid}") else db.getReference("akun")
+            if (akunModel?.statusAdmin == true) finish()
+        }
+    }
+
+    private fun setupAdapter() {
+        adapterKeranjang = AdapterKeranjang({ itemKeranjang, isChecked ->
+            itemKeranjang.keranjangModel?.diPilih = isChecked
+
+            val ref = keranjangRef.child("${itemKeranjang.produkModel?.idProduk}")
+            keranjangViewModel.updateCheckedItem(ref, isChecked)
+        }, { itemKeranjang ->
+            if (HelperConnection.isConnected(this))
+                actionDelete(itemKeranjang, true)
+        }, { item, isPlus ->
+            if (HelperConnection.isConnected(this))
+                keranjangViewModel.updateItemCount(keranjangRef.child("${item.produkModel?.idProduk}"), isPlus)
+        })
+        adapterKeranjangHide = AdapterKeranjang({ _, _ -> }, { itemKeranjang ->
+            if (HelperConnection.isConnected(this))
+                actionDelete(itemKeranjang, false)
+        }, { _, _ -> })
+    }
+
+    private fun setKeranjangOberve() {
+        keranjangViewModel.keranjangModel.observe(this) { keranjang ->
+            adapterKeranjang.submitList(keranjang)
+            updateTotalHarga(keranjang)
+
+            binding.rvDaftarPesanan.adapter = adapterKeranjang
+            binding.rvDaftarPesanan.visibility = if ((keranjang?.size ?: 0) > 0) View.VISIBLE else View.GONE
+
+            binding.btnPesanSekarang.setOnClickListener { checkout(keranjang) }
+
+            available = if (keranjang != null) keranjang.size > 0 else false
+        }
+        keranjangViewModel.keranjangModelHide.observe(this) { keranjangHide ->
+            adapterKeranjangHide.submitList(keranjangHide)
+
+            val hiddenCartSize = keranjangHide?.size ?: 0
+            binding.rvDaftarPesananHide.adapter = adapterKeranjangHide
+            binding.rvDaftarPesananHide.visibility = if (hiddenCartSize > 0) View.VISIBLE else View.GONE
+            binding.llProdukNoProses.visibility = if (hiddenCartSize > 0) View.VISIBLE else View.GONE
+
+            binding.btnDelallProdukDihide.setOnClickListener { showAlertDialog(hiddenCartSize, true, keranjangHide) }
+
+            unavailable = if (keranjangHide != null) keranjangHide.size > 0 else false
+
+        }
+        keranjangViewModel.isLoading.observe(this) { isLoading ->
+            with(binding) {
+                loadingIndicator.visibility = if (!isLoading) View.GONE else View.VISIBLE
+                if (!isLoading) {
+                    keranjangKosong.visibility = if (!available && !unavailable) View.VISIBLE else View.GONE
+                }
             }
         }
     }
 
-    private fun checkout() {
-        val selectedKeranjang = dataKeranjang.filter { it.keranjangModel?.diPilih == true }
-        if (selectedKeranjang.isNotEmpty()) {
+    private fun checkout(dataKeranjang: ArrayList<CombinedKeranjangModel>?) {
+        val selectedKeranjang = dataKeranjang?.filter { it.keranjangModel?.diPilih ?: false }
+        if (selectedKeranjang?.isNotEmpty() == true) {
             val intent = Intent(this, CheckOutActivity::class.java)
             intent.putExtra("selected_dataKeranjang", ArrayList(selectedKeranjang))
             startActivity(intent)
         } else showToast(getString(R.string.pilih_produk_dulu), this)
     }
 
-    private fun getDataKeranjang() {
-        keranjangListener = object : ValueEventListener {
-            override fun onDataChange(keranjangSnapshot: DataSnapshot) {
-                dataKeranjang.clear()
-                dataKeranjangHide.clear()
+    private fun updateTotalHarga(dataKeranjang: ArrayList<CombinedKeranjangModel>?) {
+        val selectedItems = dataKeranjang?.filter { it.keranjangModel?.diPilih ?: false }
+        val sumPrice: Long = selectedItems?.sumOf {
+            val hargaInt = it.produkModel?.hargaProduk ?: 0
+            val jumlahProduk = it.keranjangModel?.jumlahProduk ?: 0
+            hargaInt * jumlahProduk
+        } ?: 0
+        val totalItem = selectedItems?.count() ?: 0
 
-                if (keranjangSnapshot.exists()) {
-                    for (keranjangList in keranjangSnapshot.children) {
-                        val idKeranjang = keranjangList.child("idProduk").value as String
-
-                        produkRef.child(idKeranjang).addValueEventListener(object : ValueEventListener {
-                            override fun onDataChange(produkSnapshot: DataSnapshot) {
-                                val idKategori = produkSnapshot.child("idKategori").value as String
-                                val visibility = produkSnapshot.child("visibility").value as Boolean
-
-                                kategoriRef.child(idKategori).addValueEventListener(object : ValueEventListener {
-                                    override fun onDataChange(kategoriSnapshot: DataSnapshot) {
-                                        val visibilitas = kategoriSnapshot.child("visibilitas").value as Boolean
-
-                                        handleProductData(produkSnapshot, keranjangList, visibility, visibilitas, idKeranjang)
-                                        setAdapter()
-                                        binding.loadingIndicator.visibility = View.GONE
-                                    }
-
-                                    override fun onCancelled(error: DatabaseError) {}
-                                })
-                            }
-
-                            override fun onCancelled(error: DatabaseError) {}
-                        })
-                    }
-                } else {
-                    with(binding) {
-                        keranjangKosong.visibility = View.VISIBLE
-                        loadingIndicator.visibility = View.GONE
-
-                        rvDaftarPesanan.visibility = View.GONE
-                        llProdukNoProses.visibility = View.GONE
-                        rvDaftarPesananHide.visibility = View.GONE
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                with(binding) {
-                    keranjangKosong.visibility = View.GONE
-                    loadingIndicator.visibility = View.VISIBLE
-
-                    rvDaftarPesanan.visibility = View.GONE
-                    llProdukNoProses.visibility = View.GONE
-                    rvDaftarPesananHide.visibility = View.GONE
-                }
-            }
-        }
-
-        keranjangRef.orderByChild("timestamp").addValueEventListener(keranjangListener)
-    }
-
-    private fun handleProductData(
-        produkSnapshot: DataSnapshot,
-        keranjangList: DataSnapshot,
-        visibility: Boolean,
-        visibilitas: Boolean,
-        idKeranjang: String
-    ) {
-        val itemToRemove = dataKeranjang.find { it.produkModel?.idProduk == idKeranjang }
-        val itemToRemoveHide = dataKeranjangHide.find { it.produkModel?.idProduk == idKeranjang }
-
-        if (itemToRemove != null && itemToRemove.produkModel?.visibility != visibility ||
-            itemToRemove != null && !visibilitas
-        ) dataKeranjang.remove(itemToRemove)
-
-        if (itemToRemoveHide != null && itemToRemoveHide.produkModel?.visibility != visibility ||
-            itemToRemove != null && visibilitas
-        ) dataKeranjangHide.remove(itemToRemoveHide)
-
-        if (visibilitas && visibility) {
-            val produkData = produkSnapshot.getValue(ProdukModel::class.java)
-            val keranjangData = keranjangList.getValue(KeranjangModel::class.java)
-
-            val isProductExists = dataKeranjang.any { it.produkModel?.idProduk == produkData?.idProduk }
-            if (!isProductExists) dataKeranjang.add(CombinedKeranjangModel(produkData, keranjangData))
-            else {
-                val existingItem = dataKeranjang.find { it.produkModel?.idProduk == produkData?.idProduk }
-                existingItem?.produkModel = produkData
-            }
-
-        } else if (!visibilitas || !visibility) {
-            val produkData = produkSnapshot.getValue(ProdukModel::class.java)
-
-            val isProductExists = dataKeranjangHide.any { it.produkModel?.idProduk == produkData?.idProduk }
-            if (!isProductExists) dataKeranjangHide.add(CombinedKeranjangModel(produkData, null))
-            else {
-                val existingItem = dataKeranjangHide.find { it.produkModel?.idProduk == produkData?.idProduk }
-                existingItem?.produkModel = produkData
-            }
-        }
-    }
-
-    private fun setAdapter() {
-        updateTotalHarga()
-
-        adapterKeranjang = AdapterKeranjang(dataKeranjang, { keranjang, isChecked ->
-            keranjang.keranjangModel?.diPilih = isChecked
-            keranjangRef.child("${keranjang.produkModel?.idProduk}/diPilih").setValue(isChecked)
-        }, { keranjang ->
-            if (HelperConnection.isConnected(this)) {
-                HelperProduk.deleteKeranjang(
-                    keranjang,
-                    keranjangRef.child("${keranjang.produkModel?.idProduk}"),
-                    binding.root,
-                    binding.llContainerPesanan,
-                    true,
-                    adapterKeranjang.notifyDataSetChanged()
-                )
-                if (adapterKeranjang.itemCount == 1) {
-                    binding.llProdukSelected.visibility = View.GONE
-                    binding.totalHarga.text = getString(R.string.strip)
-                    binding.btnPesanSekarang.isEnabled = false
-                    binding.btnPesanSekarang.text = getString(R.string.pesan_sekarang)
-                }
-            }
-        })
-        adapterKeranjangHide = AdapterKeranjang(dataKeranjangHide, { _, _ ->
-        }, { keranjang ->
-            if (HelperConnection.isConnected(this))
-                HelperProduk.deleteKeranjang(
-                    keranjang,
-                    keranjangRef.child("${keranjang.produkModel?.idProduk}"),
-                    binding.root,
-                    binding.llContainerPesanan,
-                    false,
-                    adapterKeranjang.notifyDataSetChanged()
-                )
-        })
-
-        with(binding) {
-            rvDaftarPesanan.adapter = adapterKeranjang
-            rvDaftarPesananHide.adapter = adapterKeranjangHide
-
-            keranjangKosong.visibility = if (adapterKeranjang.itemCount == 0 && adapterKeranjangHide.itemCount == 0) View.VISIBLE else View.GONE
-            loadingIndicator.visibility = if (adapterKeranjang.itemCount == 0 && adapterKeranjangHide.itemCount == 0) View.GONE else View.VISIBLE
-
-            llProdukNoProses.visibility = if (adapterKeranjangHide.itemCount >= 1) View.VISIBLE else View.GONE
-            rvDaftarPesanan.visibility = if (adapterKeranjang.itemCount == 0) View.GONE else View.VISIBLE
-            rvDaftarPesananHide.visibility = if (adapterKeranjangHide.itemCount == 0) View.GONE else View.VISIBLE
-        }
-    }
-
-    private fun updateTotalHarga() {
-        var sumPrice: Long = 0
-        var totalItem = 0
-
-        for (keranjang in dataKeranjang) {
-            if (keranjang.keranjangModel!!.diPilih) {
-                val hargaInt = keranjang.produkModel?.hargaProduk!!
-                val jumlahHarga = hargaInt * keranjang.keranjangModel!!.jumlahProduk!!
-                sumPrice += jumlahHarga
-                totalItem++
-            }
-        }
-
-        val selectedKeranjang = dataKeranjang.any { it.keranjangModel!!.diPilih }
+        val selectedKeranjang = selectedItems?.isNotEmpty() ?: false
         val txtDelDiPilih = "$totalItem produk terpilih"
         val btnTxt = "${getString(R.string.pesan_sekarang)} ($totalItem)"
         val ttlHrgBlnj = "Rp${addcoma3digit(sumPrice)}"
@@ -254,53 +179,70 @@ class KeranjangActivity : AppCompatActivity() {
             btnPesanSekarang.isEnabled = selectedKeranjang
             btnPesanSekarang.text = if (selectedKeranjang) btnTxt else getString(R.string.pesan_sekarang)
 
-            btnDeleteDiCeklis.setOnClickListener { showAlertDialog(totalItem, false) }
-            btnDelallProdukDihide.setOnClickListener { showAlertDialog(dataKeranjangHide.size, true) }
+            btnDeleteDiCeklis.setOnClickListener { showAlertDialog(totalItem, false, dataKeranjang) }
         }
     }
 
-    private fun showAlertDialog(totalItem: Int, deleteHide: Boolean) {
+    private fun actionDelete(itemKeranjang: CombinedKeranjangModel, isShown: Boolean) {
+        val path = "${itemKeranjang.produkModel?.idProduk}"
+        keranjangRef.child(path).removeValue()
+
+        val cancelAction = {
+            itemKeranjang.keranjangModel?.let { keranjangModel ->
+                val restoreData = mapOf(
+                    "idProduk" to itemKeranjang.produkModel?.idProduk,
+                    "jumlahProduk" to keranjangModel.jumlahProduk,
+                    "timestamp" to keranjangModel.timestamp,
+                    "diPilih" to keranjangModel.diPilih
+                )
+
+                keranjangRef.child(path).setValue(restoreData)
+            }
+        }
+        val textSnackbar = "${itemKeranjang.produkModel?.namaProduk} dihapus dari keranjang"
+        val snackbar = Snackbar.make(binding.root, textSnackbar, Snackbar.LENGTH_SHORT)
+
+        snackbar.anchorView = binding.llContainerPesanan
+        if (isShown) snackbar.setAction("Batalkan") { cancelAction() }
+        snackbar.show()
+    }
+
+    private fun showAlertDialog(totalItem: Int, deleteHide: Boolean, keranjang: ArrayList<CombinedKeranjangModel>?) {
         val title = if (!deleteHide) "Hapus $totalItem produk?" else "Hapus $totalItem produk yang tidak dapat diproses?"
         val msg = if (!deleteHide) getString(R.string.hapus_produk_dipilih) else getString(R.string.hapus_produk_semua)
         val positifBtn = if (!deleteHide) getString(R.string.hapus) else getString(R.string.hapus_semua)
 
-        Helper.showAlertDialog(title, msg, positifBtn, this, getColor(R.color.error)) { deleteSelected(deleteHide) }
+        Helper.showAlertDialog(title, msg, positifBtn, this, getColor(R.color.error)) { deleteAllSelected(deleteHide, keranjang) }
     }
 
-    private fun deleteSelected(deleteHide: Boolean) {
-        val selectedKeranjang = dataKeranjang.filter { it.keranjangModel?.diPilih == true }
+    private fun deleteAllSelected(deleteHide: Boolean, keranjang: ArrayList<CombinedKeranjangModel>?) {
+        val selectedKeranjang = keranjang?.filter { it.keranjangModel?.diPilih ?: false }
 
-        if (HelperConnection.isConnected(this))
-            if (!deleteHide)
-                selectedKeranjang.forEach {
-                    keranjangRef.child("${it.produkModel?.idProduk}").removeValue().addOnSuccessListener {
-                        getDataKeranjang()
-                        updateTotalHarga()
-                    }
-                }
-            else
-                dataKeranjangHide.forEach {
-                    keranjangRef.child("${it.produkModel?.idProduk}").removeValue().addOnSuccessListener {
-                        getDataKeranjang()
-                        updateTotalHarga()
-                    }
-                }
+        if (HelperConnection.isConnected(this)) {
+            if (!deleteHide) selectedKeranjang?.forEach {
+                keranjangRef.child("${it.produkModel?.idProduk}")
+                    .removeValue().addOnSuccessListener { viewModelLoader() }
+            } else keranjang?.forEach {
+                keranjangRef.child("${it.produkModel?.idProduk}")
+                    .removeValue().addOnSuccessListener { viewModelLoader() }
+            }
+        }
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (auth.currentUser != null) getDataKeranjang()
-    }
+    private fun viewModelLoader() {
+        akunViewModel.loadCurrentUser()
+        akunViewModel.loadAkunData()
 
-    override fun onRestart() {
-        super.onRestart()
-        dataKeranjang.clear()
-        binding.llProdukSelected.visibility = View.GONE
-        updateTotalHarga()
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            keranjangViewModel.loadKeranjangData(currentUser.uid)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (auth.currentUser != null) keranjangRef.orderByChild("timestamp").removeEventListener(keranjangListener)
+        val currentUser = auth.currentUser
+        if (currentUser != null) keranjangViewModel.clearKeranjangListeners(currentUser.uid)
+        akunViewModel.removeAkunListener(akunRef)
     }
 }

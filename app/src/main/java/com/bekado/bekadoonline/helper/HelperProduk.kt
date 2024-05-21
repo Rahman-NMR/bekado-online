@@ -1,24 +1,19 @@
 package com.bekado.bekadoonline.helper
 
 import android.content.Context
-import androidx.cardview.widget.CardView
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.bekado.bekadoonline.adapter.AdapterProduk
+import com.bekado.bekadoonline.data.model.KategoriModel
+import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperSort.sortNameAsc
 import com.bekado.bekadoonline.helper.HelperSort.sortNameDesc
-import com.bekado.bekadoonline.helper.HelperSort.sortPriceDesc
 import com.bekado.bekadoonline.helper.HelperSort.sortPriceAsc
-import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
-import com.bekado.bekadoonline.data.model.KategoriModel
-import com.bekado.bekadoonline.data.model.ProdukModel
-import com.google.android.material.snackbar.Snackbar
+import com.bekado.bekadoonline.helper.HelperSort.sortPriceDesc
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import java.util.Date
-import java.util.HashMap
 
 object HelperProduk {
     fun getFiltered(
@@ -95,38 +90,6 @@ object HelperProduk {
                 showToast("Tidak dapat mengambil data keranjang", context)
             }
         })
-    }
-
-    fun deleteKeranjang(
-        keranjang: CombinedKeranjangModel,
-        keranjangRef: DatabaseReference,
-        viewBinding: CoordinatorLayout,
-        anchorLayout: CardView,
-        ditampilkan: Boolean,
-        notifyDataSetChanged: Unit
-    ) {
-        keranjangRef.removeValue()
-
-        val nama = keranjang.produkModel?.namaProduk.toString()
-        val idProduk = keranjang.produkModel?.idProduk.toString()
-        val jumlahP = keranjang.keranjangModel?.jumlahProduk
-        val waktu = keranjang.keranjangModel?.timestamp.toString()
-
-        val snackbar = Snackbar.make(viewBinding, "$nama dihapus dari keranjang", Snackbar.LENGTH_LONG)
-        val actionText = "Batalkan"
-        val cancelAction = {
-            val temp = HashMap<String, Any?>()
-            temp["idProduk"] = idProduk
-            temp["jumlahProduk"] = jumlahP
-            temp["timestamp"] = waktu
-            temp["diPilih"] = false
-            keranjangRef.setValue(temp)
-            notifyDataSetChanged
-        }
-
-        snackbar.anchorView = anchorLayout
-        if (ditampilkan) snackbar.setAction(actionText) { cancelAction() }
-        snackbar.show()
     }
 
     fun plusMinus(keranjangRef: DatabaseReference, add: Boolean) {

@@ -7,13 +7,6 @@
     android:background="@color/surface_container"
     tools:context=".ui.activities.profil.AboutBekadoActivity">
 
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/loading_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:indeterminate="true" />
-
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
@@ -34,12 +27,9 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:visibility="visible">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -66,9 +56,20 @@
                     android:layout_height="wrap_content"
                     app:cardCornerRadius="16dp">
 
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressbar_foto_bekado"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:indeterminate="true"
+                        android:padding="@dimen/smallBottomdp" />
+
                     <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/layout_foto_bekado"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        tools:visibility="visible">
 
                         <androidx.constraintlayout.widget.Guideline
                             android:id="@+id/guideline"
@@ -97,13 +98,24 @@
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="16dp">
 
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressbar_info_bekado"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:indeterminate="true"
+                        android:padding="@dimen/smallBottomdp" />
+
                     <LinearLayout
+                        android:id="@+id/layout_info_bekado"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clipChildren="false"
                         android:clipToPadding="false"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:visibility="gone"
+                        tools:visibility="visible">
 
                         <TextView
                             style="@style/sub.title.about"
