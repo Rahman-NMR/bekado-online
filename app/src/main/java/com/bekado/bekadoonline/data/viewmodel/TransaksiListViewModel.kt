@@ -65,7 +65,7 @@ class TransaksiListViewModel : ViewModel() {
         val sttsPsnn = item.child("statusPesanan").value.toString()
         val currency = item.child("currency").value.toString()
         val totalBlnj = item.child("totalBelanja").value as Long
-        val produkList = item.child("produkList").children.toList()
+        val produkList = item.child("produkList").children.sortedBy { it.child("timestamp").value.toString() }.toList()
         val lastProduk = produkList[0]
         val fotoPrdk = lastProduk.child("fotoProduk").value.toString()
         val namaPrdk = lastProduk.child("namaProduk").value.toString()

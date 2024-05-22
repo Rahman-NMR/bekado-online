@@ -249,6 +249,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
         produkViewModel.loadDaftarProduk(db.getReference(reference), isAdmin, detailTransaksi.idTransaksi)
         produkViewModel.dataProduk.observe(this) { dataProduk ->
             if (dataProduk != null) {
+                dataProduk.sortBy { it.keranjangModel?.timestamp }
                 val adapterDaftarProduk = AdapterCheckout(ArrayList(dataProduk))
                 binding.rvDaftarProduk.adapter = adapterDaftarProduk
 
