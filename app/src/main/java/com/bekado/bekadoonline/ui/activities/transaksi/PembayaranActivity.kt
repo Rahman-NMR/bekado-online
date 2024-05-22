@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.data.model.DetailTransaksiModel
 import com.bekado.bekadoonline.databinding.ActivityPembayaranBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.showToast
@@ -45,6 +46,7 @@ class PembayaranActivity : AppCompatActivity() {
 
     private lateinit var akunRef: DatabaseReference
     private lateinit var invRef: DatabaseReference
+    private var status: List<String> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +68,12 @@ class PembayaranActivity : AppCompatActivity() {
             }
         }
         invRef = db.getReference("transaksi/$uidnIdtrx")
+        status = listOf(
+            getString(R.string.status_dalam_pengiriman),
+            getString(R.string.status_dalam_proses),
+            getString(R.string.status_selesai),
+            getString(R.string.status_dibatalkan)
+        )
 
         akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
         transaksiViewModel = ViewModelProvider(this)[TransaksiDetailViewModel::class.java]
@@ -113,21 +121,19 @@ class PembayaranActivity : AppCompatActivity() {
         transaksiViewModel.detailTransaksi.observe(this) { data ->
             if (data != null) {
                 if (!data.metodePembayaran.isNullOrEmpty()) if (data.metodePembayaran == getString(R.string.cod)) finish()
-
-                val status = listOf(
-                    getString(R.string.status_dalam_pengiriman),
-                    getString(R.string.status_dalam_proses),
-                    getString(R.string.status_selesai),
-                    getString(R.string.status_dibatalkan)
-                )
-
                 if (!data.statusPesanan.isNullOrEmpty())
                     if (status.any { data.statusPesanan.contains(it) }) {
                         binding.btnUbahImageBukti.visibility = View.GONE
                         binding.btnSimpanBuktPmbyrn.visibility = View.GONE
+                        binding.btnSimpanBuktPmbyrn.setOnClickListener { limitedClickListener(data) }
+                        binding.tvBuktiPmbyrn.setOnClickListener { limitedClickListener(data) }
                     }
             }
         }
+    }
+
+    private fun limitedClickListener(data: DetailTransaksiModel) {
+        showToast("${getString(R.string.late_upload_bukti)} ${data.statusPesanan}", this@PembayaranActivity)
     }
 
     private fun getDataBuktiTrx() {

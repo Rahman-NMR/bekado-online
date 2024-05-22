@@ -41,6 +41,7 @@
     <string name="tautan_reset_pw_sukses">Tautan reset password dikirim ke email Anda</string>
     <string name="masalah_database">Terjadi masalah pada database</string>
     <string name="status_pesanan_belom_pilih">Status pesanan belum dipilih</string>
+    <string name="late_upload_bukti">Tidak bisa dilakukan pada status</string>
 
     <!--    button-->
     <string name="login">Login</string>

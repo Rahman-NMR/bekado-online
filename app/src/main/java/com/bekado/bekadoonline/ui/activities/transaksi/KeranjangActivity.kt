@@ -17,6 +17,7 @@ import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
+import com.bekado.bekadoonline.ui.activities.transaksi.CheckOutActivity.Companion.selectedProduk
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -148,12 +149,12 @@ class KeranjangActivity : AppCompatActivity() {
         }
     }
 
+    //TODO=data keranjang jika dipilih semua untuk checkout menyisakan 1 data tidak terhapus
     private fun checkout(dataKeranjang: ArrayList<CombinedKeranjangModel>?) {
         val selectedKeranjang = dataKeranjang?.filter { it.keranjangModel?.diPilih ?: false }
         if (selectedKeranjang?.isNotEmpty() == true) {
-            val intent = Intent(this, CheckOutActivity::class.java)
-            intent.putExtra("selected_dataKeranjang", ArrayList(selectedKeranjang))
-            startActivity(intent)
+            selectedProduk = selectedKeranjang as ArrayList<CombinedKeranjangModel>
+            startActivity(Intent(this, CheckOutActivity::class.java))
         } else showToast(getString(R.string.pilih_produk_dulu), this)
     }
 

@@ -3,22 +3,24 @@ package com.bekado.bekadoonline.ui.activities.transaksi
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterCheckout
+import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
+import com.bekado.bekadoonline.data.model.TransaksiModel
 import com.bekado.bekadoonline.databinding.ActivityCheckOutBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.Helper.showToastL
-import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
+import com.bekado.bekadoonline.data.viewmodel.AlamatViewModel
 import com.bekado.bekadoonline.ui.activities.profil.AlamatActivity
+import com.bekado.bekadoonline.ui.activities.transaksi.PembayaranActivity.Companion.BuktiDetailTransaksi
+import com.bekado.bekadoonline.ui.activities.transaksi.PembayaranActivity.Companion.uidnIdtrx
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import java.util.Date
 import java.util.Locale
 
@@ -26,11 +28,11 @@ class CheckOutActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCheckOutBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
-    private lateinit var selectedKeranjang: ArrayList<CombinedKeranjangModel>
 
     private lateinit var keranjangRef: DatabaseReference
     private lateinit var alamatRef: DatabaseReference
-    private lateinit var alamatListener: ValueEventListener
+    private lateinit var transaksiRef: DatabaseReference
+    private lateinit var alamatViewModel: AlamatViewModel
 
     private var ongkir: Long = 0
     private var jarak: Long = 0
@@ -38,13 +40,6 @@ class CheckOutActivity : AppCompatActivity() {
     private var totalItem = 0
     private var totalBelanja: Long = 0
     private var metodePembayaran: String = ""
-
-    private var namaPnrm: String = ""
-    private var noHpPnrm: String = ""
-    private var alamatPnrm: String = ""
-    private var kodePosPnrm: String = ""
-    private var latitude: String = ""
-    private var longitude: String = ""
 
     private val lati = -7.4547115
     private val longi = 109.258109
@@ -57,96 +52,106 @@ class CheckOutActivity : AppCompatActivity() {
         supportActionBar?.hide()
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
-        selectedKeranjang = intent.getParcelableArrayListExtra("selected_dataKeranjang") ?: ArrayList()
+        alamatViewModel = ViewModelProvider(this)[AlamatViewModel::class.java]
+
         val currentUid = auth.currentUser?.uid
         keranjangRef = db.getReference("keranjang/$currentUid")
         alamatRef = db.getReference("alamat/$currentUid")
+        transaksiRef = db.getReference("transaksi/$currentUid")
 
-        dataFromIntentExtra()
-        getDataProduk()
-        getAlamatPenerima()
+        setupDaftarProduk()
+        dataAlamatHandler(currentUid)
+        setupDisplayHarga()
 
-        with(binding) {
-            appBar.setNavigationOnClickListener { finish() }
-            btnUbahAlamat.setOnClickListener { startActivity(Intent(this@CheckOutActivity, AlamatActivity::class.java)) }
-            toggleButton.addOnButtonCheckedListener { _, checkedId, isChecked ->
-                if (isChecked)
-                    when (checkedId) {
-                        R.id.btn_pengiriman_transfer -> updateRincianHarga(true)
-                        R.id.btn_pengiriman_cod -> updateRincianHarga(false)
-                    }
-            }
-            btnKonfirmasiPesanan.setOnClickListener {
-                if (latitude.isNotEmpty() && longitude.isNotEmpty() &&
-                    namaPnrm.isNotEmpty() && noHpPnrm.isNotEmpty() &&
-                    alamatPnrm.isNotEmpty() && kodePosPnrm.isNotEmpty()
-                ) if (totalBelanja >= 50000) {
-                    Helper.showAlertDialog(
-                        getString(R.string.konfirmasi_pesanan_),
-                        getString(R.string.msg_konf_pesanan),
-                        getString(R.string.konfirmasi),
-                        this@CheckOutActivity,
-                        getColor(R.color.blue_grey_700)
-                    ) { addTransaksi(currentUid) }
-                } else showToastL(getString(R.string.syarat_checkout), this@CheckOutActivity)
-                else showToast(getString(R.string.alamat_uncompleate), this@CheckOutActivity)
-            }
+        binding.appBar.setNavigationOnClickListener { finish() }
+        binding.btnUbahAlamat.setOnClickListener { startActivity(Intent(this@CheckOutActivity, AlamatActivity::class.java)) }
+    }
+
+    private fun dataAlamatHandler(currentUid: String?) {
+        alamatViewModel.loadCurrentUser()
+        alamatViewModel.loadAlamatData()
+
+        alamatViewModel.alamatModel.observe(this) { alamatModel ->
+            val nama = alamatModel?.nama
+            val noHp = alamatModel?.noHp
+            val alamatLengkap = alamatModel?.alamatLengkap
+            val kodePos = alamatModel?.kodePos
+            val latitude = alamatModel?.latitude
+            val longitude = alamatModel?.longitude
+
+            updateRincianHarga(true, latitude, longitude)
+            toogleButton(latitude, longitude)
+            setupUI(nama, noHp, alamatLengkap, kodePos, latitude, longitude)
+            setupJarak(latitude, longitude)
+            konfirmPesanan(currentUid, nama, noHp, alamatLengkap, kodePos, latitude, longitude)
+        }
+        alamatViewModel.isLoading.observe(this) { isLoading ->
         }
     }
 
-    private fun getAlamatPenerima() {
-        alamatListener = object : ValueEventListener {
-            override fun onDataChange(snapshotAlamat: DataSnapshot) {
-                if (snapshotAlamat.exists()) {
-                    namaPnrm = snapshotAlamat.child("nama").value?.toString() ?: ""
-                    noHpPnrm = snapshotAlamat.child("noHp").value?.toString() ?: ""
-                    alamatPnrm = snapshotAlamat.child("alamatLengkap").value?.toString() ?: ""
-                    kodePosPnrm = snapshotAlamat.child("kodePos").value?.toString() ?: ""
-
-                    val penerima = if (namaPnrm.isNotEmpty() && noHpPnrm.isNotEmpty()) "$namaPnrm - $noHpPnrm"
-                    else getString(R.string.tidak_ada_data)
-                    val address = if (alamatPnrm.isNotEmpty() && kodePosPnrm.isNotEmpty()) "$alamatPnrm, $kodePosPnrm"
-                    else getString(R.string.tidak_ada_data)
-
-                    binding.namaNohp.text = penerima
-                    binding.alamat.text = address
-
-                    latitude = snapshotAlamat.child("latitude").value?.toString() ?: ""
-                    longitude = snapshotAlamat.child("longitude").value?.toString() ?: ""
-
-                    val endDrawable = if (latitude.isNotEmpty() && longitude.isNotEmpty()) R.drawable.icon_round_task_alt_24 else 0
-                    binding.alamat.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, endDrawable, 0)
-
-                    if (latitude.isNotEmpty() && longitude.isNotEmpty()) {
-                        val distance = Helper.calcDistance(latitude.toDouble(), longitude.toDouble(), lati, longi)
-                        val jarakPerKm = String.format(Locale.getDefault(),"%.0f", distance)
-                        val jarakT = if (distance < 1) {
-                            val distanceInMeter = (distance * 1000).toInt()
-                            "$distanceInMeter m"
-                        } else String.format(Locale.getDefault(), "%.1f km", distance)
-                        val jarakOngkirTxt = "${getString(R.string.total_ongkos_kirim)} ($jarakT)"
-
-                        binding.ongkirTxt.text = jarakOngkirTxt
-                        jarak = jarakPerKm.toLong()
-                    }
-
-                    updateRincianHarga(true)
+    private fun toogleButton(latitude: String?, longitude: String?) {
+        binding.toggleButton.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked)
+                when (checkedId) {
+                    R.id.btn_pengiriman_transfer -> updateRincianHarga(true, latitude, longitude)
+                    R.id.btn_pengiriman_cod -> updateRincianHarga(false, latitude, longitude)
                 }
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
         }
-
-        alamatRef.addValueEventListener(alamatListener)
     }
 
-    private fun dataFromIntentExtra() {
-        for (keranjang in selectedKeranjang) {
-            val hargaInt = keranjang.produkModel?.hargaProduk!!
-            val jumlahHarga = hargaInt * keranjang.keranjangModel?.jumlahProduk!!
-            totalHarga += jumlahHarga
-            totalItem++
+    private fun setupUI(nama: String?, noHp: String?, alamatLengkap: String?, kodePos: String?, latitude: String?, longitude: String?) {
+        binding.namaNohp.text =
+            if (nama?.isNotEmpty() == true && noHp?.isNotEmpty() == true) "$nama - $noHp"
+            else getString(R.string.tidak_ada_data)
+        binding.alamat.text =
+            if (alamatLengkap?.isNotEmpty() == true && kodePos?.isNotEmpty() == true) "$alamatLengkap, $kodePos"
+            else getString(R.string.tidak_ada_data)
+
+        val endDrawable = if (latitude?.isNotEmpty() == true && longitude?.isNotEmpty() == true) R.drawable.icon_round_task_alt_24 else 0
+        binding.alamat.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, endDrawable, 0)
+    }
+
+    private fun setupJarak(latitude: String?, longitude: String?) {
+        if (latitude?.isNotEmpty() == true && longitude?.isNotEmpty() == true) {
+            val distance = Helper.calcDistance(latitude.toDouble(), longitude.toDouble(), lati, longi)
+            val jarakPerKm = String.format(Locale.getDefault(), "%.0f", distance)
+            val jarakT = if (distance < 1) {
+                val distanceMeter = (distance * 1000).toInt()
+                "$distanceMeter m"
+            } else String.format(Locale.getDefault(), "%.1f km", distance)
+            val jarakOngkirTxt = "${getString(R.string.total_ongkos_kirim)} ($jarakT)"
+
+            binding.ongkirTxt.text = jarakOngkirTxt
+            jarak = jarakPerKm.toLong() // TODO: release jarak dari toko ke pembeli. kejauhan = skip
+        } else binding.ongkirTxt.text = getString(R.string.total_ongkos_kirim)
+    }
+
+    private fun konfirmPesanan(uidNow: String?, nama: String?, noHp: String?, alamatFull: String?, kodePos: String?, lati: String?, longi: String?) {
+        binding.btnKonfirmasiPesanan.setOnClickListener {
+            if (lati?.isNotEmpty() == true && longi?.isNotEmpty() == true &&
+                nama?.isNotEmpty() == true && noHp?.isNotEmpty() == true &&
+                alamatFull?.isNotEmpty() == true && kodePos?.isNotEmpty() == true
+            ) if (totalBelanja >= 50000) {
+                Helper.showAlertDialog(
+                    getString(R.string.konfirmasi_pesanan_),
+                    getString(R.string.msg_konf_pesanan),
+                    getString(R.string.konfirmasi),
+                    this@CheckOutActivity,
+                    getColor(R.color.blue_grey_700)
+                ) { addTransaksi(uidNow, nama, noHp, alamatFull, kodePos, lati, longi) }
+            } else showToastL(getString(R.string.syarat_checkout), this@CheckOutActivity)
+            else showToast(getString(R.string.alamat_uncompleate), this@CheckOutActivity)
         }
+    }
+
+    private fun setupDisplayHarga() {
+        totalHarga = selectedProduk.sumOf {
+            val hargaInt = it.produkModel?.hargaProduk ?: 0
+            val jumlahHarga = it.keranjangModel?.jumlahProduk ?: 0
+            hargaInt * jumlahHarga
+        }
+        totalItem = selectedProduk.count()
+
         val itemTxt = "${getString(R.string.total_harga)} ($totalItem produk)"
         val hargaTxt = "Rp${addcoma3digit(totalHarga)}"
 
@@ -154,19 +159,19 @@ class CheckOutActivity : AppCompatActivity() {
         binding.totalHarga.text = hargaTxt
     }
 
-    private fun getDataProduk() {
+    private fun setupDaftarProduk() {
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.rvDaftarProduk.layoutManager = layoutManager
 
-        val adapterCheckout = AdapterCheckout(selectedKeranjang)
+        val adapterCheckout = AdapterCheckout(selectedProduk)
         adapterCheckout.isExpanded = true
         binding.rvDaftarProduk.adapter = adapterCheckout
     }
 
-    private fun updateRincianHarga(transfer: Boolean) {
+    private fun updateRincianHarga(transfer: Boolean, latitude: String?, longitude: String?) {
         totalBelanja = totalHarga + ongkir
         val belanjaTxt = if (totalBelanja > 0) "Rp${addcoma3digit(totalHarga + ongkir)}" else "Gratis"
-        val ongkirTxt = if (latitude.isNotEmpty() && longitude.isNotEmpty()) "Gratis" else getString(R.string.strip)
+        val ongkirTxt = if (latitude?.isNotEmpty() == true && longitude?.isNotEmpty() == true) "Gratis" else getString(R.string.strip)
         metodePembayaran = if (transfer) getString(R.string.transfer) else getString(R.string.cod)
 
         binding.totalBelanjaHarga.text = belanjaTxt
@@ -174,8 +179,7 @@ class CheckOutActivity : AppCompatActivity() {
         binding.pembayaranMetodeTxt.text = metodePembayaran
     }
 
-    private fun addTransaksi(uidNow: String?) {
-        val transaksiRef = db.getReference("transaksi/$uidNow")
+    private fun addTransaksi(uidNow: String?, nama: String, noHp: String, alamatFull: String, kodePos: String, lati: String, longi: String) {
         val idTransaksi = transaksiRef.push().key.toString()
         val trxChildRef = transaksiRef.child(idTransaksi)
         val currentTime = Date().time.toString()
@@ -202,13 +206,56 @@ class CheckOutActivity : AppCompatActivity() {
             "totalItem" to totalItem
         )
         val dataAlamat = hashMapOf(
-            "alamatLengkap" to alamatPnrm,
-            "kodePos" to kodePosPnrm,
-            "latitude" to latitude,
-            "longitude" to longitude,
-            "nama" to namaPnrm,
-            "noHp" to noHpPnrm
+            "alamatLengkap" to alamatFull,
+            "kodePos" to kodePos,
+            "latitude" to lati,
+            "longitude" to longi,
+            "nama" to nama,
+            "noHp" to noHp
         )
+        mapOfBuktiTransaksi(dataBuktiTrx)
+        mapOfProdukList(produkMap)
+
+        trxChildRef.setValue(dataTransaksi).addOnSuccessListener {
+            showToastL(getString(R.string.pesanan_baru_berhasil), this)
+            trxChildRef.child("alamatPenerima").setValue(dataAlamat)
+            trxChildRef.child("buktiTransaksi").setValue(dataBuktiTrx)
+            trxChildRef.child("produkList").setValue(produkMap)
+                .addOnSuccessListener { actionSuccessListener(idTransaksi, noPesanan, currentTime, statusPesananMetode, uidNow) }
+        }
+    }
+
+    private fun actionSuccessListener(
+        idTransaksi: String,
+        noPesanan: String,
+        currentTime: String,
+        statusPesananMetode: String,
+        uidNow: String?
+    ) {
+        selectedProduk.forEach { keranjangRef.child("${it.produkModel?.idProduk}").removeValue() }
+
+        when (metodePembayaran) {
+            getString(R.string.transfer) -> {
+                uidnIdtrx = "$uidNow/$idTransaksi"
+                BuktiDetailTransaksi = TransaksiModel(
+                    idTransaksi = idTransaksi,
+                    noPesanan = noPesanan,
+                    timestamp = currentTime,
+                    statusPesanan = statusPesananMetode,
+                    currency = "Rp",
+                    totalBelanja = totalBelanja,
+                    produkLainnya = totalItem.toLong()
+                )
+
+                startActivity(Intent(this, PembayaranActivity::class.java))
+                finish()
+            }
+
+            else -> finish()
+        }
+    }
+
+    private fun mapOfBuktiTransaksi(dataBuktiTrx: HashMap<String, Any>) {
         db.getReference("aaabdfiklnrstt").get().addOnSuccessListener { data ->
             dataBuktiTrx["pemilikBank"] = data.child("pemilik").value as String
             dataBuktiTrx["biayaTransfer"] = totalBelanja
@@ -216,8 +263,11 @@ class CheckOutActivity : AppCompatActivity() {
             dataBuktiTrx["namaBank"] = data.child("name").value as String
             dataBuktiTrx["noRek"] = data.child("noRek").value as String
         }
-        if (selectedKeranjang.isNotEmpty()) {
-            for (produk in selectedKeranjang) {
+    }
+
+    private fun mapOfProdukList(produkMap: MutableMap<String, Any>) {
+        if (selectedProduk.isNotEmpty()) {
+            for (produk in selectedProduk) {
                 val dataProduk = mapOf(
                     "idProduk" to produk.produkModel?.idProduk,
                     "fotoProduk" to produk.produkModel?.fotoProduk,
@@ -230,24 +280,6 @@ class CheckOutActivity : AppCompatActivity() {
                 produkMap[produk.produkModel?.idProduk.toString()] = dataProduk
             }
         }
-
-        trxChildRef.setValue(dataTransaksi).addOnSuccessListener {
-            showToastL(getString(R.string.pesanan_baru_berhasil), this)
-            trxChildRef.child("alamatPenerima").setValue(dataAlamat)
-            trxChildRef.child("buktiTransaksi").setValue(dataBuktiTrx)
-            trxChildRef.child("produkList").setValue(produkMap).addOnSuccessListener {
-                selectedKeranjang.forEach { keranjangRef.child("${it.produkModel?.idProduk}").removeValue() }
-
-                val intent = Intent(this, PembayaranActivity::class.java)
-                    .putExtra("statusAdmin", false)
-                    .putExtra("pathTrx", "$uidNow/$idTransaksi")
-                    .putExtra("statusPesanan", getString(R.string.status_menunggu_pembayaran))
-                    .putExtra("metodePembayaran", metodePembayaran)
-
-                startActivity(intent)
-                finish()
-            }
-        }
     }
 
     private fun generateIdPesanan(currentTime: String): String {
@@ -258,11 +290,17 @@ class CheckOutActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        alamatRef.removeEventListener(alamatListener)
+        if (auth.currentUser != null) {
+            alamatViewModel.removeAlamatListener(alamatRef)
+        }
     }
 
     override fun onStart() {
         super.onStart()
         binding.btnPengirimanTransfer.isChecked = true
+    }
+
+    companion object {
+        var selectedProduk = ArrayList<CombinedKeranjangModel>()
     }
 }
