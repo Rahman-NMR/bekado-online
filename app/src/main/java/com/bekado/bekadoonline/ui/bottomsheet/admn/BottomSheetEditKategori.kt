@@ -2,6 +2,7 @@ package com.bekado.bekadoonline.ui.bottomsheet.admn
 
 import android.content.Context
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -16,17 +17,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.database.DatabaseReference
 
-class ShowEditKategoriBottomSheet(context: Context) {
-    private var bindingBS: BottomsheetEditKategoriBinding
-    private var dialog: BottomSheetDialog
+class BottomSheetEditKategori(var context: Context) {
+    private var bindingBS: BottomsheetEditKategoriBinding = BottomsheetEditKategoriBinding.inflate(LayoutInflater.from(context))
+    private var dialog: BottomSheetDialog = BottomSheetDialog(context, R.style.AppBottomSheetDialogTheme)
 
     init {
-        bindingBS = BottomsheetEditKategoriBinding.inflate(LayoutInflater.from(context))
-        dialog = BottomSheetDialog(context, R.style.AppBottomSheetDialogTheme)
         dialog.setContentView(bindingBS.root)
     }
 
-    fun showDialog(context: Context, namaKategori: String?, visibilitas: Boolean, ref: DatabaseReference, jumlahProduk: Long) {
+    fun showDialog(namaKategori: String?, visibilitas: Boolean, ref: DatabaseReference, jumlahProduk: Long) {
         with(bindingBS) {
             val toastTxt = "${context.getString(R.string.produk)} ${context.getString(R.string.tidak_dapat_kosong)}"
 
@@ -35,7 +34,7 @@ class ShowEditKategoriBottomSheet(context: Context) {
             namaKategoriEdit.setText(namaKategori)
             kategoriVisibilitas.isChecked = visibilitas
             kategoriVisibilitas.setOnCheckedChangeListener { _, checked ->
-                if (jumlahProduk.toInt() > 0) Handler().postDelayed({ setVisibility(context, ref, checked, namaKategori) }, 500)
+                if (jumlahProduk.toInt() > 0) Handler(Looper.getMainLooper()).postDelayed({ setVisibility(context, ref, checked, namaKategori) }, 500)
                 else showToast(toastTxt, context)
             }
 

@@ -20,8 +20,7 @@ import java.util.Locale
 class AdapterTransaksi(
     private var transaksiModelList: ArrayList<TransaksiModel>,
     private var listenerTransaksi: (TransaksiModel) -> Unit,
-) :
-    RecyclerView.Adapter<AdapterTransaksi.ViewHolder>() {
+) : RecyclerView.Adapter<AdapterTransaksi.ViewHolder>() {
     lateinit var context: Context
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

@@ -3,6 +3,7 @@ package com.bekado.bekadoonline.ui.activities.admn
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,7 +32,7 @@ class ProdukListActivity : AppCompatActivity() {
     private var dataProduk: ArrayList<ProdukModel> = ArrayList()
     private var totalProduk: Int = 0
 
-    private lateinit var kategoriData: KategoriModel
+//    private lateinit var kategoriData: KategoriModel
     private lateinit var produkRef: DatabaseReference
     private lateinit var produkListener: ValueEventListener
     private lateinit var kategoriRef: DatabaseReference
@@ -45,9 +46,9 @@ class ProdukListActivity : AppCompatActivity() {
         supportActionBar?.hide()
         db = FirebaseDatabase.getInstance()
         storage = FirebaseStorage.getInstance()
-        kategoriData = intent.getParcelableExtra("idKategori") ?: KategoriModel()
+//        kategoriData = intent.getParcelableExtra("idKategori") ?: KategoriModel()
         produkRef = db.getReference("produk/produk")
-        kategoriRef = db.getReference("produk/kategori/${kategoriData.idKategori}")
+        kategoriRef = db.getReference("produk/kategori/${dataKategoriModel?.idKategori}")
 
         val padding = resources.getDimensionPixelSize(R.dimen.normaldp)
 
@@ -60,10 +61,10 @@ class ProdukListActivity : AppCompatActivity() {
 
             appBar.setNavigationOnClickListener { finish() }
             btnHapusKategori.setOnClickListener { showAlertDialog() }
-            tvKategoriSekarang.text = kategoriData.namaKategori
+            tvKategoriSekarang.text = dataKategoriModel?.namaKategori
             fabTambahProduk.setOnClickListener {
                 val ninten = Intent(this@ProdukListActivity, ProdukAddUpdateActivity::class.java)
-                    .putExtra("isEditProduk", false).putExtra("kategoriData", kategoriData)
+                    .putExtra("isEditProduk", false).putExtra("kategoriData", dataKategoriModel)
                 startActivity(ninten)
             }
         }
@@ -92,7 +93,7 @@ class ProdukListActivity : AppCompatActivity() {
 
                 for (item in snapshot.children) {
                     val idKategori = item.child("idKategori").value.toString()
-                    if (this@ProdukListActivity.kategoriData.idKategori == idKategori) {
+                    if (dataKategoriModel?.idKategori == idKategori) {
                         totalProduk++
                         val produk = item.getValue(ProdukModel::class.java)
                         dataProduk.add(produk!!)
@@ -108,10 +109,10 @@ class ProdukListActivity : AppCompatActivity() {
 
                     adapterProduk = AdapterProdukList(dataProduk, { produk ->
                         val ntent = Intent(this@ProdukListActivity, ProdukAddUpdateActivity::class.java)
-                            .putExtra("produkData", produk).putExtra("isEditProduk", true).putExtra("kategoriData", kategoriData)
+                            .putExtra("produkData", produk).putExtra("isEditProduk", true).putExtra("kategoriData", dataKategoriModel)
                         startActivity(ntent)
                     }, { produk, isChecked ->
-                        Handler().postDelayed({ setVisibility(produk, isChecked) }, 500)
+                        Handler(Looper.getMainLooper()).postDelayed({ setVisibility(produk, isChecked) }, 500)
                     })
                     binding.rvDaftarProduk.adapter = adapterProduk
                 }
@@ -144,8 +145,8 @@ class ProdukListActivity : AppCompatActivity() {
 
     private fun showAlertDialog() {
         Helper.showAlertDialog(
-            "Hapus Kategori ${kategoriData.namaKategori}?",
-            "Kategori ${kategoriData.namaKategori} akan dihapus secara permanen bersama dengan daftar produk didalamnya.",
+            "Hapus Kategori ${dataKategoriModel?.namaKategori}?",
+            "Kategori ${dataKategoriModel?.namaKategori} akan dihapus secara permanen bersama dengan daftar produk didalamnya.",
             getString(R.string.hapus_kategori),
             this,
             getColor(R.color.error)
@@ -160,8 +161,8 @@ class ProdukListActivity : AppCompatActivity() {
             produkRef.removeEventListener(produkListener)
             kategoriRef.removeEventListener(kategoriListener)
 
-            val namaKategori = kategoriData.namaKategori
-            val idKategori = kategoriData.idKategori
+            val namaKategori = dataKategoriModel?.namaKategori
+            val idKategori = dataKategoriModel?.idKategori
             val kategoriRef = db.getReference("produk")
             val idProdukList = ArrayList<String>()
 
@@ -191,5 +192,9 @@ class ProdukListActivity : AppCompatActivity() {
         super.onDestroy()
         kategoriRef.removeEventListener(kategoriListener)
         produkRef.orderByChild("namaProduk").removeEventListener(produkListener)
+    }
+
+    companion object {
+        var dataKategoriModel: KategoriModel? = null
     }
 }

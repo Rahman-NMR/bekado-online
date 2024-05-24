@@ -9,31 +9,28 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.admn.AdapterKategoriList
-import com.bekado.bekadoonline.ui.bottomsheet.admn.ShowEditKategoriBottomSheet
+import com.bekado.bekadoonline.data.model.KategoriModel
+import com.bekado.bekadoonline.data.viewmodel.KategoriListViewModel
 import com.bekado.bekadoonline.databinding.ActivityKategoriListBinding
 import com.bekado.bekadoonline.helper.Helper.hideKeyboard
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection.isConnected
-import com.bekado.bekadoonline.helper.dragndrop.ItemMoveCallback
-import com.bekado.bekadoonline.data.model.KategoriModel
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
+import com.bekado.bekadoonline.ui.activities.admn.ProdukListActivity.Companion.dataKategoriModel
+import com.bekado.bekadoonline.ui.bottomsheet.admn.BottomSheetEditKategori
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 
 class KategoriListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityKategoriListBinding
     private lateinit var db: FirebaseDatabase
     private lateinit var adapterKategoriList: AdapterKategoriList
-    private var dataKategori: ArrayList<KategoriModel> = ArrayList()
 
     private lateinit var kategoriRef: DatabaseReference
-    private lateinit var kategoriListener: ValueEventListener
+    private lateinit var kategoriListViewModel: KategoriListViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,91 +40,79 @@ class KategoriListActivity : AppCompatActivity() {
         supportActionBar?.hide()
         db = FirebaseDatabase.getInstance()
         kategoriRef = db.getReference("produk")
+        kategoriListViewModel = ViewModelProvider(this)[KategoriListViewModel::class.java]
 
-        getKategoriList()
+        setupAdapter()
+        setupKategoriList()
 
         with(binding) {
             rvKategori.layoutManager = LinearLayoutManager(this@KategoriListActivity, LinearLayoutManager.VERTICAL, false)
-            appBar.setNavigationOnClickListener { onBackPressed() }
-
-            fabAddKategori.setOnClickListener { validateEditText() }
+            appBar.setNavigationOnClickListener { finish() }
             etAddKategori.addTextChangedListener(addKategoriTextWatcher)
-            etAddKategori.setOnEditorActionListener { _, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    validateEditText()
-                    true
-                } else false
-            }
-            etAddKategori.setOnKeyListener { _, keyCode, event ->
-                if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-                    etAddKategori.clearFocus()
-                    etAddKategori.error = null
-                    true
-                } else false
-            }
-            btnPerbaruiPosisi.setOnClickListener { if (isConnected(this@KategoriListActivity)) setupUbahPosisi() }
         }
     }
 
-    private fun getKategoriList() {
-        kategoriListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                dataKategori.clear()
+    private fun setupKategoriList() {
+        kategoriListViewModel.kategoriList.observe(this) { kategoriList ->
+            adapterKategoriList.submitList(kategoriList)
 
-                for (item in snapshot.child("kategori").children) {
-                    val idKategori = item.child("idKategori").value as String
-                    val namaKategori = item.child("namaKategori").value as String
-                    val posisi = item.child("posisi").value as Long
-                    val visibilitas = item.child("visibilitas").value as Boolean
+            with(binding) {
+                val visibiliti = if (kategoriList != null) View.VISIBLE else View.GONE
+                rvKategori.visibility = visibiliti
+                lineDivider.visibility = visibiliti
 
-                    var jumlahProdukNya = 0
-                    for (data in snapshot.child("produk").children) {
-                        val jumlahProduk = data.child("idKategori").value.toString()
-                        if (jumlahProduk == idKategori) jumlahProdukNya++
-                    }
-                    val kategoriData = KategoriModel(idKategori, namaKategori, posisi, visibilitas, jumlahProdukNya.toLong())
-                    dataKategori.add(kategoriData)
-                    dataKategori.sortBy { it.posisi }
-                    binding.lineDivider.visibility = if (dataKategori.isEmpty()) View.GONE else View.VISIBLE
+                fabAddKategori.setOnClickListener { validateEditText(kategoriList) }
+                etAddKategori.setOnEditorActionListener { _, actionId, _ ->
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        validateEditText(kategoriList)
+                        true
+                    } else false
                 }
-                adapterKategoriList = AdapterKategoriList(dataKategori, { kategori ->
-                    val intents = Intent(this@KategoriListActivity, ProdukListActivity::class.java)
-                        .putExtra("idKategori", kategori)
-                    startActivity(intents)
-                }, { kategori ->
-                    val ref = kategoriRef.child("kategori/${kategori.idKategori}")
-                    ShowEditKategoriBottomSheet(this@KategoriListActivity).showDialog(
-                        this@KategoriListActivity, kategori.namaKategori, kategori.visibilitas, ref, kategori.jumlahProduk
-                    )
-                })
-                val itemTouchHelperCallback = ItemMoveCallback(adapterKategoriList, binding)
-                val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
-                itemTouchHelper.attachToRecyclerView(binding.rvKategori)
-
-                binding.rvKategori.adapter = adapterKategoriList
+                etAddKategori.setOnKeyListener { _, keyCode, event ->
+                    if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                        etAddKategori.clearFocus()
+                        etAddKategori.error = null
+                        true
+                    } else false
+                }
             }
-
-            override fun onCancelled(error: DatabaseError) {}
         }
-        kategoriRef.addValueEventListener(kategoriListener)
+        kategoriListViewModel.isLoading.observe(this) { isLoading ->
+            binding.progressbarKategoriList.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
     }
 
-    private fun ActivityKategoriListBinding.validateEditText() {
-        if (isConnected(this@KategoriListActivity)) if (etAddKategori.error == null)
-            if (etAddKategori.text.isNotEmpty()) addKategoriToDatabase(etAddKategori)
-            else showToast("${getString(R.string.nama_kategori)} ${getString(R.string.tidak_dapat_kosong)}", this@KategoriListActivity)
+    private fun setupAdapter() {
+        adapterKategoriList = AdapterKategoriList({ kategori ->
+            dataKategoriModel = kategori
+            startActivity(Intent(this@KategoriListActivity, ProdukListActivity::class.java))
+        }, { kategori ->
+            val ref = kategoriRef.child("kategori/${kategori.idKategori}")
+            BottomSheetEditKategori(this@KategoriListActivity)
+                .showDialog(kategori.namaKategori, kategori.visibilitas, ref, kategori.jumlahProduk)
+        })
+
+        binding.rvKategori.adapter = adapterKategoriList
     }
 
-    private fun addKategoriToDatabase(etAddKategori: EditText) {
+    private fun validateEditText(kategoriList: ArrayList<KategoriModel>?) {
+        if (isConnected(this@KategoriListActivity)) if (binding.etAddKategori.error == null) {
+            val errorMsg = "${getString(R.string.nama_kategori)} ${getString(R.string.tidak_dapat_kosong)}"
+
+            if (binding.etAddKategori.text.isNotEmpty()) addKategoriToDatabase(binding.etAddKategori, kategoriList)
+            else showToast(errorMsg, this@KategoriListActivity)
+        }
+    }
+
+    private fun addKategoriToDatabase(etAddKategori: EditText, kategoriList: ArrayList<KategoriModel>?) {
         val kategoriRef = db.getReference("produk/kategori")
         val addKategori = HashMap<String, Any>()
         val idKategori = kategoriRef.push().key.toString()
         addKategori["idKategori"] = idKategori
         addKategori["namaKategori"] = etAddKategori.text.toString().trim()
-        addKategori["posisi"] = dataKategori.size + 1
+        addKategori["posisi"] = (kategoriList?.size ?: 0) + 1
         addKategori["visibilitas"] = false
         kategoriRef.child(idKategori).setValue(addKategori)
-            .addOnSuccessListener { getKategoriList() }
             .addOnFailureListener { showToast("Terjadi kesalahan: ${it.message}", this) }
 
         etAddKategori.clearFocus()
@@ -154,23 +139,5 @@ class KategoriListActivity : AppCompatActivity() {
                 else binding.etAddKategori.error = null
             }
         }
-    }
-
-    private fun setupUbahPosisi() {
-        val kategoriRef = db.getReference("produk/kategori")
-        val updates = HashMap<String, Any>()
-
-        for (i in dataKategori.indices) {
-            val kategori = dataKategori[i]
-            val kategoriId = kategori.idKategori
-            updates["$kategoriId/posisi"] = kategori.posisi
-        }
-        kategoriRef.updateChildren(updates)
-            .addOnSuccessListener { binding.btnPerbaruiPosisi.visibility = View.GONE }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        kategoriRef.removeEventListener(kategoriListener)
     }
 }

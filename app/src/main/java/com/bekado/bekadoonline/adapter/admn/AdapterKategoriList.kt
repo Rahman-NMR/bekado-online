@@ -3,37 +3,18 @@ package com.bekado.bekadoonline.adapter.admn
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.databinding.LayoutKategoriListBinding
-import com.bekado.bekadoonline.helper.dragndrop.ItemTouchHelperListener
 import com.bekado.bekadoonline.data.model.KategoriModel
-import java.util.Collections
+import com.bekado.bekadoonline.databinding.LayoutKategoriListBinding
 
 class AdapterKategoriList(
-    private var kategoriModelLilst: ArrayList<KategoriModel>,
     private var listenerKategoriList: (KategoriModel) -> Unit,
-    private var listenerEdit: (KategoriModel) -> Unit
-) : RecyclerView.Adapter<AdapterKategoriList.ViewHolder>(), ItemTouchHelperListener {
+    private var listenerEdit: (KategoriModel) -> Unit,
+) : ListAdapter<KategoriModel, AdapterKategoriList.ViewHolder>(DiffCallback()) {
     lateinit var context: Context
-
-    override fun onItemMove(fromPosition: Int, toPosition: Int) {
-        if (fromPosition < toPosition) {
-            for (i in fromPosition until toPosition) {
-                Collections.swap(kategoriModelLilst, i, i + 1)
-            }
-        } else {
-            for (i in fromPosition downTo toPosition + 1) {
-                Collections.swap(kategoriModelLilst, i, i - 1)
-            }
-        }
-
-        for (i in kategoriModelLilst.indices) {
-            kategoriModelLilst[i].posisi = (i + 1).toLong()
-        }
-
-        notifyItemMoved(fromPosition, toPosition)
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -42,10 +23,8 @@ class AdapterKategoriList(
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = kategoriModelLilst.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(kategoriModelLilst[position], listenerKategoriList, listenerEdit, context)
+        holder.bind(getItem(position), listenerKategoriList, listenerEdit, context)
     }
 
     class ViewHolder(val binding: LayoutKategoriListBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -56,6 +35,16 @@ class AdapterKategoriList(
 
             binding.root.setOnClickListener { listenerKategori(kategori) }
             binding.btnEditKategori.setOnClickListener { listenerEdit(kategori) }
+        }
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<KategoriModel>() {
+        override fun areItemsTheSame(oldItem: KategoriModel, newItem: KategoriModel): Boolean {
+            return oldItem.idKategori == newItem.idKategori
+        }
+
+        override fun areContentsTheSame(oldItem: KategoriModel, newItem: KategoriModel): Boolean {
+            return oldItem == newItem
         }
     }
 }
