@@ -21,15 +21,12 @@ import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection.isConnected
 import com.bekado.bekadoonline.ui.activities.admn.ProdukListActivity.Companion.dataKategoriModel
 import com.bekado.bekadoonline.ui.bottomsheet.admn.BottomSheetEditKategori
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
 class KategoriListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityKategoriListBinding
     private lateinit var db: FirebaseDatabase
     private lateinit var adapterKategoriList: AdapterKategoriList
-
-    private lateinit var kategoriRef: DatabaseReference
     private lateinit var kategoriListViewModel: KategoriListViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +36,6 @@ class KategoriListActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
         db = FirebaseDatabase.getInstance()
-        kategoriRef = db.getReference("produk")
         kategoriListViewModel = ViewModelProvider(this)[KategoriListViewModel::class.java]
 
         setupAdapter()
@@ -87,9 +83,8 @@ class KategoriListActivity : AppCompatActivity() {
             dataKategoriModel = kategori
             startActivity(Intent(this@KategoriListActivity, ProdukListActivity::class.java))
         }, { kategori ->
-            val ref = kategoriRef.child("kategori/${kategori.idKategori}")
-            BottomSheetEditKategori(this@KategoriListActivity)
-                .showDialog(kategori.namaKategori, kategori.visibilitas, ref, kategori.jumlahProduk)
+            val ref = db.getReference("produk/kategori/${kategori.idKategori}")
+            BottomSheetEditKategori(this@KategoriListActivity).showDialog(ref, kategori)
         })
 
         binding.rvKategori.adapter = adapterKategoriList

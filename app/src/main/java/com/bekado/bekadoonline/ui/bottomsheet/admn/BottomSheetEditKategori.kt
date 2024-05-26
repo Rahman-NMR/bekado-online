@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.data.model.KategoriModel
 import com.bekado.bekadoonline.databinding.BottomsheetEditKategoriBinding
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
@@ -25,17 +26,24 @@ class BottomSheetEditKategori(var context: Context) {
         dialog.setContentView(bindingBS.root)
     }
 
-    fun showDialog(namaKategori: String?, visibilitas: Boolean, ref: DatabaseReference, jumlahProduk: Long) {
+    fun showDialog(ref: DatabaseReference, kategori: KategoriModel) {
         with(bindingBS) {
-            val toastTxt = "${context.getString(R.string.produk)} ${context.getString(R.string.tidak_dapat_kosong)}"
+            val toastTxt = context.getString(R.string.msg_beranda_kosong)
+            val namaKategori = kategori.namaKategori
+            val jumlahProduk = kategori.jumlahProduk.toInt()
+            val produkHidden = kategori.produkHidden.toInt()
 
             title.text = context.getString(R.string.edit_kategori)
             namaKategoriView.text = namaKategori
             namaKategoriEdit.setText(namaKategori)
-            kategoriVisibilitas.isChecked = visibilitas
+            kategoriVisibilitas.isChecked = kategori.visibilitas
             kategoriVisibilitas.setOnCheckedChangeListener { _, checked ->
-                if (jumlahProduk.toInt() > 0) Handler(Looper.getMainLooper()).postDelayed({ setVisibility(context, ref, checked, namaKategori) }, 500)
-                else showToast(toastTxt, context)
+                if (jumlahProduk > 0 && produkHidden < jumlahProduk) {
+                    Handler(Looper.getMainLooper()).postDelayed({ setVisibility(context, ref, checked, namaKategori) }, 500)
+                } else {
+                    Handler(Looper.getMainLooper()).postDelayed({ showToast(toastTxt, context) }, 500)
+                    dialog.cancel()
+                }
             }
 
             btnEditNamaKategori.setOnClickListener {

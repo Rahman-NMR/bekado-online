@@ -1,6 +1,5 @@
 package com.bekado.bekadoonline.data.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -33,11 +32,14 @@ class KategoriListViewModel : ViewModel() {
                     val visibilitas = item.child("visibilitas").value as Boolean
 
                     var jumlahProdukNya = 0
+                    var hidden = 0
                     for (data in snapshot.child("produk").children) {
                         val jumlahProduk = data.child("idKategori").value.toString()
+                        val visibility = data.child("visibility").value as? Boolean ?: false
                         if (jumlahProduk == idKategori) jumlahProdukNya++
+                        if (jumlahProduk == idKategori && !visibility) hidden++
                     }
-                    val kategoriData = KategoriModel(idKategori, namaKategori, posisi, visibilitas, jumlahProdukNya.toLong())
+                    val kategoriData = KategoriModel(idKategori, namaKategori, posisi, visibilitas, jumlahProdukNya.toLong(), hidden.toLong())
                     kategoriList.add(kategoriData)
                 }
 
@@ -63,6 +65,5 @@ class KategoriListViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         ref.removeEventListener(kategoriListener)
-        Log.i("testData", "onCleared remove: $kategoriListener")
     }
 }

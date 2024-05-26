@@ -29,7 +29,7 @@ class AdapterKategoriList(
 
     class ViewHolder(val binding: LayoutKategoriListBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(kategori: KategoriModel, listenerKategori: (KategoriModel) -> Unit, listenerEdit: (KategoriModel) -> Unit, context: Context) {
-            val jumlahProduk = "${kategori.jumlahProduk} ${context.getString(R.string.produk)}"
+            val jumlahProduk = "${kategori.jumlahProduk} ${context.getString(R.string.produk)} | ${kategori.produkHidden} disembunyikan"
             val imgVisibility = if (kategori.visibilitas) R.drawable.icon_outline_label_24 else R.drawable.icon_outline_label_off_24
 
             binding.kategoriNama.text = kategori.namaKategori
