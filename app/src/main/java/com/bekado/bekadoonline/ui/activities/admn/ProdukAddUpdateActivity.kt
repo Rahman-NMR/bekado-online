@@ -6,51 +6,52 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.data.model.KategoriModel
+import com.bekado.bekadoonline.data.model.ProdukModel
+import com.bekado.bekadoonline.data.viewmodel.KategoriListViewModel
+import com.bekado.bekadoonline.data.viewmodel.ProdukSingleViewModel
 import com.bekado.bekadoonline.databinding.ActivityProdukAddUpdateBinding
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.Helper.delComa3digit
 import com.bekado.bekadoonline.helper.Helper.formatPriceString
 import com.bekado.bekadoonline.helper.Helper.showAlertDialog
 import com.bekado.bekadoonline.helper.Helper.showToast
-import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.data.model.KategoriModel
-import com.bekado.bekadoonline.data.model.ProdukModel
+import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
 import java.text.NumberFormat
 
 class ProdukAddUpdateActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProdukAddUpdateBinding
-    private lateinit var db: FirebaseDatabase
     private lateinit var storage: FirebaseStorage
-
     private lateinit var produkRef: DatabaseReference
-    private lateinit var kategoriRef: DatabaseReference
-    private lateinit var kategoriListener: ValueEventListener
 
     private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
     private var imageUri: Uri = Uri.parse("")
 
-    private lateinit var produkData: ProdukModel
-    private var isEdit: Boolean = false
-    private lateinit var kategoriData: KategoriModel
+    private lateinit var produkViewModel: ProdukSingleViewModel
+    private lateinit var kategoriListViewModel: KategoriListViewModel
+
     private var updateKategoriId: String = ""
+    private var dataIdProduk: String = ""
+
+    private var produkNama: String? = ""
+    private var produkHarga: Long? = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,10 +59,9 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.hide()
-        db = FirebaseDatabase.getInstance()
         storage = FirebaseStorage.getInstance()
-        produkRef = db.getReference("produk/produk")
-        kategoriRef = db.getReference("produk/kategori")
+        produkRef = FirebaseDatabase.getInstance().getReference("produk/produk")
+        dataIdProduk = intent.getStringExtra(VariableConstant.ID_PRODUCT) ?: ""
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
@@ -73,77 +73,86 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
             }
         }
 
-        produkData = intent.getParcelableExtra("produkData") ?: ProdukModel()
-        isEdit = intent.getBooleanExtra("isEditProduk", false)
-        kategoriData = intent.getParcelableExtra("kategoriData") ?: KategoriModel()
-        if (isEdit) updateKategoriId = produkData.idKategori.toString()
+        produkViewModel = ViewModelProvider(this)[ProdukSingleViewModel::class.java]
+        kategoriListViewModel = ViewModelProvider(this)[KategoriListViewModel::class.java]
 
-        getDataKategori()
+        dataHandler()
 
         with(binding) {
             namaProduk.addTextChangedListener(produkTextWatcher)
             hargaProduk.addTextChangedListener(produkTextWatcher)
 
-            appBar.title = if (isEdit) getString(R.string.edit_produk) else getString(R.string.tambah_produk)
-            appBar.menu.findItem(R.id.menu_hapus).isVisible = isEdit
             appBar.setNavigationOnClickListener { finish() }
-            appBar.setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.menu_hapus -> showAlertDialog()
-                }
-                true
-            }
-
-            if (isEdit)
-                Glide.with(this@ProdukAddUpdateActivity).load(produkData.fotoProduk)
-                    .apply(RequestOptions().centerCrop())
-                    .placeholder(R.drawable.img_broken_image).into(fotoEditProduk)
             fotoEditProduk.setOnClickListener { pilihGambarIntent() }
-            if (isEdit) namaProduk.setText(produkData.namaProduk)
-            if (isEdit) hargaProduk.setText(addcoma3digit(produkData.hargaProduk))
-            outlineKategoriDropdown.isEnabled = isEdit
-            kategoriDropdown.isEnabled = isEdit
-            kategoriDropdown.setText(kategoriData.namaKategori)
-            btnSimpanPerubahan.text = if (isEdit) getString(R.string.simpan_perubahan) else getString(R.string.tambah_produk)
-            btnSimpanPerubahan.setOnClickListener {
-                if (HelperConnection.isConnected(this@ProdukAddUpdateActivity))
-                    if (outlineNamaProduk.helperText == null && outlineHargaProduk.helperText == null)
-                        validateNull(isEdit)
-                    else {
-                        val snackbar = Snackbar.make(root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
-                        snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                    }
+            kategoriDropdown.setOnItemClickListener { parent, _, position, _ ->
+                val selectedNamaKategori = parent.getItemAtPosition(position) as String
+                val selectedIdKategori = kategoriListViewModel.kategoriList.value?.find { it.namaKategori == selectedNamaKategori }?.idKategori
+
+                updateKategoriId = selectedIdKategori.toString()
+                binding.btnSimpanPerubahan.isEnabled = selectedIdKategori != dataKategoriModel?.idKategori
             }
         }
     }
 
-    private fun getDataKategori() {
-        val kategoriList = ArrayList<Pair<String, String>>()
+    private fun dataHandler() {
+        produkViewModel.loadProdukProduk(dataIdProduk)
 
-        kategoriListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                kategoriList.clear()
+        produkViewModel.isLoading.observe(this) {
+            binding.progressbarProdukDetail.visibility = if (it) View.VISIBLE else View.GONE
+            binding.layoutProdukDetail.visibility = if (!it) View.VISIBLE else View.GONE
+        }
+        produkViewModel.produkModel.observe(this) { produk ->
+            with(binding) {
+                appBar.title = if (produk != null) getString(R.string.edit_produk) else getString(R.string.tambah_produk)
+                appBar.menu.findItem(R.id.menu_hapus).isVisible = produk != null
 
-                for (item in snapshot.children) {
-                    val idKategori = item.child("idKategori").value.toString()
-                    val namaKategori = item.child("namaKategori").value.toString()
-                    kategoriList.add(Pair(namaKategori, idKategori))
+                outlineKategoriDropdown.isEnabled = produk != null
+                kategoriDropdown.isEnabled = produk != null
+
+                btnSimpanPerubahan.text = if (produk != null) getString(R.string.simpan_perubahan) else getString(R.string.tambah_produk)
+                btnSimpanPerubahan.setOnClickListener {
+                    if (HelperConnection.isConnected(this@ProdukAddUpdateActivity))
+                        if (outlineNamaProduk.helperText == null && outlineHargaProduk.helperText == null) {
+                            validateNull(produk)
+                        } else {
+                            val snackbar = Snackbar.make(root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
+                            snackbar.setAction("Oke") { snackbar.dismiss() }.show()
+                        }
                 }
-                val arrayAdapter = ArrayAdapter(this@ProdukAddUpdateActivity, R.layout.drop_down_kategori_produk, kategoriList.map { it.first })
-                binding.kategoriDropdown.apply {
-                    setAdapter(arrayAdapter)
-                    setOnItemClickListener { _, _, position, _ ->
-                        val kategoriId = kategoriList[position].second
-                        updateKategoriId = kategoriId
-                        binding.btnSimpanPerubahan.isEnabled = kategoriList[position].second != kategoriData.idKategori
+
+                if (produk != null) {
+                    produkNama = produk.namaProduk
+                    produkHarga = produk.hargaProduk
+
+                    namaProduk.setText(produk.namaProduk)
+                    hargaProduk.setText(addcoma3digit(produk.hargaProduk))
+                    Glide.with(this@ProdukAddUpdateActivity).load(produk.fotoProduk)
+                        .apply(RequestOptions().centerCrop())
+                        .placeholder(R.drawable.img_broken_image).into(fotoEditProduk)
+
+                    appBar.setOnMenuItemClickListener {
+                        when (it.itemId) {
+                            R.id.menu_hapus -> dialogHapusProduk(produk)
+                        }
+                        true
                     }
                 }
             }
-
-            override fun onCancelled(error: DatabaseError) {}
         }
 
-        kategoriRef.orderByChild("posisi").addValueEventListener(kategoriListener)
+        kategoriListViewModel.isLoading.observe(this) {
+            binding.progressbarKategoriProduk.visibility = if (it) View.VISIBLE else View.GONE
+            binding.outlineKategoriDropdown.visibility = if (!it) View.VISIBLE else View.GONE
+        }
+        kategoriListViewModel.kategoriList.observe(this) { kategoriList ->
+            if (kategoriList != null) {
+                val listNamaKategori = kategoriList.mapNotNull { it.namaKategori }
+                val adapterKategori = ArrayAdapter(this, R.layout.drop_down_kategori_produk, listNamaKategori)
+
+                binding.kategoriDropdown.setAdapter(adapterKategori)
+                binding.kategoriDropdown.setText(dataKategoriModel?.namaKategori ?: getString(R.string.pilih_kategori), false)
+            }
+        }
     }
 
     private fun pilihGambarIntent() {
@@ -185,20 +194,21 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
         }.addOnFailureListener { showToast(getString(R.string.masalah_database), this@ProdukAddUpdateActivity) }
     }
 
-    private fun ActivityProdukAddUpdateBinding.validateNull(isEdit: Boolean) {
+    private fun ActivityProdukAddUpdateBinding.validateNull(produk: ProdukModel?) {
         if (namaProduk.text.isNullOrEmpty())
             showToast("${getString(R.string.nama_produk)} ${getString(R.string.tidak_dapat_kosong)}", this@ProdukAddUpdateActivity)
         else if (hargaProduk.text.isNullOrEmpty())
             showToast("${getString(R.string.harga_produk)} ${getString(R.string.tidak_dapat_kosong)}", this@ProdukAddUpdateActivity)
-        else toRtdb(isEdit)
+        else uploadToDatabase(produk)
     }
 
-    private fun toRtdb(isEdit: Boolean) {
-        val produkId = if (isEdit) produkData.idProduk else produkRef.push().key
-        val kategoriSkrng = if (isEdit) updateKategoriId else kategoriData.idKategori
-        val visibilitu = if (isEdit) produkData.visibility else false
+    private fun ActivityProdukAddUpdateBinding.uploadToDatabase(produk: ProdukModel?) {
+        val isEdit = produk != null
+        val produkId = if (produk != null) produk.idProduk else produkRef.push().key
+        val kategoriSkrng = if (isEdit) updateKategoriId else dataKategoriModel?.idKategori
+        val visibiliti = produk?.visibility ?: false
 
-        val namaProduk = binding.namaProduk.text.toString().trim()
+        val namaProduk = namaProduk.text.toString().trim()
         if (imageUri != Uri.parse("")) uploadImage(produkId)
 
         val produkHash = HashMap<String, Any>()
@@ -207,13 +217,13 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
         produkHash["idKategori"] = kategoriSkrng.toString()
         produkHash["idProduk"] = produkId.toString()
         produkHash["namaProduk"] = namaProduk
-        produkHash["visibility"] = visibilitu
+        produkHash["visibility"] = visibiliti
 
         val ref = produkRef.child(produkId.toString())
         val reference = if (isEdit) ref.updateChildren(produkHash) else ref.setValue(produkHash)
         val toastTxt = if (isEdit) getString(R.string.berhasil_diperbarui) else getString(R.string.berhasil_ditambahkan)
         reference.addOnSuccessListener {
-            showToast("$namaProduk $toastTxt", this)
+            showToast("$namaProduk $toastTxt", this@ProdukAddUpdateActivity)
             finish()
         }
     }
@@ -275,30 +285,28 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
                 }
             }
 
-            binding.btnSimpanPerubahan.isEnabled = !(namaInput.toString() == produkData.namaProduk
-                    && hargaInput.toString() == addcoma3digit(produkData.hargaProduk))
+            binding.btnSimpanPerubahan.isEnabled = !(namaInput.toString() == produkNama && current == addcoma3digit(produkHarga))
         }
     }
 
-    private fun showAlertDialog() {
+    private fun dialogHapusProduk(produk: ProdukModel) {
         showAlertDialog(
-            "Hapus ${produkData.namaProduk}?",
-            "${produkData.namaProduk} akan dihapus secara permanen.",
+            "Hapus ${produk.namaProduk}?",
+            "${produk.namaProduk} akan dihapus secara permanen.",
             getString(R.string.hapus_produk),
             this@ProdukAddUpdateActivity,
             getColor(R.color.error)
         ) {
             if (HelperConnection.isConnected(this@ProdukAddUpdateActivity)) {
-                storage.getReference("produk/${produkData.idProduk}.png").delete()
-                produkRef.child(produkData.idProduk.toString()).removeValue()
-                showToastL("${produkData.namaProduk} berhasil dihapus", this@ProdukAddUpdateActivity)
+                storage.getReference("produk/${produk.idProduk}.png").delete()
+                produkRef.child(produk.idProduk.toString()).removeValue()
+                showToast("${produk.namaProduk} berhasil dihapus", this@ProdukAddUpdateActivity)
                 finish()
             }
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        kategoriRef.orderByChild("posisi").removeEventListener(kategoriListener)
+    companion object {
+        var dataKategoriModel: KategoriModel? = null
     }
 }

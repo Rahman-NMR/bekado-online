@@ -87,6 +87,14 @@
                     android:layout_marginTop="16dp"
                     app:cardCornerRadius="16dp">
 
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressbar_kategori_produk"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:indeterminate="true"
+                        android:padding="@dimen/normaldp" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/outline_kategori_dropdown"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
@@ -94,7 +102,9 @@
                         android:layout_height="wrap_content"
                         android:enabled="false"
                         android:hint="@string/kategori"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:visibility="gone"
+                        tools:visibility="visible">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/kategori_dropdown"
@@ -115,13 +125,24 @@
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="16dp">
 
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressbar_produk_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:indeterminate="true"
+                        android:padding="@dimen/smallBottomdp" />
+
                     <LinearLayout
+                        android:id="@+id/layout_produk_detail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clipChildren="false"
                         android:clipToPadding="false"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:visibility="gone"
+                        tools:visibility="visible">
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/outline_nama_produk"
