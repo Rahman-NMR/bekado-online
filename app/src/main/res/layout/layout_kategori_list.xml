@@ -15,11 +15,11 @@
     android:paddingEnd="12dp">
 
     <ImageView
-        android:id="@+id/drag_n_drop"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
+        android:id="@+id/visibility_icon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:importantForAccessibility="no"
-        android:src="@drawable/icon_round_drag_indicator_24"
+        android:src="@drawable/icon_outline_label_off_24"
         app:tint="@color/grey_500" />
 
     <LinearLayout
