@@ -23,6 +23,15 @@
             app:title="@string/title_produk_list" />
     </com.google.android.material.appbar.AppBarLayout>
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/loading_kategori"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:indeterminate="true"
+        app:layout_anchor="@id/app_bar_layout"
+        app:layout_anchorGravity="bottom" />
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -88,7 +97,8 @@
                             style="@style/materialbutton.text.red"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/hapus" />
+                            android:text="@string/hapus"
+                            android:visibility="gone" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -116,13 +126,6 @@
                         android:text="@string/strip" />
                 </LinearLayout>
 
-                <com.google.android.material.progressindicator.CircularProgressIndicator
-                    android:id="@+id/loading_produk"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:indeterminate="true" />
-
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -131,12 +134,20 @@
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="16dp">
 
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/loading_produk"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:indeterminate="true"
+                        android:padding="@dimen/smallBottomdp" />
+
                     <TextView
                         android:id="@+id/kosong"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:padding="24dp"
+                        android:padding="@dimen/smallBottomdp"
                         android:text="@string/tidak_ada_data"
                         android:visibility="gone"
                         tools:visibility="visible" />
@@ -164,6 +175,7 @@
         android:layout_gravity="bottom|center"
         android:layout_margin="16dp"
         android:text="@string/tambah_produk"
+        android:visibility="gone"
         app:icon="@drawable/icon_round_add_24"
         app:iconPadding="8dp"
         app:textAllCaps="false" />

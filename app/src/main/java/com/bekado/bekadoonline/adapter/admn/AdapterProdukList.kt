@@ -3,20 +3,20 @@ package com.bekado.bekadoonline.adapter.admn
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.databinding.RvDaftarProdukBinding
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
-import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import java.util.ArrayList
 
 class AdapterProdukList(
-    private var produkModelList: ArrayList<ProdukModel>,
     private var listenerProduk: (ProdukModel) -> Unit,
     private var listenerChecked: (ProdukModel, isChecked: Boolean) -> Unit
-) : RecyclerView.Adapter<AdapterProdukList.ViewHolder>() {
+) : ListAdapter<ProdukModel, AdapterProdukList.ViewHolder>(DiffCallback()) {
     lateinit var context: Context
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -26,10 +26,8 @@ class AdapterProdukList(
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = produkModelList.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.data(produkModelList[position], listenerProduk, listenerChecked)
+        holder.data(getItem(position), listenerProduk, listenerChecked)
     }
 
     class ViewHolder(val binding: RvDaftarProdukBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -47,6 +45,16 @@ class AdapterProdukList(
                 btnEditProduk.setOnClickListener { listenerProduk(produk) }
                 produkVisibility.setOnCheckedChangeListener { _, checked -> listenerChecked(produk, checked) }
             }
+        }
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<ProdukModel>() {
+        override fun areItemsTheSame(oldItem: ProdukModel, newItem: ProdukModel): Boolean {
+            return oldItem.idProduk == newItem.idProduk
+        }
+
+        override fun areContentsTheSame(oldItem: ProdukModel, newItem: ProdukModel): Boolean {
+            return oldItem == newItem
         }
     }
 }
