@@ -26,46 +26,36 @@ import com.bekado.bekadoonline.helper.Helper.calculateSpanCount
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.helper.HelperProduk.getAllProduk
-import com.bekado.bekadoonline.helper.HelperProduk.getFiltered
 import com.bekado.bekadoonline.helper.itemDecoration.HorizontalSpacing
 import com.bekado.bekadoonline.helper.constval.VariableConstant
-import com.bekado.bekadoonline.data.model.ButtonModel
-import com.bekado.bekadoonline.data.model.KategoriModel
 import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
+import com.bekado.bekadoonline.data.viewmodel.BerandaViewModel
+import com.bekado.bekadoonline.helper.HelperProduk
+import com.bekado.bekadoonline.helper.HelperSort.sortProduk
 import com.bekado.bekadoonline.shimmer.ShimmerModel
 import com.bekado.bekadoonline.ui.activities.auth.RegisterActivity
 import com.bekado.bekadoonline.ui.activities.transaksi.KeranjangActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 
 class BerandaFragment : Fragment() {
     private lateinit var binding: FragmentBerandaBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
     private lateinit var googleSignInClient: GoogleSignInClient
+
     private lateinit var adapterButton: AdapterButton
     private lateinit var adapterProduk: AdapterProduk
-    private val dataButton: ArrayList<ButtonModel> = ArrayList()
-    private var dataKategori: ArrayList<KategoriModel> = ArrayList()
-    private val dataProduk: ArrayList<ProdukModel> = ArrayList()
     private val dataShimmer: ArrayList<ShimmerModel> = ArrayList()
 
-    private lateinit var akunRef: DatabaseReference
-    private lateinit var produkRef: DatabaseReference
-    private lateinit var produkListener: ValueEventListener
-
     private lateinit var akunViewModel: AkunViewModel
+    private lateinit var berandaViewModel: BerandaViewModel
     private lateinit var signInResult: ActivityResultLauncher<Intent>
 
-    var sortFilter = 0
+    private var sortFilter = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentBerandaBinding.inflate(inflater, container, false)
@@ -78,10 +68,9 @@ class BerandaFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
         googleSignInClient = GoogleSignIn.getClient(requireContext(), HelperAuth.clientGoogle(requireContext()))
-        produkRef = db.getReference("produk")
-        adapterButton = AdapterButton(dataButton) {}
 
         akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
+        berandaViewModel = ViewModelProvider(requireActivity())[BerandaViewModel::class.java]
         signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val dataLogin = result.data?.getStringExtra(VariableConstant.ACTION_SIGN_IN_RESULT)
@@ -98,14 +87,13 @@ class BerandaFragment : Fragment() {
         val lmShimmer = GridLayoutManager(context, calculateSpanCount(requireContext()))
 
         dataAkunHandler()
-        getDataAllProduk()
-        searchProduk()
+        dataProdukHandler()
         fabScrollToTop()
         HelperConnection.shimmerProduk(lmShimmer, binding.rvProdukShimmer, padding, dataShimmer)
 
         with(binding) {
             swipeRefresh.setOnRefreshListener {
-                if (HelperConnection.isConnected(requireContext())) getDataAllProduk()
+                if (HelperConnection.isConnected(requireContext())) sortAndFilter()
                 binding.swipeRefresh.isRefreshing = false
             }
             btnSort.setOnClickListener { openBottomSheetSort() }
@@ -123,11 +111,11 @@ class BerandaFragment : Fragment() {
 
     private fun openBottomSheetSort() {
         val sortBottomSheet = SortProdukBottomSheet(requireContext())
-        sortBottomSheet.showDialog(requireContext(), sortFilter)
+        sortBottomSheet.showDialog(sortFilter)
 
         sortBottomSheet.dialog.setOnDismissListener {
             sortFilter = sortBottomSheet.sortFilter
-            if (HelperConnection.isConnected(requireContext())) getDataAllProduk()
+            if (HelperConnection.isConnected(requireContext())) sortAndFilter()
         }
     }
 
@@ -154,80 +142,63 @@ class BerandaFragment : Fragment() {
         }
     }
 
-    private fun getDataAllProduk() {
-        binding.searchProduk.clearFocus()
-        binding.searchProduk.setQuery("", false)
-
-        produkListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                dataProduk.clear()
-                dataButton.clear()
-
-                val semua = "Semua"
-                dataButton.add(ButtonModel(semua, "", true, 0))
-                if (isAdded) {
-                    for (item in snapshot.child("kategori").children) {
-                        val namaKategori = item.child("namaKategori").value as String
-                        val posisi = item.child("posisi").value as Long
-                        val idKategori = item.child("idKategori").value as String
-                        val kategori = ButtonModel(namaKategori, idKategori, false, posisi)
-
-                        val visibilitas = item.child("visibilitas").value as Boolean
-                        if (visibilitas) dataButton.add(kategori)
-                        dataButton.sortByDescending { it.posisi }
-                        dataButton.reverse()
-
-                        adapterButton = AdapterButton(dataButton) { button ->
-                            if (button.isActive) {
-                                if (button.namaKategori == semua)
-                                    getAllProduk(snapshot, dataProduk, dataKategori, adapterProduk, sortFilter)
-                                else {
-                                    getFiltered(snapshot, button.idKategori, dataProduk, adapterProduk, sortFilter)
-                                    binding.produkKosong.visibility = if (dataProduk.isEmpty()) View.VISIBLE else View.GONE
-                                }
-                            }
-                        }
-                        binding.rvButtonSelector.adapter = adapterButton
-                    }
-                }
-                adapterProduk = AdapterProduk(dataProduk) { produk ->
-                    ShowProdukBottomSheet(requireContext()).showDialog(requireContext(), produk, auth.currentUser, db, signInResult)
-                }
-                getAllProduk(snapshot, dataProduk, dataKategori, adapterProduk, sortFilter)
-                with(binding) {
-                    rvProduk.adapter = adapterProduk
-                    produkKosong.visibility = if (dataProduk.isEmpty()) View.VISIBLE else View.GONE
-
-                    shimmerRvProduk.apply {
-                        stopShimmer()
-                        visibility = View.GONE
-                    }
-                    shimmerRvButtonSelector.apply {
-                        stopShimmer()
-                        visibility = View.GONE
-                    }
-
-                    rvProduk.visibility = View.VISIBLE
-                    rvButtonSelector.visibility = View.VISIBLE
-                    llBtnSort.visibility = View.VISIBLE
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                with(binding) {
-                    shimmerRvProduk.startShimmer()
-                    shimmerRvButtonSelector.startShimmer()
-                    produkKosong.visibility = View.GONE
-                    rvProduk.visibility = View.GONE
-                    rvButtonSelector.visibility = View.GONE
-                    llBtnSort.visibility = View.GONE
-                }
+    private fun setupAdapter() {
+        val currentUser = auth.currentUser
+        adapterProduk = AdapterProduk { produk ->
+            ShowProdukBottomSheet(requireContext()).showDialog(produk, currentUser, db) {
+                if (currentUser != null) {
+                    val keranjangRef = db.getReference("keranjang/${currentUser.uid}")
+                    HelperProduk.addToKeranjang(produk, keranjangRef, requireContext())
+                } else resultLaunchLogin()
             }
         }
-        produkRef.addListenerForSingleValueEvent(produkListener)
+        binding.rvProduk.adapter = adapterProduk
     }
 
-    private fun searchProduk() {
+    private fun setupViewModel() {
+        berandaViewModel.dataProduk.observe(viewLifecycleOwner) { dataProduk ->
+            if (dataProduk != null) {
+                sortProduk(dataProduk, sortFilter)
+                searchProduk(dataProduk)
+
+                adapterProduk.submitList(dataProduk)
+                binding.produkKosong.visibility = if (dataProduk.isEmpty()) View.VISIBLE else View.GONE
+                if (dataProduk.isEmpty()) emptyTextProduk()
+            } else binding.produkKosong.visibility = View.VISIBLE
+        }
+        berandaViewModel.dataButton.observe(viewLifecycleOwner) { dataButton ->
+            if (dataButton != null) {
+                adapterButton = AdapterButton(dataButton) { button ->
+                    if (button.isActive) {
+                        activeCategory = button.idKategori.ifEmpty { "" }
+
+                        if (button.idKategori.isEmpty()) getAllProduk()
+                        else getProdukFiltered(button.idKategori)
+                    }
+                }
+                binding.rvButtonSelector.adapter = adapterButton
+            } else binding.filterNKategori.visibility = View.GONE
+
+            if ((dataButton?.size ?: 0) < 2) binding.filterNKategori.visibility = View.GONE
+        }
+        berandaViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                binding.shimmerRvProduk.startShimmer()
+                binding.shimmerRvButtonSelector.startShimmer()
+            } else {
+                binding.shimmerRvProduk.stopShimmer()
+                binding.shimmerRvButtonSelector.stopShimmer()
+
+                binding.shimmerRvProduk.visibility = View.GONE
+                binding.shimmerRvButtonSelector.visibility = View.GONE
+                binding.rvProduk.visibility = View.VISIBLE
+                binding.rvButtonSelector.visibility = View.VISIBLE
+                binding.llBtnSort.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun searchProduk(dataProduk: ArrayList<ProdukModel>) {
         val search = object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -245,10 +216,14 @@ class BerandaFragment : Fragment() {
                 if (HelperConnection.isConnected(requireContext())) {
                     if (searchList.isEmpty()) {
                         binding.rvProduk.visibility = View.GONE
+                        binding.produkKosong.visibility = View.VISIBLE
+                        binding.produkKosongTitle.text = getString(R.string.msg_cari_kosong)
+                        binding.produkKosongDesc.text = getString(R.string.desc_cari_kosong_prdk)
                     } else {
                         binding.rvProduk.visibility = View.VISIBLE
+                        binding.produkKosong.visibility = View.GONE
+                        emptyTextProduk()
                         adapterProduk.onApplySearch(searchList)
-                        adapterButton.onSearchProduk(dataButton.filter { it.isActive } as ArrayList<ButtonModel>)
                     }
                 }
 
@@ -256,18 +231,49 @@ class BerandaFragment : Fragment() {
             }
         }
 
-        binding.searchProduk.setOnQueryTextFocusChangeListener { _, focus ->
-            binding.filterNKategori.visibility = if (focus) View.GONE else View.VISIBLE
-        }
         binding.searchProduk.setOnQueryTextListener(search)
+    }
+
+    private fun getAllProduk() {
+        searchClearText()
+
+        berandaViewModel.dataProduk.value?.let {
+            val sortedProduk = it.toMutableList()
+            sortProduk(sortedProduk as ArrayList<ProdukModel>, sortFilter)
+            adapterProduk.submitList(sortedProduk)
+            searchProduk(sortedProduk)
+            emptyConditionLayout(sortedProduk)
+        }
+    }
+
+    private fun getProdukFiltered(idKategori: String) {
+        searchClearText()
+
+        berandaViewModel.dataProduk.value?.let { dataProduk ->
+            val filteredProduk = dataProduk.filter { it.idKategori == idKategori }
+            val sortedProduk = filteredProduk.toMutableList()
+            sortProduk(sortedProduk as ArrayList<ProdukModel>, sortFilter)
+
+            adapterProduk.submitList(sortedProduk)
+            searchProduk(sortedProduk)
+            emptyConditionLayout(sortedProduk)
+        }
+    }
+
+    private fun sortAndFilter() {
+        if (activeCategory.isNullOrEmpty()) getAllProduk()
+        else getProdukFiltered(activeCategory!!)
+    }
+
+    private fun emptyConditionLayout(produk: List<ProdukModel>) {
+        binding.produkKosong.visibility = if (produk.isEmpty()) View.VISIBLE else View.GONE
+        binding.rvProduk.visibility = if (produk.isEmpty()) View.GONE else View.VISIBLE
+        if (produk.isEmpty()) emptyTextProduk()
     }
 
     private fun dataAkunHandler() {
         viewModelLoader()
 
-        akunViewModel.currentUser.observe(viewLifecycleOwner) { currentUser ->
-            akunRef = db.getReference("akun/${currentUser?.uid}")
-        }
         akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
             binding.appBar.setOnMenuItemClickListener {
                 if (auth.currentUser != null) {
@@ -275,7 +281,7 @@ class BerandaFragment : Fragment() {
                         if (akunModel.statusAdmin) adminKeranjangState(requireContext(), it)
                         else startActivity(Intent(context, KeranjangActivity::class.java))
                     }
-                } else signInResult.launch(Intent(context, LoginActivity::class.java))
+                } else resultLaunchLogin()
                 true
             }
         }
@@ -288,8 +294,37 @@ class BerandaFragment : Fragment() {
         }
     }
 
+    private fun resultLaunchLogin() {
+        signInResult.launch(Intent(context, LoginActivity::class.java))
+    }
+
+    private fun searchClearText() {
+        binding.searchProduk.clearFocus()
+        binding.searchProduk.setQuery("", false)
+    }
+
+    private fun emptyTextProduk() {
+        binding.produkKosongTitle.text = getString(R.string.msg_beranda_kosong)
+        binding.produkKosongDesc.text = getString(R.string.desc_beranda_kosong)
+    }
+
+    private fun dataProdukHandler() {
+        searchClearText()
+        setupAdapter()
+        setupViewModel()
+    }
+
     private fun viewModelLoader() {
         akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sortAndFilter()
+    }
+
+    companion object {
+        var activeCategory: String? = null
     }
 }

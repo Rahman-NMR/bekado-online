@@ -156,6 +156,7 @@
     <string name="desc_beranda_kosong">Kategori ini belum memiliki produk.</string>
     <string name="msg_cari_kosong">Hasil Pencarian Kosong</string>
     <string name="desc_cari_kosong_trx">Tidak dapat menemukan transaksi yang dicari.</string>
+    <string name="desc_cari_kosong_prdk">Tidak dapat menemukan produk yang dicari.</string>
 
     <string name="atau">Atau masuk dengan</string>
     <string name="email">Email</string>

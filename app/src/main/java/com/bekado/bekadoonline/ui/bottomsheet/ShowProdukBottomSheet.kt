@@ -1,11 +1,8 @@
 package com.bekado.bekadoonline.ui.bottomsheet
 
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
-import androidx.activity.result.ActivityResultLauncher
-import com.bekado.bekadoonline.ui.activities.auth.LoginActivity
 import com.bumptech.glide.Glide
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.BottomsheetShowProdukBinding
@@ -21,26 +18,18 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class ShowProdukBottomSheet(context: Context) {
-    private var bindingPBS: BottomsheetShowProdukBinding
-    private var dialog: BottomSheetDialog
+class ShowProdukBottomSheet(val context: Context) {
+    private var bindingPBS: BottomsheetShowProdukBinding = BottomsheetShowProdukBinding.inflate(LayoutInflater.from(context))
+    private var dialog: BottomSheetDialog = BottomSheetDialog(context, R.style.AppBottomSheetDialogTheme)
     private lateinit var keranjangListener: ValueEventListener
     private lateinit var keranjangRef: DatabaseReference
     private var jumlahPesanV: Int = 0
 
     init {
-        bindingPBS = BottomsheetShowProdukBinding.inflate(LayoutInflater.from(context))
-        dialog = BottomSheetDialog(context, R.style.AppBottomSheetDialogTheme)
         dialog.setContentView(bindingPBS.root)
     }
 
-    fun showDialog(
-        context: Context,
-        produk: ProdukModel,
-        currentUser: FirebaseUser?,
-        db: FirebaseDatabase,
-        signInResult: ActivityResultLauncher<Intent>
-    ) {
+    fun showDialog(produk: ProdukModel, currentUser: FirebaseUser?, db: FirebaseDatabase, onClick: () -> Unit) {
         val hargaProdukShows = produk.currency + Helper.addcoma3digit(produk.hargaProduk)
 
         with(bindingPBS) {
@@ -68,11 +57,7 @@ class ShowProdukBottomSheet(context: Context) {
         }
 
         bindingPBS.btnTambahKeranjang.setOnClickListener {
-            if (currentUser != null) {
-                val keranjangRef = db.getReference("keranjang/${currentUser.uid}")
-                HelperProduk.addToKeranjang(produk, keranjangRef, context)
-            } else signInResult.launch(Intent(context, LoginActivity::class.java))
-
+            onClick()
             dialog.cancel()
         }
 

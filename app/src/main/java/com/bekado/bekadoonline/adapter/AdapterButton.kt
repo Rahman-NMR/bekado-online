@@ -42,9 +42,4 @@ class AdapterButton(private var buttonList: ArrayList<ButtonModel>, val onClick:
             }
         }
     }
-
-    fun onSearchProduk(buttonList: ArrayList<ButtonModel>) {
-        this.buttonList = buttonList
-        notifyDataSetChanged()
-    }
 }

@@ -3,6 +3,8 @@ package com.bekado.bekadoonline.adapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.LayoutProdukGridBinding
@@ -12,10 +14,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import java.util.ArrayList
 
-class AdapterProduk(
-    private var produkModelList: ArrayList<ProdukModel>,
-    private var listenerProduk: (ProdukModel) -> Unit
-) : RecyclerView.Adapter<AdapterProduk.ViewHolder>() {
+class AdapterProduk(private var listenerProduk: (ProdukModel) -> Unit) : ListAdapter<ProdukModel, AdapterProduk.ViewHolder>(DiffCallback()) {
     lateinit var context: Context
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -25,10 +24,8 @@ class AdapterProduk(
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = produkModelList.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.data(produkModelList[position], listenerProduk)
+        holder.data(getItem(position), listenerProduk)
     }
 
     class ViewHolder(val binding: LayoutProdukGridBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -46,7 +43,16 @@ class AdapterProduk(
     }
 
     fun onApplySearch(produkModelList: ArrayList<ProdukModel>) {
-        this.produkModelList = produkModelList
-        notifyDataSetChanged()
+        submitList(produkModelList)
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<ProdukModel>() {
+        override fun areItemsTheSame(oldItem: ProdukModel, newItem: ProdukModel): Boolean {
+            return oldItem.idProduk == newItem.idProduk
+        }
+
+        override fun areContentsTheSame(oldItem: ProdukModel, newItem: ProdukModel): Boolean {
+            return oldItem == newItem
+        }
     }
 }
