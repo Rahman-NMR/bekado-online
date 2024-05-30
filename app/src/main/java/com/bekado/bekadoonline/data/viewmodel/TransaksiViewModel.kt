@@ -10,16 +10,16 @@ import com.google.firebase.database.ValueEventListener
 
 class TransaksiViewModel : ViewModel() {
     private val _totalAntrian = MutableLiveData(0)
-    val totalAntrian: LiveData<Int?> = _totalAntrian
+    val totalAntrian: LiveData<Int?> get() = _totalAntrian
 
     private val _totalProses = MutableLiveData(0)
-    val totalProses: LiveData<Int?> = _totalProses
+    val totalProses: LiveData<Int?> get() = _totalProses
 
     private val _totalSelesai = MutableLiveData(0)
-    val totalSelesai: LiveData<Int?> = _totalSelesai
+    val totalSelesai: LiveData<Int?> get() = _totalSelesai
 
     private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    val isLoading: LiveData<Boolean> get() = _isLoading
 
     private var trxLstnrAdm: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
