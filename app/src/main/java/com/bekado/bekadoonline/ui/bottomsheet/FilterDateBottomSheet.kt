@@ -12,7 +12,7 @@ import com.bekado.bekadoonline.data.model.SortModel
 import com.bekado.bekadoonline.helper.HelperTransaksi
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
-class FilterDateBottomSheet(context: Context) {
+class FilterDateBottomSheet(val context: Context) {
     private var bindingBS: BottomsheetSelectedTextBinding = BottomsheetSelectedTextBinding.inflate(LayoutInflater.from(context))
     var dialog: BottomSheetDialog
     private var dataDate: ArrayList<SortModel>
@@ -26,7 +26,7 @@ class FilterDateBottomSheet(context: Context) {
         dialog.setContentView(bindingBS.root)
     }
 
-    fun showDialog(context: Context, idSortFilter: Int, filtered: String) {
+    fun showDialog(idSortFilter: Int, filtered: String) {
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         val paddingHorizontal = context.resources.getDimensionPixelSize(R.dimen.normaldp)
         with(bindingBS) {

@@ -116,8 +116,8 @@ class TransaksiFragment : Fragment() {
         with(binding) {
             searchClearText()
 
-            btnLogin.setOnClickListener { signInResult.launch(Intent(context, LoginActivity::class.java)) }
-            btnRegister.setOnClickListener { signInResult.launch(Intent(context, RegisterActivity::class.java)) }
+            btnLogin.setOnClickListener { resultLaunchAuth(true) }
+            btnRegister.setOnClickListener { resultLaunchAuth(false) }
 
             rvDaftarTransaksi.apply {
                 layoutManager = lmTransaksi
@@ -137,7 +137,7 @@ class TransaksiFragment : Fragment() {
 
     private fun bottomSheetDate() {
         val dateBottomSheet = FilterDateBottomSheet(requireContext())
-        dateBottomSheet.showDialog(requireContext(), idDateFilter, namaDateFilter)
+        dateBottomSheet.showDialog(idDateFilter, namaDateFilter)
 
         dateBottomSheet.dialog.setOnDismissListener {
             idDateFilter = dateBottomSheet.sortFilter
@@ -152,7 +152,7 @@ class TransaksiFragment : Fragment() {
 
     private fun bottomSheetStatus() {
         val statusBottomSheet = FilterStatusBottomSheet(requireContext())
-        statusBottomSheet.showDialog(requireContext(), idStatusFilter, namaStatusFilter)
+        statusBottomSheet.showDialog(idStatusFilter, namaStatusFilter)
 
         statusBottomSheet.dialog.setOnDismissListener {
             idStatusFilter = statusBottomSheet.sortFilter
@@ -260,6 +260,7 @@ class TransaksiFragment : Fragment() {
                 return true
             }
         }
+
         binding.searchTransaksi.setOnQueryTextListener(search)
     }
 
@@ -311,7 +312,7 @@ class TransaksiFragment : Fragment() {
                         if (akunModel.statusAdmin) adminKeranjangState(requireContext(), it)
                         else startActivity(Intent(context, KeranjangActivity::class.java))
                     }
-                } else signInResult.launch(Intent(context, LoginActivity::class.java))
+                } else resultLaunchAuth(true)
                 true
             }
 
@@ -336,11 +337,14 @@ class TransaksiFragment : Fragment() {
         }
         akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             if (isLoading == false) {
-                if (auth.currentUser != null && akunViewModel.akunModel.value == null) {
-                    signInResult.launch(Intent(context, RegisterActivity::class.java))
-                }
+                if (auth.currentUser != null && akunViewModel.akunModel.value == null) resultLaunchAuth(false)
             }
         }
+    }
+
+    private fun resultLaunchAuth(isLogin: Boolean) {
+        if (isLogin) signInResult.launch(Intent(context, LoginActivity::class.java))
+        else signInResult.launch(Intent(context, RegisterActivity::class.java))
     }
 
     private fun searchClearText() {
