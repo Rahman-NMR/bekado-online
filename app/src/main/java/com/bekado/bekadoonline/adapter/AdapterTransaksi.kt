@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.LayoutTransaksiBinding
@@ -17,10 +19,8 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class AdapterTransaksi(
-    private var transaksiModelList: ArrayList<TransaksiModel>,
-    private var listenerTransaksi: (TransaksiModel) -> Unit,
-) : RecyclerView.Adapter<AdapterTransaksi.ViewHolder>() {
+class AdapterTransaksi(private var listenerTransaksi: (TransaksiModel) -> Unit) :
+    ListAdapter<TransaksiModel, AdapterTransaksi.ViewHolder>(DiffCallback()) {
     lateinit var context: Context
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -30,10 +30,8 @@ class AdapterTransaksi(
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = transaksiModelList.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(transaksiModelList[position], listenerTransaksi, context)
+        holder.bind(getItem(position), listenerTransaksi, context)
     }
 
     class ViewHolder(val binding: LayoutTransaksiBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -97,7 +95,16 @@ class AdapterTransaksi(
     }
 
     fun onApplySearch(transaksiModelList: ArrayList<TransaksiModel>) {
-        this.transaksiModelList = transaksiModelList
-        notifyDataSetChanged()
+        submitList(transaksiModelList)
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<TransaksiModel>() {
+        override fun areItemsTheSame(oldItem: TransaksiModel, newItem: TransaksiModel): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: TransaksiModel, newItem: TransaksiModel): Boolean {
+            return oldItem == newItem
+        }
     }
 }

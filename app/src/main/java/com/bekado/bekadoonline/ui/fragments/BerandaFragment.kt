@@ -185,6 +185,9 @@ class BerandaFragment : Fragment() {
             if (isLoading) {
                 binding.shimmerRvProduk.startShimmer()
                 binding.shimmerRvButtonSelector.startShimmer()
+
+                binding.shimmerRvProduk.visibility = View.VISIBLE
+                binding.shimmerRvButtonSelector.visibility = View.VISIBLE
             } else {
                 binding.shimmerRvProduk.stopShimmer()
                 binding.shimmerRvButtonSelector.stopShimmer()

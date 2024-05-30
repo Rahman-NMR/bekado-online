@@ -10,11 +10,11 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 
 class TransaksiListViewModel : ViewModel() {
-    private val _transaksiModel = MutableLiveData<ArrayList<TransaksiModel>?>(null)
-    val transaksiModel: LiveData<ArrayList<TransaksiModel>?> = _transaksiModel
+    private val _transaksiModel = MutableLiveData<ArrayList<TransaksiModel>?>()
+    val transaksiModel: LiveData<ArrayList<TransaksiModel>?> get() = _transaksiModel
 
     private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    val isLoading: LiveData<Boolean> get() = _isLoading
 
     private var trxLstnrAdm: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
