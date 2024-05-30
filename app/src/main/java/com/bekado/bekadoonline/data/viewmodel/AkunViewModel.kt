@@ -14,13 +14,13 @@ import com.google.firebase.database.ValueEventListener
 
 class AkunViewModel : ViewModel() {
     private val _currentUser = MutableLiveData<FirebaseUser?>(null)
-    val currentUser: LiveData<FirebaseUser?> = _currentUser
+    val currentUser: LiveData<FirebaseUser?> get() = _currentUser
 
     private val _akunModel = MutableLiveData<AkunModel?>(null)
-    val akunModel: LiveData<AkunModel?> = _akunModel
+    val akunModel: LiveData<AkunModel?> get() = _akunModel
 
     private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    val isLoading: LiveData<Boolean> get() = _isLoading
 
     private var akunListener: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {

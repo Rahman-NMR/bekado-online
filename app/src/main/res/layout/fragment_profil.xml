@@ -87,7 +87,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="@string/default_text"
+                        android:text="@string/strip"
                         android:textColor="?attr/colorPrimary"
                         android:textSize="24sp"
                         android:textStyle="bold" />
@@ -97,7 +97,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="@string/default_text"
+                        android:text="@string/strip"
                         android:textColor="@color/grey_700"
                         android:textSize="14sp" />
                 </LinearLayout>
@@ -287,6 +287,7 @@
                             style="@style/materialTextListButtonIcon.grey"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:enabled="false"
                             android:text="@string/akun_saya"
                             app:icon="@drawable/icon_outline_person_24" />
 
@@ -295,6 +296,7 @@
                             style="@style/materialTextListButtonIcon.grey"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:enabled="false"
                             android:text="@string/detail_alamat"
                             app:icon="@drawable/icon_outline_cottage_24" />
 
@@ -303,6 +305,7 @@
                             style="@style/materialTextListButtonIcon.grey"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:enabled="false"
                             android:text="@string/ubah_password"
                             app:icon="@drawable/icon_outline_lock_24" />
                     </LinearLayout>
@@ -326,6 +329,7 @@
                             style="@style/materialTextListButtonIcon.grey"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:enabled="false"
                             android:text="@string/kategori_produk"
                             android:visibility="gone"
                             app:icon="@drawable/icon_outline_inventory_2_24"

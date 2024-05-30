@@ -11,19 +11,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
+import com.bekado.bekadoonline.data.viewmodel.TransaksiViewModel
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.constval.VariableConstant
-import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
-import com.bekado.bekadoonline.data.viewmodel.TransaksiViewModel
-import com.bekado.bekadoonline.ui.activities.profil.AboutBekadoActivity
-import com.bekado.bekadoonline.ui.activities.profil.AkunSayaActivity
-import com.bekado.bekadoonline.ui.activities.profil.AlamatActivity
 import com.bekado.bekadoonline.ui.activities.admn.KategoriListActivity
 import com.bekado.bekadoonline.ui.activities.auth.LoginActivity
 import com.bekado.bekadoonline.ui.activities.auth.RegisterActivity
 import com.bekado.bekadoonline.ui.activities.auth.UbahPasswordActivity
+import com.bekado.bekadoonline.ui.activities.profil.AboutBekadoActivity
+import com.bekado.bekadoonline.ui.activities.profil.AkunSayaActivity
+import com.bekado.bekadoonline.ui.activities.profil.AlamatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -60,6 +60,7 @@ class ProfilFragment : Fragment() {
 
         akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
         transaksiViewModel = ViewModelProvider(requireActivity())[TransaksiViewModel::class.java]
+
         signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val dataLogin = result.data?.getStringExtra(VariableConstant.ACTION_SIGN_IN_RESULT)
@@ -75,10 +76,6 @@ class ProfilFragment : Fragment() {
         with(binding) {
             btnLogin.setOnClickListener { signInResult.launch(Intent(context, LoginActivity::class.java)) }
             btnRegister.setOnClickListener { signInResult.launch(Intent(context, RegisterActivity::class.java)) }
-
-            btnAkunSaya.setOnClickListener { startActivity(Intent(context, AkunSayaActivity::class.java)) }
-            btnDetailAlamat.setOnClickListener { startActivity(Intent(context, AlamatActivity::class.java)) }
-            btnUbahPassword.setOnClickListener { startActivity(Intent(context, UbahPasswordActivity::class.java)) }
             btnInformasiToko.setOnClickListener { startActivity(Intent(context, AboutBekadoActivity::class.java)) }
             btnLogout.setOnClickListener { showAlertDialog() }
         }
@@ -93,41 +90,47 @@ class ProfilFragment : Fragment() {
             binding.nullLayout.visibility = if (currentUser == null) View.VISIBLE else View.GONE
         }
         akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
-            if (akunModel != null) {
-                with(binding) {
-                    akunSaya.visibility = View.VISIBLE
-                    shimmerAkunSaya.visibility = View.GONE
-                    shimmerAkunSaya.stopShimmer()
-
-                    badgeAdmin.visibility = if (akunModel.statusAdmin) View.VISIBLE else View.GONE
-                    btnAdminKategoriProduk.visibility = if (akunModel.statusAdmin) View.VISIBLE else View.GONE
-
-                    namaProfil.text = akunModel.nama
-                    emailProfil.text = akunModel.email
-                    Glide.with(requireContext()).load(akunModel.fotoProfil)
-                        .apply(RequestOptions()).centerCrop()
-                        .placeholder(R.drawable.img_broken_image_circle).into(fotoProfil)
-
-                    btnAdminKategoriProduk.setOnClickListener { startActivity(Intent(context, KategoriListActivity::class.java)) }
-                }
-
-                val refAdmin = if (akunModel.statusAdmin) "transaksi" else "transaksi/${akunModel.uid}"
+            with(binding) {
+                val refAdmin = akunModel?.let {
+                    when {
+                        it.statusAdmin -> "transaksi"
+                        else -> "transaksi/${it.uid}"
+                    }
+                } ?: "transaksi"
                 transaksiRef = db.getReference(refAdmin)
-                adminStatus = akunModel.statusAdmin
 
-                transaksiViewModel.loadTransaksiData(transaksiRef, akunModel.statusAdmin)
-            } else {
-                transaksiRef = db.getReference("transaksi")
-                with(binding) {
-                    akunSaya.visibility = View.GONE
-                    shimmerAkunSaya.visibility = View.VISIBLE
-                    shimmerAkunSaya.startShimmer()
+                badgeAdmin.visibility = if (akunModel != null && akunModel.statusAdmin) View.VISIBLE else View.GONE
+                btnAdminKategoriProduk.visibility = if (akunModel != null && akunModel.statusAdmin) View.VISIBLE else View.GONE
+
+                namaProfil.text = akunModel?.nama ?: getString(R.string.strip)
+                emailProfil.text = akunModel?.email ?: getString(R.string.strip)
+                Glide.with(requireContext()).load(akunModel?.fotoProfil)
+                    .apply(RequestOptions()).centerCrop()
+                    .placeholder(R.drawable.img_broken_image_circle).into(fotoProfil)
+
+                btnAkunSaya.isEnabled = akunModel != null
+                btnDetailAlamat.isEnabled = akunModel != null
+                btnUbahPassword.isEnabled = akunModel != null
+                btnAdminKategoriProduk.isEnabled = akunModel != null
+
+                if (akunModel != null) {
+                    btnAdminKategoriProduk.setOnClickListener { startActivity(Intent(context, KategoriListActivity::class.java)) }
+                    btnAkunSaya.setOnClickListener { startActivity(Intent(context, AkunSayaActivity::class.java)) }
+                    btnDetailAlamat.setOnClickListener { startActivity(Intent(context, AlamatActivity::class.java)) }
+                    btnUbahPassword.setOnClickListener { startActivity(Intent(context, UbahPasswordActivity::class.java)) }
+
+                    adminStatus = akunModel.statusAdmin
+                    transaksiViewModel.loadTransaksiData(transaksiRef, akunModel.statusAdmin)
                 }
             }
 
         }
         akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading == false) {
+            binding.akunSaya.visibility = if (!isLoading) View.VISIBLE else View.GONE
+            binding.shimmerAkunSaya.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.shimmerAkunSaya.apply { if (isLoading) startShimmer() else stopShimmer() }
+
+            if (!isLoading) {
                 if (auth.currentUser != null && akunViewModel.akunModel.value == null) {
                     signInResult.launch(Intent(context, RegisterActivity::class.java))
                 }
