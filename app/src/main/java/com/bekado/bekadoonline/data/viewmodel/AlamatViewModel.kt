@@ -13,14 +13,14 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
 class AlamatViewModel : ViewModel() {
-    private val _currentUser = MutableLiveData<FirebaseUser?>(null)
-    val currentUser: LiveData<FirebaseUser?> = _currentUser
+    private val _currentUser = MutableLiveData<FirebaseUser?>()
+    val currentUser: LiveData<FirebaseUser?> get() = _currentUser
 
-    private val _alamatModel = MutableLiveData<AlamatModel?>(null)
-    val alamatModel: LiveData<AlamatModel?> = _alamatModel
+    private val _alamatModel = MutableLiveData<AlamatModel?>()
+    val alamatModel: LiveData<AlamatModel?> get() = _alamatModel
 
     private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    val isLoading: LiveData<Boolean> get() = _isLoading
 
     private var alamatListener: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {

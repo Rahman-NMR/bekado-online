@@ -9,12 +9,13 @@ import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterCheckout
 import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
 import com.bekado.bekadoonline.data.model.TransaksiModel
+import com.bekado.bekadoonline.data.viewmodel.AlamatViewModel
 import com.bekado.bekadoonline.databinding.ActivityCheckOutBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.Helper.showToastL
-import com.bekado.bekadoonline.data.viewmodel.AlamatViewModel
+import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.ui.activities.profil.AlamatActivity
 import com.bekado.bekadoonline.ui.activities.transaksi.PembayaranActivity.Companion.BuktiDetailTransaksi
 import com.bekado.bekadoonline.ui.activities.transaksi.PembayaranActivity.Companion.uidnIdtrx
@@ -86,6 +87,11 @@ class CheckOutActivity : AppCompatActivity() {
             konfirmPesanan(currentUid, nama, noHp, alamatLengkap, kodePos, latitude, longitude)
         }
         alamatViewModel.isLoading.observe(this) { isLoading ->
+            if (isLoading) {
+                val loadingTxt = "Loading..."
+                binding.namaNohp.text = loadingTxt
+                binding.alamat.text = loadingTxt
+            }
         }
     }
 
@@ -248,10 +254,14 @@ class CheckOutActivity : AppCompatActivity() {
                 )
 
                 startActivity(Intent(this, PembayaranActivity::class.java))
+                resultRefresh()
                 finish()
             }
 
-            else -> finish()
+            else -> {
+                resultRefresh()
+                finish()
+            }
         }
     }
 
@@ -286,6 +296,14 @@ class CheckOutActivity : AppCompatActivity() {
         val idPesanan = "$totalItem$currentTime"
         val timestampCrop = idPesanan.chunked(4).joinToString("/")
         return "INV/$timestampCrop"
+    }
+
+    private fun resultRefresh() {
+        val resultIntent = Intent().apply {
+            putExtra(VariableConstant.RESULT_ACTION, VariableConstant.ACTION_REFRESH_UI)
+        }
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 
     override fun onDestroy() {

@@ -7,6 +7,7 @@ import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
 import com.bekado.bekadoonline.data.model.KeranjangModel
 import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.helper.HelperProduk
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -15,18 +16,19 @@ import com.google.firebase.database.ValueEventListener
 
 class KeranjangViewModel : ViewModel() {
     private val db: FirebaseDatabase = FirebaseDatabase.getInstance()
+    private val uid: String? = FirebaseAuth.getInstance().currentUser?.uid
 
-    private val _keranjangModel = MutableLiveData<ArrayList<CombinedKeranjangModel>?>(null)
-    val keranjangModel: LiveData<ArrayList<CombinedKeranjangModel>?> = _keranjangModel
+    private val _keranjangModel = MutableLiveData<ArrayList<CombinedKeranjangModel>?>()
+    val keranjangModel: LiveData<ArrayList<CombinedKeranjangModel>?> get() = _keranjangModel
 
-    private val _keranjangModelHide = MutableLiveData<ArrayList<CombinedKeranjangModel>?>(null)
-    val keranjangModelHide: LiveData<ArrayList<CombinedKeranjangModel>?> = _keranjangModelHide
+    private val _keranjangModelHide = MutableLiveData<ArrayList<CombinedKeranjangModel>?>()
+    val keranjangModelHide: LiveData<ArrayList<CombinedKeranjangModel>?> get() = _keranjangModelHide
 
     private val produkListeners = mutableMapOf<String, ValueEventListener>()
     private val kategoriListeners = mutableMapOf<String, ValueEventListener>()
 
     private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    val isLoading: LiveData<Boolean> get() = _isLoading
 
     private var keranjangListener: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(keranjangSnapshot: DataSnapshot) {
@@ -62,20 +64,12 @@ class KeranjangViewModel : ViewModel() {
         }
     }
 
-    fun loadKeranjangData(uid: String) {
+    fun loadKeranjangData() {
         val keranjangRef = db.getReference("keranjang/$uid")
         keranjangRef.orderByChild("timestamp").addValueEventListener(keranjangListener)
     }
 
-    fun clearKeranjangListeners(uid: String) {
-//        val iterator = produkListeners.iterator()
-//        while (iterator.hasNext()) {
-//            val key = iterator.next().key
-//            val listener = iterator.next().value
-//            db.getReference("produk/produk/$key").removeEventListener(listener)
-//        }
-//        produkListeners.clear()
-
+    fun clearKeranjangListeners() {
         val keranjangRef = db.getReference("keranjang/$uid")
         keranjangRef.orderByChild("timestamp").removeEventListener(keranjangListener)
 

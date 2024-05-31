@@ -3,6 +3,8 @@ package com.bekado.bekadoonline.ui.activities.transaksi
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +18,7 @@ import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
+import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.ui.activities.transaksi.CheckOutActivity.Companion.selectedProduk
 import com.google.android.material.snackbar.Snackbar
@@ -38,6 +41,7 @@ class KeranjangActivity : AppCompatActivity() {
 
     private lateinit var akunViewModel: AkunViewModel
     private lateinit var keranjangViewModel: KeranjangViewModel
+    private lateinit var resultCheckout: ActivityResultLauncher<Intent>
 
     private var available = false
     private var unavailable = false
@@ -51,13 +55,18 @@ class KeranjangActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
 
-        val currentUser = auth.currentUser
-        keranjangRef = db.getReference("keranjang/${currentUser?.uid}")
+        keranjangRef = db.getReference("keranjang/${auth.currentUser?.uid}")
         produkRef = db.getReference("produk/produk")
         kategoriRef = db.getReference("produk/kategori")
 
         akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
         keranjangViewModel = ViewModelProvider(this)[KeranjangViewModel::class.java]
+        resultCheckout = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data?.getStringExtra(VariableConstant.RESULT_ACTION)
+                if (data == VariableConstant.ACTION_REFRESH_UI) viewModelLoader()
+            }
+        }
 
         val lmActive = LinearLayoutManager(this@KeranjangActivity, LinearLayoutManager.VERTICAL, false)
         val lmNonActive = LinearLayoutManager(this@KeranjangActivity, LinearLayoutManager.VERTICAL, false)
@@ -120,24 +129,25 @@ class KeranjangActivity : AppCompatActivity() {
             updateTotalHarga(keranjang)
 
             binding.rvDaftarPesanan.adapter = adapterKeranjang
-            binding.rvDaftarPesanan.visibility = if ((keranjang?.size ?: 0) > 0) View.VISIBLE else View.GONE
+            binding.rvDaftarPesanan.visibility = if (!keranjang.isNullOrEmpty()) View.VISIBLE else View.GONE
 
-            binding.btnPesanSekarang.setOnClickListener { checkout(keranjang) }
+            if (keranjang != null) {
+                val selectedProduk = keranjang.filter { it.keranjangModel?.diPilih ?: false } as ArrayList
+                binding.btnPesanSekarang.setOnClickListener { checkout(selectedProduk) }
+            }
 
-            available = if (keranjang != null) keranjang.size > 0 else false
+            available = keranjang?.isNotEmpty() ?: false
         }
         keranjangViewModel.keranjangModelHide.observe(this) { keranjangHide ->
             adapterKeranjangHide.submitList(keranjangHide)
 
-            val hiddenCartSize = keranjangHide?.size ?: 0
             binding.rvDaftarPesananHide.adapter = adapterKeranjangHide
-            binding.rvDaftarPesananHide.visibility = if (hiddenCartSize > 0) View.VISIBLE else View.GONE
-            binding.llProdukNoProses.visibility = if (hiddenCartSize > 0) View.VISIBLE else View.GONE
+            binding.rvDaftarPesananHide.visibility = if (!keranjangHide.isNullOrEmpty()) View.VISIBLE else View.GONE
+            binding.llProdukNoProses.visibility = if (!keranjangHide.isNullOrEmpty()) View.VISIBLE else View.GONE
 
-            binding.btnDelallProdukDihide.setOnClickListener { showAlertDialog(hiddenCartSize, true, keranjangHide) }
+            binding.btnDelallProdukDihide.setOnClickListener { showAlertDialog(keranjangHide?.size ?: 0, true, keranjangHide) }
 
-            unavailable = if (keranjangHide != null) keranjangHide.size > 0 else false
-
+            unavailable = keranjangHide?.isNotEmpty() ?: false
         }
         keranjangViewModel.isLoading.observe(this) { isLoading ->
             with(binding) {
@@ -149,12 +159,10 @@ class KeranjangActivity : AppCompatActivity() {
         }
     }
 
-    //TODO=data keranjang jika dipilih semua untuk checkout menyisakan 1 data tidak terhapus
-    private fun checkout(dataKeranjang: ArrayList<CombinedKeranjangModel>?) {
-        val selectedKeranjang = dataKeranjang?.filter { it.keranjangModel?.diPilih ?: false }
-        if (selectedKeranjang?.isNotEmpty() == true) {
-            selectedProduk = selectedKeranjang as ArrayList<CombinedKeranjangModel>
-            startActivity(Intent(this, CheckOutActivity::class.java))
+    private fun checkout(dataKeranjang: ArrayList<CombinedKeranjangModel>) {
+        if (dataKeranjang.isNotEmpty()) {
+            selectedProduk = dataKeranjang
+            resultCheckout.launch(Intent(this, CheckOutActivity::class.java))
         } else showToast(getString(R.string.pilih_produk_dulu), this)
     }
 
@@ -233,17 +241,12 @@ class KeranjangActivity : AppCompatActivity() {
     private fun viewModelLoader() {
         akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
-
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            keranjangViewModel.loadKeranjangData(currentUser.uid)
-        }
+        keranjangViewModel.loadKeranjangData()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        val currentUser = auth.currentUser
-        if (currentUser != null) keranjangViewModel.clearKeranjangListeners(currentUser.uid)
+        keranjangViewModel.clearKeranjangListeners()
         akunViewModel.removeAkunListener(akunRef)
     }
 }
