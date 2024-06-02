@@ -15,7 +15,7 @@ object HelperSort {
             SORT_BY_NAME_DESCENDING -> dataProduk.sortByDescending { it.namaProduk }
             SORT_BY_PRICE_ASCENDING -> dataProduk.sortBy { it.hargaProduk }
             SORT_BY_PRICE_DESCENDING -> dataProduk.sortByDescending { it.hargaProduk }
-            else -> dataProduk.sortBy { it.idProduk }
+            else -> dataProduk.shuffle()
         }
     }
 }

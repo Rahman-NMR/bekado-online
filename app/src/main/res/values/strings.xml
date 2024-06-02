@@ -42,6 +42,7 @@
     <string name="masalah_database">Terjadi masalah pada database</string>
     <string name="status_pesanan_belom_pilih">Status pesanan belum dipilih</string>
     <string name="late_upload_bukti">Tidak bisa dilakukan pada status</string>
+    <string name="kategori_unselected">Anda belum memilih Kategori</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -89,7 +90,7 @@
     <string name="lokasi_sekarang_disave">Lokasi sekarang di simpan</string>
 
     <!--    sort-->
-    <string name="rekomendasi">Default</string>
+    <string name="random">Random</string>
     <string name="sortir_a_z">Sortir A-Z</string>
     <string name="sortir_z_a">Sortir Z-A</string>
     <string name="harga_tertinggi">Harga Tertinggi</string>

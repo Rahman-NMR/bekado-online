@@ -47,7 +47,7 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
     private lateinit var produkViewModel: ProdukSingleViewModel
     private lateinit var kategoriListViewModel: KategoriListViewModel
 
-    private var updateKategoriId: String = ""
+    private var updateKategoriId: String? = ""
     private var dataIdProduk: String = ""
 
     private var produkNama: String? = ""
@@ -75,6 +75,7 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
 
         produkViewModel = ViewModelProvider(this)[ProdukSingleViewModel::class.java]
         kategoriListViewModel = ViewModelProvider(this)[KategoriListViewModel::class.java]
+        updateKategoriId = dataKategoriModel?.idKategori
 
         dataHandler()
 
@@ -195,11 +196,13 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
     }
 
     private fun ActivityProdukAddUpdateBinding.validateNull(produk: ProdukModel?) {
-        if (namaProduk.text.isNullOrEmpty())
-            showToast("${getString(R.string.nama_produk)} ${getString(R.string.tidak_dapat_kosong)}", this@ProdukAddUpdateActivity)
-        else if (hargaProduk.text.isNullOrEmpty())
-            showToast("${getString(R.string.harga_produk)} ${getString(R.string.tidak_dapat_kosong)}", this@ProdukAddUpdateActivity)
-        else uploadToDatabase(produk)
+        val notEmpty = getString(R.string.tidak_dapat_kosong)
+        when {
+            namaProduk.text.isNullOrEmpty() -> showToast("${getString(R.string.nama_produk)} $notEmpty", this@ProdukAddUpdateActivity)
+            hargaProduk.text.isNullOrEmpty() -> showToast("${getString(R.string.harga_produk)} $notEmpty", this@ProdukAddUpdateActivity)
+            updateKategoriId.isNullOrEmpty() -> showToast(getString(R.string.kategori_unselected), this@ProdukAddUpdateActivity)
+            else -> uploadToDatabase(produk)
+        }
     }
 
     private fun ActivityProdukAddUpdateBinding.uploadToDatabase(produk: ProdukModel?) {

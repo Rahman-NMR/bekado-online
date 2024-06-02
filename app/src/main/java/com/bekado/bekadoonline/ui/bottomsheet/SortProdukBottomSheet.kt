@@ -39,7 +39,7 @@ class SortProdukBottomSheet(val context: Context) {
             loadingIndicator.visibility = View.GONE
         }
 
-        dataSort.add(SortModel(context.getString(R.string.rekomendasi), SORT_BY_DEFAULT, true))
+        dataSort.add(SortModel(context.getString(R.string.random), SORT_BY_DEFAULT, true))
         dataSort.add(SortModel(context.getString(R.string.sortir_a_z), SORT_BY_NAME_ASCENDING, false))
         dataSort.add(SortModel(context.getString(R.string.sortir_z_a), SORT_BY_NAME_DESCENDING, false))
         dataSort.add(SortModel(context.getString(R.string.harga_tertinggi), SORT_BY_PRICE_DESCENDING, false))
