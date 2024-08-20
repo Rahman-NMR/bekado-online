@@ -17,27 +17,24 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterTransaksi
-import com.bekado.bekadoonline.ui.bottomsheet.FilterDateBottomSheet
-import com.bekado.bekadoonline.ui.bottomsheet.FilterStatusBottomSheet
+import com.bekado.bekadoonline.data.model.TransaksiModel
+import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
+import com.bekado.bekadoonline.data.viewmodel.TransaksiListViewModel
 import com.bekado.bekadoonline.databinding.FragmentTransaksiBinding
-import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.helper.Helper
-import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperTransaksi
 import com.bekado.bekadoonline.helper.constval.VariableConstant
-import com.bekado.bekadoonline.data.model.TransaksiModel
-import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
-import com.bekado.bekadoonline.data.viewmodel.TransaksiListViewModel
+import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.shimmer.ShimmerModel
-import com.bekado.bekadoonline.ui.activities.transaksi.DetailTransaksiActivity
-import com.bekado.bekadoonline.ui.activities.transaksi.KeranjangActivity
 import com.bekado.bekadoonline.ui.activities.auth.LoginActivity
 import com.bekado.bekadoonline.ui.activities.auth.RegisterActivity
+import com.bekado.bekadoonline.ui.activities.transaksi.DetailTransaksiActivity
 import com.bekado.bekadoonline.ui.activities.transaksi.DetailTransaksiActivity.Companion
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.bekado.bekadoonline.ui.activities.transaksi.KeranjangActivity
+import com.bekado.bekadoonline.ui.bottomsheet.FilterDateBottomSheet
+import com.bekado.bekadoonline.ui.bottomsheet.FilterStatusBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -48,7 +45,6 @@ class TransaksiFragment : Fragment() {
     private lateinit var binding: FragmentTransaksiBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
-    private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var adapterTransaksi: AdapterTransaksi
 
     private val dataShimmer: ArrayList<ShimmerModel> = ArrayList()
@@ -77,7 +73,7 @@ class TransaksiFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
-        googleSignInClient = GoogleSignIn.getClient(requireContext(), HelperAuth.clientGoogle(requireContext()))
+
         namaStatusFilter = getString(R.string.f_semua_stspsnn)
         namaDateFilter = getString(R.string.f_semua_wktutrx)
 

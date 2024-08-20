@@ -2,15 +2,23 @@ package com.bekado.bekadoonline.helper
 
 import android.content.Context
 import android.view.MenuItem
+import androidx.credentials.GetCredentialRequest
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.helper.Helper.showToast
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.firebase.database.FirebaseDatabase
 
 object HelperAuth {
-    fun clientGoogle(context: Context): GoogleSignInOptions {
-        return GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(R.string.default_web_client_id)).requestEmail().build()
+    suspend fun signInByGoogle(context: Context): GetCredentialRequest {
+        val googleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(true)
+            .setServerClientId(context.getString(R.string.default_web_client_id))
+            .build()
+
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+        return request
     }
 
     fun registerAkun(uidAkun: String, db: FirebaseDatabase, email: String, nama: String, noHp: String) {

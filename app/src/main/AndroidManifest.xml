@@ -24,22 +24,22 @@
         <activity
             android:name=".ui.activities.auth.UbahPasswordActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".ui.activities.auth.LupaPasswordActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".ui.activities.admn.ProdukAddUpdateActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".ui.activities.admn.ProdukListActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activities.admn.KategoriListActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".ui.activities.transaksi.DetailTransaksiActivity"
             android:exported="false" />
@@ -52,27 +52,27 @@
         <activity
             android:name=".ui.activities.profil.AlamatActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".ui.activities.profil.AkunSayaActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".ui.activities.transaksi.KeranjangActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activities.auth.RegisterActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".ui.activities.auth.LoginActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".ui.activities.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.BekadoOnline.splash"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="stateVisible|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -14,30 +14,27 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bekado.bekadoonline.ui.activities.auth.LoginActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.adapter.AdapterButton
 import com.bekado.bekadoonline.adapter.AdapterProduk
-import com.bekado.bekadoonline.ui.bottomsheet.ShowProdukBottomSheet
-import com.bekado.bekadoonline.ui.bottomsheet.SortProdukBottomSheet
-import com.bekado.bekadoonline.databinding.FragmentBerandaBinding
-import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
-import com.bekado.bekadoonline.helper.Helper.calculateSpanCount
-import com.bekado.bekadoonline.helper.HelperAuth
-import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
-import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.helper.itemDecoration.HorizontalSpacing
-import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.data.viewmodel.BerandaViewModel
+import com.bekado.bekadoonline.databinding.FragmentBerandaBinding
+import com.bekado.bekadoonline.helper.Helper.calculateSpanCount
+import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
+import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperProduk
 import com.bekado.bekadoonline.helper.HelperSort.sortProduk
+import com.bekado.bekadoonline.helper.constval.VariableConstant
+import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
+import com.bekado.bekadoonline.helper.itemDecoration.HorizontalSpacing
 import com.bekado.bekadoonline.shimmer.ShimmerModel
+import com.bekado.bekadoonline.ui.activities.auth.LoginActivity
 import com.bekado.bekadoonline.ui.activities.auth.RegisterActivity
 import com.bekado.bekadoonline.ui.activities.transaksi.KeranjangActivity
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.bekado.bekadoonline.ui.bottomsheet.ShowProdukBottomSheet
+import com.bekado.bekadoonline.ui.bottomsheet.SortProdukBottomSheet
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
@@ -45,7 +42,6 @@ class BerandaFragment : Fragment() {
     private lateinit var binding: FragmentBerandaBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
-    private lateinit var googleSignInClient: GoogleSignInClient
 
     private lateinit var adapterButton: AdapterButton
     private lateinit var adapterProduk: AdapterProduk
@@ -67,7 +63,6 @@ class BerandaFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
-        googleSignInClient = GoogleSignIn.getClient(requireContext(), HelperAuth.clientGoogle(requireContext()))
 
         akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
         berandaViewModel = ViewModelProvider(requireActivity())[BerandaViewModel::class.java]

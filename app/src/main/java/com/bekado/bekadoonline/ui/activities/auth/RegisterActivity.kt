@@ -1,6 +1,5 @@
 package com.bekado.bekadoonline.ui.activities.auth
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -9,30 +8,32 @@ import android.util.Patterns
 import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.lifecycle.lifecycleScope
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityRegisterBinding
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.constval.VariableConstant
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.common.api.ApiException
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
-    private lateinit var googleSignInClient: GoogleSignInClient
 
-    private lateinit var signInClient: ActivityResultLauncher<Intent>
     private val onBackInvokedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             if (auth.currentUser != null) signOut()
@@ -50,20 +51,6 @@ class RegisterActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
-        googleSignInClient = GoogleSignIn.getClient(this, HelperAuth.clientGoogle(this))
-        signInClient = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data: Intent? = result.data
-                val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-
-                if (task.isSuccessful)
-                    try {
-                        val account = task.getResult(ApiException::class.java)
-                        loginAuthWithGoogle(account.idToken)
-                    } catch (_: ApiException) {
-                    }
-            }
-        }
 
         val currentUser = auth.currentUser
 
@@ -75,38 +62,37 @@ class RegisterActivity : AppCompatActivity() {
             konfirmasiPasswordDaftar.addTextChangedListener(daftarTextWatcher)
 
             updateUI(currentUser)
+            actionUI(currentUser)
+        }
+    }
 
-            btnRegister.setOnClickListener {
-                val email = binding.emailDaftar.text.toString().trim()
-                val password = binding.passwordDaftar.text.toString()
+    private fun ActivityRegisterBinding.actionUI(currentUser: FirebaseUser?) {
+        btnRegister.setOnClickListener {
+            val email = binding.emailDaftar.text.toString().trim()
+            val password = binding.passwordDaftar.text.toString()
 
-                if (HelperConnection.isConnected(this@RegisterActivity)) {
-                    if (binding.outlineNamaDaftar.helperText == null
-                        && binding.outlineNohpDaftar.helperText == null
-                        && binding.outlineEmailDaftar.helperText == null
-                        && binding.outlinePasswordDaftar.helperText == null
-                        && binding.outlineKonfirmasiPasswordDaftar.helperText == null
-                    ) {
-                        val passwordInput = binding.passwordDaftar.text
-                        val konfirmPasswordInput = binding.konfirmasiPasswordDaftar.text
+            if (HelperConnection.isConnected(this@RegisterActivity)) {
+                if (binding.outlineNamaDaftar.helperText == null
+                    && binding.outlineNohpDaftar.helperText == null
+                    && binding.outlineEmailDaftar.helperText == null
+                    && binding.outlinePasswordDaftar.helperText == null
+                    && binding.outlineKonfirmasiPasswordDaftar.helperText == null
+                ) {
+                    val passwordInput = binding.passwordDaftar.text
+                    val konfirmPasswordInput = binding.konfirmasiPasswordDaftar.text
 
-                        if (konfirmPasswordInput.toString() != passwordInput.toString()) {
-                            val snackbar = Snackbar.make(binding.root, getString(R.string.password_berbeda), Snackbar.LENGTH_LONG)
-                            snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                        } else registerAuth(email, password, currentUser)
-                    } else {
-                        val snackbar = Snackbar.make(binding.root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
+                    if (konfirmPasswordInput.toString() != passwordInput.toString()) {
+                        val snackbar = Snackbar.make(binding.root, getString(R.string.password_berbeda), Snackbar.LENGTH_LONG)
                         snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                    }
+                    } else registerAuth(email, password, currentUser)
+                } else {
+                    val snackbar = Snackbar.make(binding.root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
+                    snackbar.setAction("Oke") { snackbar.dismiss() }.show()
                 }
             }
-            googleAutoLogin.setOnClickListener {
-                if (currentUser == null)
-                    if (HelperConnection.isConnected(this@RegisterActivity))
-                        signInClient.launch(googleSignInClient.signInIntent)
-            }
-            btnCancel.setOnClickListener { if (currentUser != null) signOut() }
         }
+        googleAutoLogin.setOnClickListener { if (currentUser == null) if (HelperConnection.isConnected(this@RegisterActivity)) signIn() }
+        btnCancel.setOnClickListener { if (currentUser != null) signOut() }
     }
 
     private fun ActivityRegisterBinding.updateUI(currentUser: FirebaseUser?) {
@@ -139,6 +125,64 @@ class RegisterActivity : AppCompatActivity() {
         val noHp = binding.nohpDaftar.text.toString().trim()
 
         if (currentUser != null) HelperAuth.registerAkun(currentUser.uid, db, email, nama, noHp)
+    }
+
+    private fun signIn() {
+        val credentialManager = CredentialManager.create(this)
+
+        lifecycleScope.launch {
+            try {
+                val result: GetCredentialResponse = credentialManager.getCredential(
+                    request = HelperAuth.signInByGoogle(this@RegisterActivity),
+                    context = this@RegisterActivity
+                )
+                handleSignIn(result)
+            } catch (_: GetCredentialException) {
+            }
+        }
+    }
+
+    private fun handleSignIn(result: GetCredentialResponse) {
+        when (val credential = result.credential) {
+            is CustomCredential -> {
+                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    try {
+                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                        loginAuthWithGoogle(googleIdTokenCredential.idToken)
+                    } catch (_: GoogleIdTokenParsingException) {
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loginAuthWithGoogle(idToken: String?) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential).addOnCompleteListener(this) {
+            if (it.isSuccessful) signInSuccess()
+        }
+    }
+
+    private fun signInSuccess() {
+        val resultIntent = Intent().apply {
+            putExtra(VariableConstant.ACTION_SIGN_IN_RESULT, VariableConstant.ACTION_REFRESH_UI)
+        }
+        setResult(RESULT_OK, resultIntent)
+        finish()
+    }
+
+    private fun signOut() {
+        lifecycleScope.launch {
+            val credentialManager = CredentialManager.create(this@RegisterActivity)
+            auth.signOut()
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+
+            val resultIntent = Intent().apply {
+                putExtra(VariableConstant.ACTION_SIGN_IN_RESULT, VariableConstant.ACTION_SIGN_OUT)
+            }
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        }
     }
 
     private val daftarTextWatcher: TextWatcher = object : TextWatcher {
@@ -187,31 +231,5 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun loginAuthWithGoogle(idToken: String?) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential).addOnCompleteListener(this) {
-            if (it.isSuccessful) signInSuccess()
-        }
-    }
-
-    private fun signInSuccess() {
-        val resultIntent = Intent().apply {
-            putExtra(VariableConstant.ACTION_SIGN_IN_RESULT, VariableConstant.ACTION_REFRESH_UI)
-        }
-        setResult(RESULT_OK, resultIntent)
-        finish()
-    }
-
-    private fun signOut() {
-        googleSignInClient.signOut()
-        auth.signOut()
-
-        val resultIntent = Intent().apply {
-            putExtra(VariableConstant.ACTION_SIGN_IN_RESULT, VariableConstant.ACTION_SIGN_OUT)
-        }
-        setResult(RESULT_OK, resultIntent)
-        finish()
     }
 }

@@ -8,14 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.data.viewmodel.TransaksiViewModel
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
-import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.ui.activities.admn.KategoriListActivity
 import com.bekado.bekadoonline.ui.activities.auth.LoginActivity
@@ -26,17 +28,15 @@ import com.bekado.bekadoonline.ui.activities.profil.AkunSayaActivity
 import com.bekado.bekadoonline.ui.activities.profil.AlamatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.launch
 
 class ProfilFragment : Fragment() {
     private lateinit var binding: FragmentProfilBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
-    private lateinit var googleSignInClient: GoogleSignInClient
 
     private lateinit var akunRef: DatabaseReference
     private lateinit var transaksiRef: DatabaseReference
@@ -56,7 +56,6 @@ class ProfilFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
-        googleSignInClient = GoogleSignIn.getClient(requireContext(), HelperAuth.clientGoogle(requireContext()))
 
         akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
         transaksiViewModel = ViewModelProvider(requireActivity())[TransaksiViewModel::class.java]
@@ -170,9 +169,13 @@ class ProfilFragment : Fragment() {
             requireContext().getColor(R.color.error)
         ) {
             transaksiRef = db.getReference("transaksi")
-            auth.signOut()
-            googleSignInClient.signOut()
-            akunViewModel.clearAkunData()
+            lifecycleScope.launch {
+                val credentialManager = CredentialManager.create(requireActivity())
+
+                auth.signOut()
+                credentialManager.clearCredentialState(ClearCredentialStateRequest())
+                akunViewModel.clearAkunData()
+            }
         }
     }
 
