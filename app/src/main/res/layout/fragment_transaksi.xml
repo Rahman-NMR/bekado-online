@@ -60,7 +60,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="99dp"
+                    app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:cardMaxElevation="0dp">
 
@@ -77,7 +77,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="99dp"
+                    app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:cardMaxElevation="0dp">
 
