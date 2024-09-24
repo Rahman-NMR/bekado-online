@@ -6,7 +6,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Patterns
 import android.view.View
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.ClearCredentialStateRequest
@@ -17,6 +16,7 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityRegisterBinding
+import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.constval.VariableConstant
@@ -115,7 +115,7 @@ class RegisterActivity : AppCompatActivity() {
             if (it.isSuccessful) {
                 registerAkunRtdb(currentUser)
                 signInSuccess()
-            } else Toast.makeText(this, getString(R.string.gagal_daftar_akun), Toast.LENGTH_SHORT).show()
+            } else showToast(getString(R.string.gagal_daftar_akun), this@RegisterActivity)
         }
     }
 
@@ -138,6 +138,9 @@ class RegisterActivity : AppCompatActivity() {
                 )
                 handleSignIn(result)
             } catch (_: GetCredentialException) {
+                showToast(getString(R.string.device_unsupported), this@RegisterActivity)
+            } catch (_: Exception) {
+                showToast(getString(R.string.device_unsupported), this@RegisterActivity)
             }
         }
     }

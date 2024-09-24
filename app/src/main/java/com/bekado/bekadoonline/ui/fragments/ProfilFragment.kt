@@ -10,6 +10,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -168,13 +169,21 @@ class ProfilFragment : Fragment() {
             requireContext(),
             requireContext().getColor(R.color.error)
         ) {
-            transaksiRef = db.getReference("transaksi")
-            lifecycleScope.launch {
-                val credentialManager = CredentialManager.create(requireActivity())
+            val credentialManager = CredentialManager.create(requireContext())
 
-                auth.signOut()
-                credentialManager.clearCredentialState(ClearCredentialStateRequest())
-                akunViewModel.clearAkunData()
+            lifecycleScope.launch {
+                try {
+                    credentialManager.clearCredentialState(ClearCredentialStateRequest())
+                } catch (_: GetCredentialException) {
+                    Helper.showToast(getString(R.string.device_unsupported), requireContext())
+                } catch (_: Exception) {
+                    Helper.showToast(getString(R.string.device_unsupported), requireContext())
+                } finally {
+                    transaksiRef = db.getReference("transaksi")
+
+                    auth.signOut()
+                    akunViewModel.clearAkunData()
+                }
             }
         }
     }

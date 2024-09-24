@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Patterns
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -14,6 +13,7 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityLoginBinding
+import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.constval.VariableConstant
@@ -76,6 +76,9 @@ class LoginActivity : AppCompatActivity() {
                 )
                 handleSignIn(result)
             } catch (_: GetCredentialException) {
+                showToast(getString(R.string.device_unsupported), this@LoginActivity)
+            } catch (_: Exception) {
+                showToast(getString(R.string.device_unsupported), this@LoginActivity)
             }
         }
     }
@@ -104,7 +107,7 @@ class LoginActivity : AppCompatActivity() {
     private fun loginAuthManual(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) {
             if (it.isSuccessful) signInSuccess()
-            else Toast.makeText(this, getString(R.string.email_pass_salah), Toast.LENGTH_SHORT).show()
+            else showToast(getString(R.string.email_pass_salah), this)
         }
     }
 
