@@ -153,8 +153,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:padding="@dimen/smallBottomdp"
-                        android:indeterminate="true" />
+                        android:indeterminate="true"
+                        android:padding="@dimen/smallBottomdp" />
 
                     <LinearLayout
                         android:id="@+id/layout_status_pesanan"
@@ -172,7 +172,6 @@
                                 android:id="@+id/cl_status_pesanan"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="4dp"
                                 app:layout_constraintEnd_toStartOf="@+id/rl_lihat_pembayaran"
                                 app:layout_constraintHorizontal_bias="0.5"
                                 app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -183,6 +182,7 @@
                                     android:id="@+id/ttl_status"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:paddingEnd="4dp"
                                     android:text="@string/status_pesanan_"
                                     android:textColor="@color/grey_500"
                                     android:textSize="14sp"
@@ -206,6 +206,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="4dp"
                                     android:paddingVertical="2dp"
+                                    android:paddingEnd="4dp"
                                     android:text="@string/strip"
                                     android:textColor="@color/grey_700"
                                     android:textSize="14sp"
@@ -218,7 +219,6 @@
                                 android:id="@+id/rl_lihat_pembayaran"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
                                 android:visibility="gone"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintHorizontal_bias="0.5"
@@ -234,8 +234,7 @@
                                     android:enabled="false"
                                     android:minHeight="40dp"
                                     android:text="@string/lihat_pembayaran"
-                                    android:textSize="14sp"
-                                    app:strokeColor="?attr/colorPrimary" />
+                                    android:textSize="14sp" />
                             </RelativeLayout>
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -307,8 +306,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:padding="@dimen/smallBottomdp"
-                        android:indeterminate="true" />
+                        android:indeterminate="true"
+                        android:padding="@dimen/smallBottomdp" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_daftar_produk"
@@ -355,8 +354,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:padding="@dimen/smallBottomdp"
-                        android:indeterminate="true" />
+                        android:indeterminate="true"
+                        android:padding="@dimen/smallBottomdp" />
 
                     <LinearLayout
                         android:id="@+id/layout_informasi_pengiriman"
@@ -462,8 +461,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:padding="@dimen/smallBottomdp"
-                        android:indeterminate="true" />
+                        android:indeterminate="true"
+                        android:padding="@dimen/smallBottomdp" />
 
                     <LinearLayout
                         android:id="@+id/layout_rincian_pembayaran"

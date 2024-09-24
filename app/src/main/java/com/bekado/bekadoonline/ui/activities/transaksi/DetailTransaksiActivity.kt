@@ -2,6 +2,7 @@ package com.bekado.bekadoonline.ui.activities.transaksi
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
@@ -149,6 +151,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
                 binding.lihatPembayaran.isEnabled = isTransfer
                 if (isTransfer) {
                     binding.rlLihatPembayaran.visibility = View.VISIBLE
+                    binding.lihatPembayaran.strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.blue_700))
                     binding.lihatPembayaran.setOnClickListener {
                         BuktiDetailTransaksi = detailTransaksi
 
