@@ -170,6 +170,8 @@ class ProfilFragment : Fragment() {
             requireContext().getColor(R.color.error)
         ) {
             val credentialManager = CredentialManager.create(requireContext())
+            binding.progressbarLogout.visibility = View.VISIBLE
+            binding.viewOverlay.visibility = View.VISIBLE
 
             lifecycleScope.launch {
                 try {
@@ -183,6 +185,8 @@ class ProfilFragment : Fragment() {
 
                     auth.signOut()
                     akunViewModel.clearAkunData()
+                    binding.progressbarLogout.visibility = View.GONE
+                    binding.viewOverlay.visibility = View.GONE
                 }
             }
         }

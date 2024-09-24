@@ -1,22 +1,26 @@
 package com.bekado.bekadoonline.ui.activities.profil
 
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.location.Location
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
+import com.bekado.bekadoonline.data.viewmodel.AlamatViewModel
 import com.bekado.bekadoonline.databinding.ActivityAlamatBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
-import com.bekado.bekadoonline.data.viewmodel.AlamatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
@@ -29,7 +33,7 @@ class AlamatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAlamatBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
-    private lateinit var latLang: FusedLocationProviderClient
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var akunRef: DatabaseReference
     private lateinit var alamatRef: DatabaseReference
@@ -47,6 +51,17 @@ class AlamatActivity : AppCompatActivity() {
         }
     }
 
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permission ->
+        when {
+            permission[ACCESS_FINE_LOCATION] ?: false || permission[ACCESS_COARSE_LOCATION] ?: false -> getLokasi()
+            else -> showToast("Diperlukan izin akses lokasi", this@AlamatActivity)
+        }
+    }
+
+    private fun checkPermission(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAlamatBinding.inflate(layoutInflater)
@@ -57,7 +72,7 @@ class AlamatActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
-        latLang = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
         alamatViewModel = ViewModelProvider(this)[AlamatViewModel::class.java]
@@ -157,17 +172,15 @@ class AlamatActivity : AppCompatActivity() {
 
                 if (latitude.isNotEmpty() && longitude.isNotEmpty()) {
                     val geoCoder = Geocoder(this@AlamatActivity, Locale.getDefault())
-                    val adress = geoCoder.getFromLocation(latitude.toDouble(), longitude.toDouble(), 10)
-                    val namaJalan = if (adress!![0].thoroughfare != null) adress[0].thoroughfare else ""
-                    val noRumah = if (adress[0].subThoroughfare != null) "${adress[0].subThoroughfare}," else ""
-                    val komplek = if (adress[0].subLocality != null) "${adress[0].subLocality}," else ""
-                    val camatKel = if (adress[0].locality != null) "${adress[0].locality}," else ""
-                    val kotaKab = if (adress[0].subAdminArea != null) "${adress[0].subAdminArea}," else ""
-                    val provinsi = if (adress[0].adminArea != null) "${adress[0].adminArea}," else ""
-                    val kodePos = if (adress[0].postalCode != null) adress[0].postalCode else ""
 
-                    val fullAlamat = "$namaJalan $noRumah $komplek $camatKel $kotaKab $provinsi $kodePos"
-                    binding.tvTitikLokasi.text = fullAlamat
+                    try {
+                        val adress = geoCoder.getFromLocation(latitude.toDouble(), longitude.toDouble(), 10)
+
+                        if (adress != null) binding.tvTitikLokasi.text = adress[0].getAddressLine(0)
+                        else binding.tvTitikLokasi.text = getString(R.string.titik_lokasi)
+                    } catch (_: Exception) {
+                        showToast(getString(R.string.location_not_found), this)
+                    }
                 } else binding.tvTitikLokasi.text = getString(R.string.titik_lokasi)
             } else binding.tvTitikLokasi.text = getString(R.string.titik_lokasi)
         }
@@ -184,26 +197,20 @@ class AlamatActivity : AppCompatActivity() {
     }
 
     private fun getLokasi() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 100)
-            return
-        }
+        if (checkPermission(ACCESS_FINE_LOCATION) && checkPermission(ACCESS_COARSE_LOCATION)) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                if (location != null) {
+                    val address = HashMap<String, Any>()
+                    address["latitude"] = location.latitude.toString()
+                    address["longitude"] = location.longitude.toString()
 
-        latLang.lastLocation.addOnSuccessListener {
-            if (it != null) {
-                val address = HashMap<String, Any>()
-                address["latitude"] = it.latitude.toString()
-                address["longitude"] = it.longitude.toString()
-                alamatRef.updateChildren(address).addOnSuccessListener {
-                    val snackbar = Snackbar.make(binding.root, getString(R.string.lokasi_sekarang_disave), Snackbar.LENGTH_SHORT)
-                    snackbar.setAction("Oke") { finish() }.show()
-                }
+                    alamatRef.updateChildren(address).addOnSuccessListener {
+                        val snackbar = Snackbar.make(binding.root, getString(R.string.lokasi_sekarang_disave), Snackbar.LENGTH_SHORT)
+                        snackbar.setAction("Oke") { finish() }.show()
+                    }
+                } else showToast(getString(R.string.location_not_found), this)
             }
-        }
+        } else requestPermissionLauncher.launch(arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))
     }
 
     private val alamatTextWatcher: TextWatcher = object : TextWatcher {
