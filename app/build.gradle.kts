@@ -10,10 +10,10 @@ android {
 
     defaultConfig {
         applicationId = "com.bekado.bekadoonline"
-        minSdk = 23
+        minSdk = 26
         targetSdk = 34
         versionCode = 2
-        versionName = "1.1.5.0"
+        versionName = "1.1.5.1"
 //        big update
 //        sprint
 //        stable
