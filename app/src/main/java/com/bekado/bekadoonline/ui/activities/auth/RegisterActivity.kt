@@ -1,5 +1,6 @@
 package com.bekado.bekadoonline.ui.activities.auth
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -7,37 +8,56 @@ import android.text.TextWatcher
 import android.util.Patterns
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.credentials.ClearCredentialStateRequest
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialResponse
-import androidx.credentials.exceptions.GetCredentialException
-import androidx.lifecycle.lifecycleScope
+import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.databinding.ActivityRegisterBinding
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.helper.constval.VariableConstant
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.bekado.bekadoonline.ui.activities.MainActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var akunViewModel: AkunViewModel
 
+    private var isAuthenticating = false
     private val onBackInvokedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            if (auth.currentUser != null) signOut()
-            else finish()
+            if (!isAuthenticating) {
+                if (auth.currentUser != null) signOut()
+                else finish()
+            }
+        }
+    }
+    private val signInClient = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            loadingAuthUI(true)
+            val data: Intent? = result.data
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+
+            if (task.isSuccessful)
+                try {
+                    val account = task.getResult(ApiException::class.java)
+                    loginAuthWithGoogle(account.idToken)
+                } catch (_: ApiException) {
+                    loadingAuthUI(false)
+                }
+            else loadingAuthUI(false)
         }
     }
 
@@ -51,6 +71,8 @@ class RegisterActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
+        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
+        googleSignInClient = GoogleSignIn.getClient(this, HelperAuth.clientGoogle(this))
 
         val currentUser = auth.currentUser
 
@@ -91,7 +113,11 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
         }
-        googleAutoLogin.setOnClickListener { if (currentUser == null) if (HelperConnection.isConnected(this@RegisterActivity)) signIn() }
+        googleAutoLogin.setOnClickListener {
+            if (currentUser == null)
+                if (HelperConnection.isConnected(this@RegisterActivity))
+                    signInClient.launch(googleSignInClient.signInIntent)
+        }
         btnCancel.setOnClickListener { if (currentUser != null) signOut() }
     }
 
@@ -109,13 +135,17 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun registerAuth(email: String, password: String, currentUser: FirebaseUser?) {
+        loadingAuthUI(true)
         val regist = currentUser?.updatePassword(binding.passwordDaftar.text.toString()) ?: auth.createUserWithEmailAndPassword(email, password)
 
         regist.addOnCompleteListener(this) {
             if (it.isSuccessful) {
                 registerAkunRtdb(currentUser)
                 signInSuccess()
-            } else showToast(getString(R.string.gagal_daftar_akun), this@RegisterActivity)
+            } else {
+                showToast(getString(R.string.gagal_daftar_akun), this@RegisterActivity)
+                loadingAuthUI(false)
+            }
         }
     }
 
@@ -127,38 +157,6 @@ class RegisterActivity : AppCompatActivity() {
         if (currentUser != null) HelperAuth.registerAkun(currentUser.uid, db, email, nama, noHp)
     }
 
-    private fun signIn() {
-        val credentialManager = CredentialManager.create(this)
-
-        lifecycleScope.launch {
-            try {
-                val result: GetCredentialResponse = credentialManager.getCredential(
-                    request = HelperAuth.signInByGoogle(this@RegisterActivity),
-                    context = this@RegisterActivity
-                )
-                handleSignIn(result)
-            } catch (_: GetCredentialException) {
-                showToast(getString(R.string.device_unsupported), this@RegisterActivity)
-            } catch (_: Exception) {
-                showToast(getString(R.string.device_unsupported), this@RegisterActivity)
-            }
-        }
-    }
-
-    private fun handleSignIn(result: GetCredentialResponse) {
-        when (val credential = result.credential) {
-            is CustomCredential -> {
-                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                    try {
-                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        loginAuthWithGoogle(googleIdTokenCredential.idToken)
-                    } catch (_: GoogleIdTokenParsingException) {
-                    }
-                }
-            }
-        }
-    }
-
     private fun loginAuthWithGoogle(idToken: String?) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener(this) {
@@ -167,25 +165,33 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun signInSuccess() {
-        val resultIntent = Intent().apply {
-            putExtra(VariableConstant.ACTION_SIGN_IN_RESULT, VariableConstant.ACTION_REFRESH_UI)
+        akunViewModel.loadCurrentUser()
+        akunViewModel.loadAkunData()
+
+        akunViewModel.isLoading.observe(this) { isLoading ->
+            loadingAuthUI(false)
+            if (!isLoading) {
+                if (akunViewModel.akunModel.value != null) {
+                    val intent = Intent(this@RegisterActivity, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                } else {
+                    startActivity(Intent(this, RegisterActivity::class.java))
+                    finish()
+                }
+            }
         }
-        setResult(RESULT_OK, resultIntent)
-        finish()
+    }
+
+    private fun loadingAuthUI(isAuthLoading: Boolean) {
+        isAuthenticating = isAuthLoading
+        binding.progressbarRegister.isVisible = isAuthLoading
     }
 
     private fun signOut() {
-        lifecycleScope.launch {
-            val credentialManager = CredentialManager.create(this@RegisterActivity)
-            auth.signOut()
-            credentialManager.clearCredentialState(ClearCredentialStateRequest())
-
-            val resultIntent = Intent().apply {
-                putExtra(VariableConstant.ACTION_SIGN_IN_RESULT, VariableConstant.ACTION_SIGN_OUT)
-            }
-            setResult(RESULT_OK, resultIntent)
-            finish()
-        }
+        googleSignInClient.signOut()
+        auth.signOut()
+        finish()
     }
 
     private val daftarTextWatcher: TextWatcher = object : TextWatcher {

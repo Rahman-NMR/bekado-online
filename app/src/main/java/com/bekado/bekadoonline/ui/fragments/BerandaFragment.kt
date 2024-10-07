@@ -1,13 +1,10 @@
 package com.bekado.bekadoonline.ui.fragments
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -26,7 +23,6 @@ import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperProduk
 import com.bekado.bekadoonline.helper.HelperSort.sortProduk
-import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.helper.itemDecoration.HorizontalSpacing
 import com.bekado.bekadoonline.shimmer.ShimmerModel
@@ -49,7 +45,6 @@ class BerandaFragment : Fragment() {
 
     private lateinit var akunViewModel: AkunViewModel
     private lateinit var berandaViewModel: BerandaViewModel
-    private lateinit var signInResult: ActivityResultLauncher<Intent>
 
     private var sortFilter = 0
 
@@ -66,14 +61,6 @@ class BerandaFragment : Fragment() {
 
         akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
         berandaViewModel = ViewModelProvider(requireActivity())[BerandaViewModel::class.java]
-        signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val dataLogin = result.data?.getStringExtra(VariableConstant.ACTION_SIGN_IN_RESULT)
-
-                if (dataLogin == VariableConstant.ACTION_REFRESH_UI) viewModelLoader()
-                if (dataLogin == VariableConstant.ACTION_SIGN_OUT) akunViewModel.clearAkunData()
-            }
-        }
 
         val paddingBottom = resources.getDimensionPixelSize(R.dimen.maxBottomdp)
         val padding = resources.getDimensionPixelSize(R.dimen.smalldp)
@@ -144,7 +131,7 @@ class BerandaFragment : Fragment() {
                 if (currentUser != null) {
                     val keranjangRef = db.getReference("keranjang/${currentUser.uid}")
                     HelperProduk.addToKeranjang(produk, keranjangRef, requireContext())
-                } else resultLaunchLogin()
+                } else startAuthLoginActivity(true)
             }
         }
         binding.rvProduk.adapter = adapterProduk
@@ -270,7 +257,8 @@ class BerandaFragment : Fragment() {
     }
 
     private fun dataAkunHandler() {
-        viewModelLoader()
+        akunViewModel.loadCurrentUser()
+        akunViewModel.loadAkunData()
 
         akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
             binding.appBar.setOnMenuItemClickListener {
@@ -279,21 +267,20 @@ class BerandaFragment : Fragment() {
                         if (akunModel.statusAdmin) adminKeranjangState(requireContext(), it)
                         else startActivity(Intent(context, KeranjangActivity::class.java))
                     }
-                } else resultLaunchLogin()
+                } else startAuthLoginActivity(true)
                 true
             }
         }
         akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading == false) {
-                if (auth.currentUser != null && akunViewModel.akunModel.value == null) {
-                    signInResult.launch(Intent(context, RegisterActivity::class.java))
-                }
+            if (!isLoading) {
+                if (auth.currentUser != null && akunViewModel.akunModel.value == null) startAuthLoginActivity(false)
             }
         }
     }
 
-    private fun resultLaunchLogin() {
-        signInResult.launch(Intent(context, LoginActivity::class.java))
+    private fun startAuthLoginActivity(isLogin: Boolean) {
+        if (isLogin) startActivity(Intent(context, LoginActivity::class.java))
+        else startActivity(Intent(context, RegisterActivity::class.java))
     }
 
     private fun searchClearText() {
@@ -310,11 +297,6 @@ class BerandaFragment : Fragment() {
         searchClearText()
         setupAdapter()
         setupViewModel()
-    }
-
-    private fun viewModelLoader() {
-        akunViewModel.loadCurrentUser()
-        akunViewModel.loadAkunData()
     }
 
     override fun onResume() {

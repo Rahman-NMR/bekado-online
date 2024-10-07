@@ -1,25 +1,19 @@
 package com.bekado.bekadoonline.ui.fragments
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.credentials.ClearCredentialStateRequest
-import androidx.credentials.CredentialManager
-import androidx.credentials.exceptions.GetCredentialException
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.data.viewmodel.TransaksiViewModel
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
-import com.bekado.bekadoonline.helper.constval.VariableConstant
+import com.bekado.bekadoonline.helper.HelperAuth
+import com.bekado.bekadoonline.ui.activities.MainActivity
 import com.bekado.bekadoonline.ui.activities.admn.KategoriListActivity
 import com.bekado.bekadoonline.ui.activities.auth.LoginActivity
 import com.bekado.bekadoonline.ui.activities.auth.RegisterActivity
@@ -29,15 +23,17 @@ import com.bekado.bekadoonline.ui.activities.profil.AkunSayaActivity
 import com.bekado.bekadoonline.ui.activities.profil.AlamatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.coroutines.launch
 
 class ProfilFragment : Fragment() {
     private lateinit var binding: FragmentProfilBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     private lateinit var akunRef: DatabaseReference
     private lateinit var transaksiRef: DatabaseReference
@@ -45,7 +41,6 @@ class ProfilFragment : Fragment() {
     private var adminStatus: Boolean = false
     private lateinit var akunViewModel: AkunViewModel
     private lateinit var transaksiViewModel: TransaksiViewModel
-    private lateinit var signInResult: ActivityResultLauncher<Intent>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentProfilBinding.inflate(inflater, container, false)
@@ -57,32 +52,25 @@ class ProfilFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
+        googleSignInClient = GoogleSignIn.getClient(requireContext(), HelperAuth.clientGoogle(requireContext()))
 
         akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
         transaksiViewModel = ViewModelProvider(requireActivity())[TransaksiViewModel::class.java]
-
-        signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val dataLogin = result.data?.getStringExtra(VariableConstant.ACTION_SIGN_IN_RESULT)
-
-                if (dataLogin == VariableConstant.ACTION_REFRESH_UI) viewModelLoader()
-                if (dataLogin == VariableConstant.ACTION_SIGN_OUT) akunViewModel.clearAkunData()
-            }
-        }
 
         dataAkunHandler()
         dataTransaksiHandler()
 
         with(binding) {
-            btnLogin.setOnClickListener { signInResult.launch(Intent(context, LoginActivity::class.java)) }
-            btnRegister.setOnClickListener { signInResult.launch(Intent(context, RegisterActivity::class.java)) }
+            btnLogin.setOnClickListener { startAuthLoginActivity(true) }
+            btnRegister.setOnClickListener { startAuthLoginActivity(false) }
             btnInformasiToko.setOnClickListener { startActivity(Intent(context, AboutBekadoActivity::class.java)) }
             btnLogout.setOnClickListener { showAlertDialog() }
         }
     }
 
     private fun dataAkunHandler() {
-        viewModelLoader()
+        akunViewModel.loadCurrentUser()
+        akunViewModel.loadAkunData()
 
         akunViewModel.currentUser.observe(viewLifecycleOwner) { currentUser ->
             akunRef = db.getReference("akun/${currentUser?.uid}")
@@ -131,11 +119,14 @@ class ProfilFragment : Fragment() {
             binding.shimmerAkunSaya.apply { if (isLoading) startShimmer() else stopShimmer() }
 
             if (!isLoading) {
-                if (auth.currentUser != null && akunViewModel.akunModel.value == null) {
-                    signInResult.launch(Intent(context, RegisterActivity::class.java))
-                }
+                if (auth.currentUser != null && akunViewModel.akunModel.value == null) startAuthLoginActivity(false)
             }
         }
+    }
+
+    private fun startAuthLoginActivity(isLogin: Boolean) {
+        if (isLogin) startActivity(Intent(context, LoginActivity::class.java))
+        else startActivity(Intent(context, RegisterActivity::class.java))
     }
 
     private fun dataTransaksiHandler() {
@@ -169,32 +160,15 @@ class ProfilFragment : Fragment() {
             requireContext(),
             requireContext().getColor(R.color.error)
         ) {
-            val credentialManager = CredentialManager.create(requireContext())
-            binding.progressbarLogout.visibility = View.VISIBLE
-            binding.viewOverlay.visibility = View.VISIBLE
+            transaksiRef = db.getReference("transaksi")
+            auth.signOut()
+            googleSignInClient.signOut()
+            akunViewModel.clearAkunData()
 
-            lifecycleScope.launch {
-                try {
-                    credentialManager.clearCredentialState(ClearCredentialStateRequest())
-                } catch (_: GetCredentialException) {
-                    Helper.showToast(getString(R.string.device_unsupported), requireContext())
-                } catch (_: Exception) {
-                    Helper.showToast(getString(R.string.device_unsupported), requireContext())
-                } finally {
-                    transaksiRef = db.getReference("transaksi")
-
-                    auth.signOut()
-                    akunViewModel.clearAkunData()
-                    binding.progressbarLogout.visibility = View.GONE
-                    binding.viewOverlay.visibility = View.GONE
-                }
-            }
+            val intent = Intent(requireContext(), MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
         }
-    }
-
-    private fun viewModelLoader() {
-        akunViewModel.loadCurrentUser()
-        akunViewModel.loadAkunData()
     }
 
     override fun onDestroy() {

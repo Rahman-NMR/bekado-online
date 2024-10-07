@@ -43,7 +43,6 @@
     <string name="status_pesanan_belom_pilih">Status pesanan belum dipilih</string>
     <string name="late_upload_bukti">Tidak bisa dilakukan pada status</string>
     <string name="kategori_unselected">Anda belum memilih Kategori</string>
-    <string name="device_unsupported">Perangkat tidak didukung</string>
     <string name="location_not_found">Lokasi tidak ditemukan</string>
 
     <!--    button-->

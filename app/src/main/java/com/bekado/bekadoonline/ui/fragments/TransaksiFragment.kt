@@ -60,7 +60,6 @@ class TransaksiFragment : Fragment() {
 
     private lateinit var akunViewModel: AkunViewModel
     private lateinit var transaksiListVM: TransaksiListViewModel
-    private lateinit var signInResult: ActivityResultLauncher<Intent>
     private lateinit var detailTransaksiLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -79,14 +78,6 @@ class TransaksiFragment : Fragment() {
 
         akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
         transaksiListVM = ViewModelProvider(requireActivity())[TransaksiListViewModel::class.java]
-        signInResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val dataLogin = result.data?.getStringExtra(VariableConstant.ACTION_SIGN_IN_RESULT)
-
-                if (dataLogin == VariableConstant.ACTION_REFRESH_UI) viewModelLoader()
-                if (dataLogin == VariableConstant.ACTION_SIGN_OUT) akunViewModel.clearAkunData()
-            }
-        }
         detailTransaksiLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 val action = result.data?.getStringExtra(VariableConstant.RESULT_ACTION)
@@ -112,8 +103,8 @@ class TransaksiFragment : Fragment() {
         with(binding) {
             searchClearText()
 
-            btnLogin.setOnClickListener { resultLaunchAuth(true) }
-            btnRegister.setOnClickListener { resultLaunchAuth(false) }
+            btnLogin.setOnClickListener { startAuthLoginActivity(true) }
+            btnRegister.setOnClickListener { startAuthLoginActivity(false) }
 
             rvDaftarTransaksi.apply {
                 layoutManager = lmTransaksi
@@ -291,7 +282,8 @@ class TransaksiFragment : Fragment() {
     }
 
     private fun dataAkunHandler() {
-        viewModelLoader()
+        akunViewModel.loadCurrentUser()
+        akunViewModel.loadAkunData()
 
         akunViewModel.currentUser.observe(viewLifecycleOwner) { currentUser ->
             akunRef = db.getReference("akun/${currentUser?.uid}")
@@ -306,7 +298,7 @@ class TransaksiFragment : Fragment() {
                         if (akunModel.statusAdmin) adminKeranjangState(requireContext(), it)
                         else startActivity(Intent(context, KeranjangActivity::class.java))
                     }
-                } else resultLaunchAuth(true)
+                } else startAuthLoginActivity(true)
                 true
             }
 
@@ -331,15 +323,15 @@ class TransaksiFragment : Fragment() {
             }
         }
         akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading == false) {
-                if (auth.currentUser != null && akunViewModel.akunModel.value == null) resultLaunchAuth(false)
+            if (!isLoading) {
+                if (auth.currentUser != null && akunViewModel.akunModel.value == null) startAuthLoginActivity(false)
             }
         }
     }
 
-    private fun resultLaunchAuth(isLogin: Boolean) {
-        if (isLogin) signInResult.launch(Intent(context, LoginActivity::class.java))
-        else signInResult.launch(Intent(context, RegisterActivity::class.java))
+    private fun startAuthLoginActivity(isLogin: Boolean) {
+        if (isLogin) startActivity(Intent(context, LoginActivity::class.java))
+        else startActivity(Intent(context, RegisterActivity::class.java))
     }
 
     private fun searchClearText() {
@@ -355,11 +347,6 @@ class TransaksiFragment : Fragment() {
     private fun dataTrxHandler() {
         setupAdapter()
         setupViewModel()
-    }
-
-    private fun viewModelLoader() {
-        akunViewModel.loadCurrentUser()
-        akunViewModel.loadAkunData()
     }
 
     override fun onResume() {

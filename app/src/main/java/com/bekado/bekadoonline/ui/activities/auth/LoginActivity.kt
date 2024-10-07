@@ -1,34 +1,60 @@
 package com.bekado.bekadoonline.ui.activities.auth
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Patterns
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialResponse
-import androidx.credentials.exceptions.GetCredentialException
-import androidx.lifecycle.lifecycleScope
+import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.databinding.ActivityLoginBinding
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.helper.constval.VariableConstant
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.bekado.bekadoonline.ui.activities.MainActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var akunViewModel: AkunViewModel
+
+    private var isAuthenticating = false
+    private val onBackInvokedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (!isAuthenticating) finish()
+        }
+    }
+    private val signInClient = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            loadingAuthUI(true)
+            val data: Intent? = result.data
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+
+            if (task.isSuccessful)
+                try {
+                    val account = task.getResult(ApiException::class.java)
+                    loginAuthWithGoogle(account.idToken)
+                } catch (_: ApiException) {
+                    loadingAuthUI(false)
+                }
+            else loadingAuthUI(false)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,8 +62,12 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.hide()
+        onBackPressedDispatcher.addCallback(this@LoginActivity, onBackInvokedCallback)
+
         db = FirebaseDatabase.getInstance()
         auth = FirebaseAuth.getInstance()
+        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
+        googleSignInClient = GoogleSignIn.getClient(this, HelperAuth.clientGoogle(this))
 
         with(binding) {
             emailLogin.addTextChangedListener(loginTextWatcher)
@@ -62,38 +92,8 @@ class LoginActivity : AppCompatActivity() {
             }
         }
         btnLupaPassword.setOnClickListener { startActivity(Intent(this@LoginActivity, LupaPasswordActivity::class.java)) }
-        googleAutoLogin.setOnClickListener { if (HelperConnection.isConnected(this@LoginActivity)) signIn() }
-    }
-
-    private fun signIn() {
-        val credentialManager = CredentialManager.create(this)
-
-        lifecycleScope.launch {
-            try {
-                val result: GetCredentialResponse = credentialManager.getCredential(
-                    request = HelperAuth.signInByGoogle(this@LoginActivity),
-                    context = this@LoginActivity
-                )
-                handleSignIn(result)
-            } catch (_: GetCredentialException) {
-                showToast(getString(R.string.device_unsupported), this@LoginActivity)
-            } catch (_: Exception) {
-                showToast(getString(R.string.device_unsupported), this@LoginActivity)
-            }
-        }
-    }
-
-    private fun handleSignIn(result: GetCredentialResponse) {
-        when (val credential = result.credential) {
-            is CustomCredential -> {
-                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                    try {
-                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        loginAuthWithGoogle(googleIdTokenCredential.idToken)
-                    } catch (_: GoogleIdTokenParsingException) {
-                    }
-                }
-            }
+        googleAutoLogin.setOnClickListener {
+            if (HelperConnection.isConnected(this@LoginActivity)) signInClient.launch(googleSignInClient.signInIntent)
         }
     }
 
@@ -105,18 +105,38 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loginAuthManual(email: String, password: String) {
+        loadingAuthUI(true)
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) {
             if (it.isSuccessful) signInSuccess()
-            else showToast(getString(R.string.email_pass_salah), this)
+            else {
+                showToast(getString(R.string.email_pass_salah), this)
+                loadingAuthUI(false)
+            }
         }
     }
 
     private fun signInSuccess() {
-        val resultIntent = Intent().apply {
-            putExtra(VariableConstant.ACTION_SIGN_IN_RESULT, VariableConstant.ACTION_REFRESH_UI)
+        akunViewModel.loadCurrentUser()
+        akunViewModel.loadAkunData()
+
+        akunViewModel.isLoading.observe(this) { isLoading ->
+            loadingAuthUI(false)
+            if (!isLoading) {
+                if (akunViewModel.akunModel.value != null) {
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                } else {
+                    startActivity(Intent(this, RegisterActivity::class.java))
+                    finish()
+                }
+            }
         }
-        setResult(RESULT_OK, resultIntent)
-        finish()
+    }
+
+    private fun loadingAuthUI(isAuthLoading: Boolean) {
+        isAuthenticating = isAuthLoading
+        binding.progressbarLogin.isVisible = isAuthLoading
     }
 
     private val loginTextWatcher: TextWatcher = object : TextWatcher {
