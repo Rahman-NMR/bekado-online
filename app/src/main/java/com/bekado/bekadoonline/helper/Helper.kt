@@ -25,23 +25,6 @@ object Helper {
         return numberFormat.format(number)
     }
 
-    fun delComa3digit(input: String?): Long {
-        val stringWithoutDots = input!!.replace(".", "")
-        return stringWithoutDots.toLong()
-    }
-
-    fun formatPriceString(harga: String): String {
-        val sb = StringBuilder(harga)
-        var insertPosition = sb.length - 3
-
-        while (insertPosition > 0) {
-            sb.insert(insertPosition, ".")
-            insertPosition -= 3
-        }
-
-        return sb.toString()
-    }
-
     fun calcDistance(latUser: Double, lonUser: Double, latToko: Double, lonToko: Double): Double {
         val earth = 6371.0 // Radius bumi dalam kilometer
         val latRad1 = Math.toRadians(latUser)

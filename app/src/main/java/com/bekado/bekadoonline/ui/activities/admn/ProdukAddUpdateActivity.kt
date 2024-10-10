@@ -19,9 +19,6 @@ import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.data.viewmodel.KategoriListViewModel
 import com.bekado.bekadoonline.data.viewmodel.ProdukSingleViewModel
 import com.bekado.bekadoonline.databinding.ActivityProdukAddUpdateBinding
-import com.bekado.bekadoonline.helper.Helper.addcoma3digit
-import com.bekado.bekadoonline.helper.Helper.delComa3digit
-import com.bekado.bekadoonline.helper.Helper.formatPriceString
 import com.bekado.bekadoonline.helper.Helper.showAlertDialog
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
@@ -34,7 +31,6 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
-import java.text.NumberFormat
 
 class ProdukAddUpdateActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProdukAddUpdateBinding
@@ -126,7 +122,7 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
                     produkHarga = produk.hargaProduk
 
                     namaProduk.setText(produk.namaProduk)
-                    hargaProduk.setText(addcoma3digit(produk.hargaProduk))
+                    hargaProduk.setText(produk.hargaProduk.toString())
                     Glide.with(this@ProdukAddUpdateActivity).load(produk.fotoProduk)
                         .apply(RequestOptions().centerCrop())
                         .placeholder(R.drawable.img_broken_image).into(fotoEditProduk)
@@ -216,7 +212,7 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
 
         val produkHash = HashMap<String, Any>()
         produkHash["currency"] = "Rp"
-        produkHash["hargaProduk"] = delComa3digit(binding.hargaProduk.text.toString().trim())
+        produkHash["hargaProduk"] = binding.hargaProduk.text.toString().trim()
         produkHash["idKategori"] = kategoriSkrng.toString()
         produkHash["idProduk"] = produkId.toString()
         produkHash["namaProduk"] = namaProduk
@@ -232,25 +228,12 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
     }
 
     private val produkTextWatcher: TextWatcher = object : TextWatcher {
-        private var current: String = ""
-
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             val namaInput = binding.namaProduk.text.toString().trim { it <= ' ' }
             val hargaInput = binding.hargaProduk.text.toString().trim { it <= ' ' }
             binding.btnSimpanPerubahan.isEnabled = namaInput.isNotEmpty() && hargaInput.isNotEmpty()
-
-            // menahan error paste
-            if (s == binding.hargaProduk.text)
-                if (s!!.length > 3) {
-                    s.let {
-                        if (it.isNotEmpty() && !it.contains(".")) {
-                            binding.hargaProduk.setText(formatPriceString(it.toString()))
-                            binding.hargaProduk.setSelection(binding.hargaProduk.text?.length ?: 0)
-                        }
-                    }
-                }
         }
 
         override fun afterTextChanged(s: Editable?) {
@@ -261,34 +244,12 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
             val hargaProduk = getString(R.string.harga_produk)
             val notNull = getString(R.string.tidak_dapat_kosong)
 
-            if (s == namaInput) {
-                if (namaInput.isNullOrEmpty()) binding.outlineNamaProduk.helperText = "$namaProduk $notNull"
-                else {
-                    if (namaInput.toString().trim().isEmpty()) binding.outlineNamaProduk.helperText = "$namaProduk $notNull"
-                    else binding.outlineNamaProduk.helperText = null
-                }
-            } else if (s == hargaInput) {
-                if (hargaInput.isNullOrEmpty()) binding.outlineHargaProduk.helperText = "$hargaProduk $notNull"
-                else {
-                    if (hargaInput.toString().length != 12) {
-                        if (s.toString() != current) {
-                            binding.hargaProduk.removeTextChangedListener(this)
-
-                            val cleanString = s.toString().replace("\\D+".toRegex(), "")
-                            val parsed = cleanString.toDouble()
-                            val formatted = NumberFormat.getNumberInstance().format(parsed)
-
-                            current = formatted
-                            binding.hargaProduk.setText(formatted)
-                            binding.hargaProduk.setSelection(formatted.length)
-                            binding.hargaProduk.addTextChangedListener(this)
-                        }
-                        binding.outlineHargaProduk.helperText = null
-                    }
-                }
+            when (s) {
+                namaInput -> binding.outlineNamaProduk.helperText = if (namaInput.toString().trim().isEmpty()) "$namaProduk $notNull" else null
+                hargaInput -> binding.outlineHargaProduk.helperText = if (hargaInput.isNullOrEmpty()) "$hargaProduk $notNull" else null
             }
 
-            binding.btnSimpanPerubahan.isEnabled = !(namaInput.toString() == produkNama && current == addcoma3digit(produkHarga))
+            binding.btnSimpanPerubahan.isEnabled = !(namaInput.toString() == produkNama && hargaInput.toString() == produkHarga.toString())
         }
     }
 
