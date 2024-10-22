@@ -11,6 +11,7 @@ import android.text.TextWatcher
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +22,7 @@ import com.bekado.bekadoonline.databinding.ActivityAlamatBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
+import com.bekado.bekadoonline.ui.ViewModelFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
@@ -37,7 +39,7 @@ class AlamatActivity : AppCompatActivity() {
 
     private lateinit var akunRef: DatabaseReference
     private lateinit var alamatRef: DatabaseReference
-    private lateinit var akunViewModel: AkunViewModel
+    private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(this) }
     private lateinit var alamatViewModel: AlamatViewModel
 
     private var namaAlamat: String = ""
@@ -74,7 +76,7 @@ class AlamatActivity : AppCompatActivity() {
         db = FirebaseDatabase.getInstance()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
+//        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
         alamatViewModel = ViewModelProvider(this)[AlamatViewModel::class.java]
 
         dataAkunHandler()
@@ -279,7 +281,6 @@ class AlamatActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         if (auth.currentUser != null) {
-            akunViewModel.removeAkunListener(akunRef)
             alamatViewModel.removeAlamatListener(alamatRef)
         }
     }

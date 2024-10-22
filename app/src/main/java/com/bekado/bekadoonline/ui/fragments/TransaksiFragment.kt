@@ -13,6 +13,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
@@ -28,6 +29,7 @@ import com.bekado.bekadoonline.helper.HelperTransaksi
 import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.shimmer.ShimmerModel
+import com.bekado.bekadoonline.ui.ViewModelFactory
 import com.bekado.bekadoonline.ui.activities.auth.LoginActivity
 import com.bekado.bekadoonline.ui.activities.auth.RegisterActivity
 import com.bekado.bekadoonline.ui.activities.transaksi.DetailTransaksiActivity
@@ -58,7 +60,7 @@ class TransaksiFragment : Fragment() {
     private lateinit var namaDateFilter: String
     private var adminStatus: Boolean = false
 
-    private lateinit var akunViewModel: AkunViewModel
+    private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(requireActivity()) }
     private lateinit var transaksiListVM: TransaksiListViewModel
     private lateinit var detailTransaksiLauncher: ActivityResultLauncher<Intent>
 
@@ -76,7 +78,7 @@ class TransaksiFragment : Fragment() {
         namaStatusFilter = getString(R.string.f_semua_stspsnn)
         namaDateFilter = getString(R.string.f_semua_wktutrx)
 
-        akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
+//        akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
         transaksiListVM = ViewModelProvider(requireActivity())[TransaksiListViewModel::class.java]
         detailTransaksiLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -356,7 +358,6 @@ class TransaksiFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        akunViewModel.removeAkunListener(akunRef)
         transaksiListVM.removeTransaksiListener(transaksiRef, adminStatus)
     }
 }

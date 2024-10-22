@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.bekado.bekadoonline.R
@@ -22,6 +23,7 @@ import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.data.viewmodel.BuktiPembayaranViewModel
 import com.bekado.bekadoonline.data.viewmodel.ClientDataViewModel
 import com.bekado.bekadoonline.data.viewmodel.TransaksiDetailViewModel
+import com.bekado.bekadoonline.ui.ViewModelFactory
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -39,7 +41,7 @@ class PembayaranActivity : AppCompatActivity() {
     private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
     private var imageUri: Uri = Uri.parse("")
 
-    private lateinit var akunViewModel: AkunViewModel
+    private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(this) }
     private lateinit var transaksiViewModel: TransaksiDetailViewModel
     private lateinit var clientDataViewModel: ClientDataViewModel
     private lateinit var invoiceViewModel: BuktiPembayaranViewModel
@@ -75,7 +77,7 @@ class PembayaranActivity : AppCompatActivity() {
             getString(R.string.status_dibatalkan)
         )
 
-        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
+//        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
         transaksiViewModel = ViewModelProvider(this)[TransaksiDetailViewModel::class.java]
         clientDataViewModel = ViewModelProvider(this)[ClientDataViewModel::class.java]
         invoiceViewModel = ViewModelProvider(this)[BuktiPembayaranViewModel::class.java]
@@ -218,7 +220,6 @@ class PembayaranActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        akunViewModel.removeAkunListener(akunRef)
         invoiceViewModel.removeInvoiceListener(invRef.child("buktiTransaksi"))
     }
 

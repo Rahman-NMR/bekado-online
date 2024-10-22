@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -20,6 +21,7 @@ import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection.isConnected
 import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.data.viewmodel.AlamatViewModel
+import com.bekado.bekadoonline.ui.ViewModelFactory
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.github.dhaval2404.imagepicker.ImagePicker
@@ -37,7 +39,7 @@ class AkunSayaActivity : AppCompatActivity() {
 
     private lateinit var akunRef: DatabaseReference
     private lateinit var alamatRef: DatabaseReference
-    private lateinit var akunViewModel: AkunViewModel
+    private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(this) }
     private lateinit var alamatViewModel: AlamatViewModel
 
     private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
@@ -58,7 +60,7 @@ class AkunSayaActivity : AppCompatActivity() {
         storage = FirebaseStorage.getInstance()
         val currentUser = auth.currentUser
 
-        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
+//        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
         alamatViewModel = ViewModelProvider(this)[AlamatViewModel::class.java]
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -251,7 +253,6 @@ class AkunSayaActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         if (auth.currentUser != null) {
-            akunViewModel.removeAkunListener(akunRef)
             alamatViewModel.removeAlamatListener(alamatRef)
         }
     }

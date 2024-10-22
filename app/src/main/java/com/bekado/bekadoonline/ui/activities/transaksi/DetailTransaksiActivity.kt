@@ -9,6 +9,7 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -25,6 +26,7 @@ import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.data.viewmodel.ClientDataViewModel
 import com.bekado.bekadoonline.data.viewmodel.DaftarProdukTransaksiViewModel
 import com.bekado.bekadoonline.data.viewmodel.TransaksiDetailViewModel
+import com.bekado.bekadoonline.ui.ViewModelFactory
 import com.bekado.bekadoonline.ui.activities.transaksi.PembayaranActivity.Companion.BuktiDetailTransaksi
 import com.bekado.bekadoonline.ui.activities.transaksi.PembayaranActivity.Companion.uidnIdtrx
 import com.bumptech.glide.Glide
@@ -42,7 +44,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseDatabase
 
-    private lateinit var akunViewModel: AkunViewModel
+    private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(this) }
     private lateinit var transaksiViewModel: TransaksiDetailViewModel
     private lateinit var clientDataViewModel: ClientDataViewModel
     private lateinit var produkViewModel: DaftarProdukTransaksiViewModel
@@ -80,7 +82,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
                 if (data == VariableConstant.ACTION_REFRESH_UI) detailTransaksiHandler()
             }
         }
-        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
+//        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
         transaksiViewModel = ViewModelProvider(this)[TransaksiDetailViewModel::class.java]
         clientDataViewModel = ViewModelProvider(this)[ClientDataViewModel::class.java]
         produkViewModel = ViewModelProvider(this)[DaftarProdukTransaksiViewModel::class.java]
@@ -297,11 +299,6 @@ class DetailTransaksiActivity : AppCompatActivity() {
         }
         setResult(RESULT_OK, resultIntent)
         finish()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        akunViewModel.removeAkunListener(akunRef)
     }
 
     companion object {

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +21,7 @@ import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
+import com.bekado.bekadoonline.ui.ViewModelFactory
 import com.bekado.bekadoonline.ui.activities.transaksi.CheckOutActivity.Companion.selectedProduk
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -39,7 +41,7 @@ class KeranjangActivity : AppCompatActivity() {
     private lateinit var produkRef: DatabaseReference
     private lateinit var kategoriRef: DatabaseReference
 
-    private lateinit var akunViewModel: AkunViewModel
+    private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(this) }
     private lateinit var keranjangViewModel: KeranjangViewModel
     private lateinit var resultCheckout: ActivityResultLauncher<Intent>
 
@@ -59,7 +61,7 @@ class KeranjangActivity : AppCompatActivity() {
         produkRef = db.getReference("produk/produk")
         kategoriRef = db.getReference("produk/kategori")
 
-        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
+//        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
         keranjangViewModel = ViewModelProvider(this)[KeranjangViewModel::class.java]
         resultCheckout = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -247,6 +249,5 @@ class KeranjangActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         keranjangViewModel.clearKeranjangListeners()
-        akunViewModel.removeAkunListener(akunRef)
     }
 }

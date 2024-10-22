@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,6 +27,7 @@ import com.bekado.bekadoonline.helper.HelperSort.sortProduk
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.helper.itemDecoration.HorizontalSpacing
 import com.bekado.bekadoonline.shimmer.ShimmerModel
+import com.bekado.bekadoonline.ui.ViewModelFactory
 import com.bekado.bekadoonline.ui.activities.auth.LoginActivity
 import com.bekado.bekadoonline.ui.activities.auth.RegisterActivity
 import com.bekado.bekadoonline.ui.activities.transaksi.KeranjangActivity
@@ -43,7 +45,7 @@ class BerandaFragment : Fragment() {
     private lateinit var adapterProduk: AdapterProduk
     private val dataShimmer: ArrayList<ShimmerModel> = ArrayList()
 
-    private lateinit var akunViewModel: AkunViewModel
+    private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(requireActivity()) }
     private lateinit var berandaViewModel: BerandaViewModel
 
     private var sortFilter = 0
@@ -59,7 +61,7 @@ class BerandaFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
 
-        akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
+//        akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
         berandaViewModel = ViewModelProvider(requireActivity())[BerandaViewModel::class.java]
 
         val paddingBottom = resources.getDimensionPixelSize(R.dimen.maxBottomdp)
