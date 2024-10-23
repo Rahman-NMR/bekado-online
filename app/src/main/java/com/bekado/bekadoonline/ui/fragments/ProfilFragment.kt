@@ -10,10 +10,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
-import com.bekado.bekadoonline.ui.ViewModelFactory
 import com.bekado.bekadoonline.ui.activities.MainActivity
 import com.bekado.bekadoonline.ui.activities.admn.KategoriListActivity
 import com.bekado.bekadoonline.ui.activities.auth.LoginActivity
@@ -22,13 +20,15 @@ import com.bekado.bekadoonline.ui.activities.auth.UbahPasswordActivity
 import com.bekado.bekadoonline.ui.activities.profil.AboutBekadoActivity
 import com.bekado.bekadoonline.ui.activities.profil.AkunSayaActivity
 import com.bekado.bekadoonline.ui.activities.profil.AlamatActivity
+import com.bekado.bekadoonline.view.viewmodel.UserViewModel
+import com.bekado.bekadoonline.view.viewmodel.UserViewModelFactory
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 
 class ProfilFragment : Fragment() {
     private lateinit var binding: FragmentProfilBinding
 
-    private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(requireActivity()) }
+    private val akunViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
 //    private val transaksiViewModel: TransaksiViewModel by viewModels { ViewModelFactory.getInstance(requireActivity()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -51,8 +51,7 @@ class ProfilFragment : Fragment() {
     }
 
     private fun dataAkunHandler() {
-        akunViewModel.loadAkunData()
-        akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
+        akunViewModel.getDataAkun().observe(viewLifecycleOwner) { akunModel ->
             with(binding) {
                 notNullLayout.isGone = akunModel == null
                 nullLayout.isVisible = akunModel == null
@@ -80,13 +79,13 @@ class ProfilFragment : Fragment() {
             }
 
         }
-        akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+        akunViewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
             binding.akunSaya.isVisible = !isLoading
             binding.shimmerAkunSaya.isVisible = isLoading
             binding.shimmerAkunSaya.apply { if (isLoading) startShimmer() else stopShimmer() }
 
             if (!isLoading) {
-                if (akunViewModel.akunModel.value == null)
+                if (akunViewModel.getDataAkun().value == null)
                     startAuthLoginActivity(false)
             }
         }

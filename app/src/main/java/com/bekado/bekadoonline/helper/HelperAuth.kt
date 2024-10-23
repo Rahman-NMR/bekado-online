@@ -24,7 +24,6 @@ object HelperAuth {
         user["nama"] = nama
         user["noHp"] = noHp
         user["statusAdmin"] = false
-        user["betaTester"] = false
         user["uid"] = uidAkun
         userRef.setValue(user)
     }

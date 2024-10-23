@@ -9,8 +9,7 @@ data class AkunModel(
     val nama: String? = "",
     val noHp: String? = "",
     val statusAdmin: Boolean = false,
-    val uid: String? = "",
-    val betaTester: Boolean = false
+    val uid: String? = ""
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
@@ -19,7 +18,6 @@ data class AkunModel(
         parcel.readString(),
         parcel.readByte() != 0.toByte(),
         parcel.readString(),
-        parcel.readByte() != 0.toByte()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -29,7 +27,6 @@ data class AkunModel(
         parcel.writeString(noHp)
         parcel.writeByte(if (statusAdmin) 1 else 0)
         parcel.writeString(uid)
-        parcel.writeByte(if (betaTester) 1 else 0)
     }
 
     override fun describeContents(): Int {
