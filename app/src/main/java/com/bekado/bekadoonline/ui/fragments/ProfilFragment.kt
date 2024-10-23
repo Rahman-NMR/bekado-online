@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bekado.bekadoonline.R
@@ -25,9 +27,7 @@ import com.bumptech.glide.request.RequestOptions
 
 class ProfilFragment : Fragment() {
     private lateinit var binding: FragmentProfilBinding
-//    private lateinit var transaksiRef: DatabaseReference
 
-    private var adminStatus: Boolean = false
     private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(requireActivity()) }
 //    private val transaksiViewModel: TransaksiViewModel by viewModels { ViewModelFactory.getInstance(requireActivity()) }
 
@@ -51,25 +51,14 @@ class ProfilFragment : Fragment() {
     }
 
     private fun dataAkunHandler() {
-        akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
-
-        akunViewModel.currentUser.observe(viewLifecycleOwner) { currentUser ->
-            binding.notNullLayout.visibility = if (currentUser == null) View.GONE else View.VISIBLE
-            binding.nullLayout.visibility = if (currentUser == null) View.VISIBLE else View.GONE
-        }
         akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
             with(binding) {
-//                val refAdmin = akunModel?.let {
-//                    when {
-//                        it.statusAdmin -> "transaksi"
-//                        else -> "transaksi/${it.uid}"
-//                    }
-//                } ?: "transaksi"
-//                transaksiRef = db.getReference(refAdmin)
+                notNullLayout.isGone = akunModel == null
+                nullLayout.isVisible = akunModel == null
 
-                badgeAdmin.visibility = if (akunModel != null && akunModel.statusAdmin) View.VISIBLE else View.GONE
-                btnAdminKategoriProduk.visibility = if (akunModel != null && akunModel.statusAdmin) View.VISIBLE else View.GONE
+                badgeAdmin.isVisible = akunModel != null && akunModel.statusAdmin
+                btnAdminKategoriProduk.isVisible = akunModel != null && akunModel.statusAdmin
 
                 namaProfil.text = akunModel?.nama ?: getString(R.string.strip)
                 emailProfil.text = akunModel?.email ?: getString(R.string.strip)
@@ -87,27 +76,24 @@ class ProfilFragment : Fragment() {
                     btnAkunSaya.setOnClickListener { startActivity(Intent(context, AkunSayaActivity::class.java)) }
                     btnDetailAlamat.setOnClickListener { startActivity(Intent(context, AlamatActivity::class.java)) }
                     btnUbahPassword.setOnClickListener { startActivity(Intent(context, UbahPasswordActivity::class.java)) }
-
-                    adminStatus = akunModel.statusAdmin
-//                    transaksiViewModel.loadTransaksiData(transaksiRef, akunModel.statusAdmin)
                 }
             }
 
         }
         akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.akunSaya.visibility = if (!isLoading) View.VISIBLE else View.GONE
-            binding.shimmerAkunSaya.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.akunSaya.isVisible = !isLoading
+            binding.shimmerAkunSaya.isVisible = isLoading
             binding.shimmerAkunSaya.apply { if (isLoading) startShimmer() else stopShimmer() }
 
             if (!isLoading) {
-                if (/*auth.currentUser*/akunViewModel.currentUser != null && akunViewModel.akunModel.value == null)
+                if (akunViewModel.akunModel.value == null)
                     startAuthLoginActivity(false)
             }
         }
     }
 
-    private fun startAuthLoginActivity(isLogin: Boolean) {
-        if (isLogin) startActivity(Intent(context, LoginActivity::class.java))
+    private fun startAuthLoginActivity(isRegistered: Boolean) {
+        if (isRegistered) startActivity(Intent(context, LoginActivity::class.java))
         else startActivity(Intent(context, RegisterActivity::class.java))
     }
 
@@ -117,15 +103,11 @@ class ProfilFragment : Fragment() {
         transaksiViewModel.totalSelesai.observe(viewLifecycleOwner) { binding.countSelesai.text = it.toString() }
         transaksiViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             with(binding) {
-                if (!isLoading) {
-                    transaksiSaya.visibility = View.VISIBLE
-                    shimmerTransaksiSaya.visibility = View.GONE
-                    shimmerTransaksiSaya.stopShimmer()
-                } else {
-                    transaksiSaya.visibility = View.GONE
-                    shimmerTransaksiSaya.visibility = View.VISIBLE
-                    shimmerTransaksiSaya.startShimmer()
+                transaksiSaya.isVisible = !isLoading
+                shimmerTransaksiSaya.isGone = !isLoading
+                shimmerTransaksiSaya.apply { if (!isLoading) stopShimmer() else startShimmer() }
 
+                if (isLoading) {
                     countAntrian.text = getString(R.string.default_angka)
                     countProses.text = getString(R.string.default_angka)
                     countSelesai.text = getString(R.string.default_angka)
@@ -142,18 +124,11 @@ class ProfilFragment : Fragment() {
             requireContext(),
             requireContext().getColor(R.color.error)
         ) {
-//            transaksiRef = db.getReference("transaksi")
             akunViewModel.clearAkunData()
 
             val intent = Intent(requireContext(), MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-//        transaksiViewModel.removeTransaksiListener(transaksiRef, adminStatus)
     }
 }

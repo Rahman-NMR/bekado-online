@@ -1,100 +1,16 @@
 package com.bekado.bekadoonline.data.viewmodel
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
+import com.bekado.bekadoonline.data.Repository
 
-class TransaksiViewModel : ViewModel() {
-    private val _totalAntrian = MutableLiveData(0)
-    val totalAntrian: LiveData<Int?> get() = _totalAntrian
+class TransaksiViewModel(private val repository: Repository) : ViewModel() {
+    /*val totalAntrian: LiveData<Int?> get() = repository.totalAntrian
+    val totalProses: LiveData<Int?> get() = repository.totalProses
+    val totalSelesai: LiveData<Int?> get() = repository.totalSelesai
+    val isLoading: LiveData<Boolean> get() = repository.isLoading
 
-    private val _totalProses = MutableLiveData(0)
-    val totalProses: LiveData<Int?> get() = _totalProses
-
-    private val _totalSelesai = MutableLiveData(0)
-    val totalSelesai: LiveData<Int?> get() = _totalSelesai
-
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> get() = _isLoading
-
-    private var trxLstnrAdm: ValueEventListener = object : ValueEventListener {
-        override fun onDataChange(dataSnapshot: DataSnapshot) {
-            var totalAntrian = 0
-            var totalProses = 0
-            var totalSelesai = 0
-
-            _isLoading.value = true
-            for (userTransaksi in dataSnapshot.children) {
-                for (item in userTransaksi.children) {
-                    when (item.child("parentStatus").value.toString()) {
-                        "antrian" -> _totalAntrian.value = totalAntrian++
-                        "proses" -> _totalProses.value = totalProses++
-                        "selesai" -> _totalSelesai.value = totalSelesai++
-                    }
-                }
-            }
-
-            returnValue(totalAntrian, totalProses, totalSelesai)
-        }
-
-        override fun onCancelled(databaseError: DatabaseError) {
-            errorValue()
-        }
-    }
-
-    private var trxLstnrUsr: ValueEventListener = object : ValueEventListener {
-        override fun onDataChange(dataSnapshot: DataSnapshot) {
-            var totalAntrian = 0
-            var totalProses = 0
-            var totalSelesai = 0
-
-            _isLoading.value = true
-            for (item in dataSnapshot.children) {
-                when (item.child("parentStatus").value.toString()) {
-                    "antrian" -> _totalAntrian.value = totalAntrian++
-                    "proses" -> _totalProses.value = totalProses++
-                    "selesai" -> _totalSelesai.value = totalSelesai++
-                }
-            }
-
-            returnValue(totalAntrian, totalProses, totalSelesai)
-        }
-
-        override fun onCancelled(databaseError: DatabaseError) {
-            errorValue()
-        }
-    }
-
-    private fun returnValue(totalAntrian: Int, totalProses: Int, totalSelesai: Int) {
-        _totalAntrian.value = totalAntrian
-        _totalProses.value = totalProses
-        _totalSelesai.value = totalSelesai
-        _isLoading.value = false
-    }
-
-    private fun errorValue() {
-        _totalAntrian.value = 0
-        _totalProses.value = 0
-        _totalSelesai.value = 0
-        _isLoading.value = true
-    }
-
-    fun loadTransaksiData(transaksiRef: DatabaseReference, isAdmin: Boolean) {
-        if (isAdmin) {
-            transaksiRef.removeEventListener(trxLstnrAdm)
-            transaksiRef.addValueEventListener(trxLstnrAdm)
-        } else {
-            transaksiRef.removeEventListener(trxLstnrUsr)
-            transaksiRef.addValueEventListener(trxLstnrUsr)
-        }
-    }
-
-    fun removeTransaksiListener(transaksiRef: DatabaseReference, isAdmin: Boolean) {
-        if (isAdmin) transaksiRef.removeEventListener(trxLstnrAdm)
-        else transaksiRef.removeEventListener(trxLstnrUsr)
-    }
+    fun loadTransaksiData() {
+        repository.getDataTransaksi()
+    }*/
 }

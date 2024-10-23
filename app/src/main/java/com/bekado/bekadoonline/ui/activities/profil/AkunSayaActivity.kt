@@ -144,7 +144,7 @@ class AkunSayaActivity : AppCompatActivity() {
     private fun dataAkunHandler() {
         viewModelLoader()
 
-        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
+//        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
         akunViewModel.akunModel.observe(this) { akunModel ->
             if (akunModel != null) {
                 akunRef = db.getReference("akun/${akunModel.uid}")
@@ -166,6 +166,7 @@ class AkunSayaActivity : AppCompatActivity() {
             } else {
                 akunRef = db.getReference("akun")
                 alamatRef = db.getReference("alamat")
+                finish()
             }
         }
         akunViewModel.isLoading.observe(this) { isLoading ->
@@ -244,7 +245,7 @@ class AkunSayaActivity : AppCompatActivity() {
     }
 
     private fun viewModelLoader() {
-        akunViewModel.loadCurrentUser()
+//        akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
         alamatViewModel.loadCurrentUser()
         alamatViewModel.loadAlamatData()

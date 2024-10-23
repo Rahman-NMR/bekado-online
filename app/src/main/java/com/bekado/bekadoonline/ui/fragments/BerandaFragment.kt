@@ -259,7 +259,7 @@ class BerandaFragment : Fragment() {
     }
 
     private fun dataAkunHandler() {
-        akunViewModel.loadCurrentUser()
+//        akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
 
         akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->

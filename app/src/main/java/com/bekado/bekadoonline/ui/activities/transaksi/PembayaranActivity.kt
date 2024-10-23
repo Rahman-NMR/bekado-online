@@ -97,10 +97,10 @@ class PembayaranActivity : AppCompatActivity() {
     }
 
     private fun dataHandler() {
-        akunViewModel.loadCurrentUser()
+//        akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
 
-        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
+//        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
         akunViewModel.akunModel.observe(this) { akunModel ->
             if (akunModel != null) {
                 akunRef = db.getReference("akun/${akunModel.uid}")
@@ -118,7 +118,10 @@ class PembayaranActivity : AppCompatActivity() {
                 }
 
                 transaksiViewModel.loadDetailTransaksi(invRef, akunModel.statusAdmin, BuktiDetailTransaksi.idTransaksi)
-            } else akunRef = db.getReference("akun")
+            } else {
+                akunRef = db.getReference("akun")
+                finish()
+            }
         }
         transaksiViewModel.detailTransaksi.observe(this) { data ->
             if (data != null) {

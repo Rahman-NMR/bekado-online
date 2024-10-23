@@ -119,10 +119,10 @@ class DetailTransaksiActivity : AppCompatActivity() {
     }
 
     private fun detailTransaksiHandler() {
-        akunViewModel.loadCurrentUser()
+//        akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
 
-        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
+//        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
         akunViewModel.akunModel.observe(this) { akunModel ->
             if (akunModel != null) {
                 binding.containerChangeStatus.visibility = if (akunModel.statusAdmin) View.VISIBLE else View.GONE
@@ -139,6 +139,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
             } else {
                 akunRef = db.getReference("akun")
                 trxRef = db.getReference("transaksi")
+                finish()
             }
         }
         transaksiViewModel.isLoading.observe(this) { setupIsLoadingTransaksi(it) }

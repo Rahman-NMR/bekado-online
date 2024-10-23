@@ -99,10 +99,11 @@ class KeranjangActivity : AppCompatActivity() {
     }
 
     private fun setAkunObserve() {
-        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
+//        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
         akunViewModel.akunModel.observe(this) { akunModel ->
             akunRef = if (akunModel != null) db.getReference("akun/${akunModel.uid}") else db.getReference("akun")
             if (akunModel?.statusAdmin == true) finish()
+            if (akunModel == null) finish()
         }
     }
 
@@ -241,7 +242,7 @@ class KeranjangActivity : AppCompatActivity() {
     }
 
     private fun viewModelLoader() {
-        akunViewModel.loadCurrentUser()
+//        akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
         keranjangViewModel.loadKeranjangData()
     }

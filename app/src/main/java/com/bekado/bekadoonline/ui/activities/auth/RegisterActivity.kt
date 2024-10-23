@@ -166,7 +166,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun signInSuccess() {
-        akunViewModel.loadCurrentUser()
+//        akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
 
         akunViewModel.isLoading.observe(this) { isLoading ->

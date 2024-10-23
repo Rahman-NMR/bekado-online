@@ -12,6 +12,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -284,16 +286,21 @@ class TransaksiFragment : Fragment() {
     }
 
     private fun dataAkunHandler() {
-        akunViewModel.loadCurrentUser()
+//        akunViewModel.loadCurrentUser()
         akunViewModel.loadAkunData()
 
-        akunViewModel.currentUser.observe(viewLifecycleOwner) { currentUser ->
+        /*akunViewModel.currentUser.observe(viewLifecycleOwner) { currentUser ->
             akunRef = db.getReference("akun/${currentUser?.uid}")
             binding.appBarLayout.visibility = if (currentUser != null) View.VISIBLE else View.GONE
             binding.clDaftarTransaksi.visibility = if (currentUser != null) View.VISIBLE else View.GONE
             binding.nullLayout.visibility = if (currentUser != null) View.GONE else View.VISIBLE
-        }
+        }*/
         akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
+            akunRef = db.getReference("akun/${akunModel?.uid}")
+            binding.appBarLayout.isVisible = akunModel != null
+            binding.clDaftarTransaksi.isVisible = akunModel != null
+            binding.nullLayout.isGone = akunModel != null
+
             binding.appBar.setOnMenuItemClickListener {
                 if (auth.currentUser != null) {
                     if (akunModel != null) {
