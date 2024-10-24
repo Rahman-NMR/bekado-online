@@ -49,6 +49,10 @@ class UserRepositoryImpl(
         akunRef.addValueEventListener(akunListener)
     }
 
+    override fun getAuthCurrentUser(): FirebaseUser? {
+        return getCurrentUser()
+    }
+
     override fun getAkun(): LiveData<AkunModel?> {
         return akunModel
     }

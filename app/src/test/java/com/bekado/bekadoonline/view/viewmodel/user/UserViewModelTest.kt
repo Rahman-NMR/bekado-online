@@ -41,10 +41,10 @@ class UserViewModelTest{
         val livedata = MutableLiveData<AkunModel>()
         livedata.value = dummyStory
 
-        Mockito.`when`(getAkun.execute()).thenReturn(livedata)
+        Mockito.`when`(getAkun.executeGetDataAkun()).thenReturn(livedata)
 
         val actualAkun = viewModel.getDataAkun().getOrAwaitValue()
-        Mockito.verify(getAkun).execute()
+        Mockito.verify(getAkun).executeGetDataAkun()
         Mockito.verifyNoMoreInteractions(getAkun)
         if (actualAkun != null) {
             Assert.assertEquals(dummyStory.nama, actualAkun.nama)

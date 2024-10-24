@@ -77,6 +77,10 @@ class TransaksiFragment : Fragment() {
         with(binding) {
             searchClearText()
 
+            appBarLayout.isVisible = userViewModel.currentUser() != null
+            clDaftarTransaksi.isVisible = userViewModel.currentUser() != null
+            nullLayout.isGone = userViewModel.currentUser() != null
+
             btnLogin.setOnClickListener { startAuthLoginActivity(true) }
             btnRegister.setOnClickListener { startAuthLoginActivity(false) }
 
@@ -165,10 +169,6 @@ class TransaksiFragment : Fragment() {
     private fun dataAkunHandler() {
         userViewModel.getDataAkun().observe(viewLifecycleOwner) { akunModel ->
             dataTransaksiHandler(akunModel)
-
-            binding.appBarLayout.isVisible = akunModel != null
-            binding.clDaftarTransaksi.isVisible = akunModel != null
-            binding.nullLayout.isGone = akunModel != null
 
             binding.appBar.setOnMenuItemClickListener {
                 if (akunModel != null) {

@@ -6,7 +6,8 @@ import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.domain.usecase.UserUseCase
 
 class UserViewModel(private val userUseCase: UserUseCase) : ViewModel() {
-    fun getDataAkun(): LiveData<AkunModel?> = userUseCase.execute()
+    fun currentUser() = userUseCase.executeCurrentUser()
+    fun getDataAkun(): LiveData<AkunModel?> = userUseCase.executeGetDataAkun()
     fun isLoading(): LiveData<Boolean> = userUseCase.executeLoading()
 
     fun clearAkunData() {
