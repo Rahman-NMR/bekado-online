@@ -2,13 +2,6 @@
     <string name="app_name">Bekado Online</string>
     <string name="administrator">Admin Toko</string>
 
-    <!--    key filter-->
-    <string name="f_semua_stspsnn">Semua Status Pesanan</string>
-    <string name="f_semua_wktutrx">Semua Waktu Transaksi</string>
-    <string name="f_seminggu_lalu">Seminggu Terakhir</string>
-    <string name="f_30hari">30 Hari Terakhir</string>
-    <string name="f_90hari">90 Hari Terakhir</string>
-
     <!--    child db-->
     <string name="key_antrian">antrian</string>
     <string name="status_menunggu_pembayaran">Menunggu Pembayaran</string>
@@ -66,7 +59,6 @@
     <string name="konfirmasi">Konfirmasi</string>
     <string name="lihat_pembayaran">Lihat pembayaran</string>
     <string name="simpan_bukti_pembayaran">Simpan Bukti Pembayaran</string>
-    <string name="perbarui_posisi">Perbarui Posisi</string>
     <string name="hapus_kategori">Hapus Kategori</string>
     <string name="hapus_produk">Hapus Produk</string>
     <string name="simpan_perubahan">Simpan Perubahan</string>
@@ -110,8 +102,6 @@
     <string name="urutkan_berdasarkan">Urutkan Berdasarkan</string>
     <string name="edit_kategori">Edit Kategori</string>
     <string name="pilih_status_pesanan">Pilih Status Pesanan</string>
-    <string name="status_pesanan">Status Pesanan</string>
-    <string name="pilih_waktu">Pilih Waktu</string>
 
     <!--    sub title-->
     <string name="tidak_dapat_diproses">Tidak dapat diproses</string>
@@ -212,7 +202,6 @@
     <string name="lupa_password_desc">Masukkan email yang terkait dengan akun Anda untuk mengubah kata sandinya.</string>
     <string name="password_baru">Password baru</string>
     <string name="password_sekarang">Password sekarang</string>
-    <string name="semua_waktu">Semua Waktu</string>
     <string name="alamat_toko">Alamat Toko</string>
     <string name="kontak_toko">Kontak Toko</string>
     <string name="jam_toko">Jam Operasional Toko</string>

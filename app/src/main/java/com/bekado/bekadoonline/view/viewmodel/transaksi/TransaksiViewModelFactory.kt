@@ -10,6 +10,7 @@ class TransaksiViewModelFactory(private val trxUseCase: TrxUseCase) : ViewModelP
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(TransaksiViewModel::class.java) -> TransaksiViewModel(trxUseCase) as T
+            modelClass.isAssignableFrom(TransaksiListViewModel::class.java) -> TransaksiListViewModel(trxUseCase) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

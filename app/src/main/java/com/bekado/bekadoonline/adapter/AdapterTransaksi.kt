@@ -43,6 +43,7 @@ class AdapterTransaksi(private var listenerTransaksi: (TransaksiModel) -> Unit) 
                     transaksiModel.currency + Helper.addcoma3digit(transaksiModel.totalBelanja)
                 else "Gratis"
             val itemCount = "${transaksiModel.jumlahProduk} item"
+            val nmrPesanan = "${context.getString(R.string.no_pesanan_)} ${transaksiModel.noPesanan}"
 
             val time = transaksiModel.timestamp?.toLong()
             with(binding) {
@@ -52,7 +53,7 @@ class AdapterTransaksi(private var listenerTransaksi: (TransaksiModel) -> Unit) 
                     tanggalPesan.text = waktunya
                 } else tanggalPesan.text = context.getString(R.string.tidak_ada_data)
 
-                noPesanan.text = transaksiModel.noPesanan
+                noPesanan.text = nmrPesanan
                 namaProduk.text = transaksiModel.namaProduk
                 jumlahItem.text = itemCount
                 totalHarga.text = sumPrice
