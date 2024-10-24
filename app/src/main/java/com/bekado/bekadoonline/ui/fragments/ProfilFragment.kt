@@ -30,7 +30,7 @@ import com.bumptech.glide.request.RequestOptions
 
 class ProfilFragment : Fragment() {
     private lateinit var binding: FragmentProfilBinding
-    private val akunViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
+    private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
     private val transaksiViewModel: TransaksiViewModel by viewModels { TransaksiViewModelFactory.getInstance() }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -52,7 +52,7 @@ class ProfilFragment : Fragment() {
     }
 
     private fun dataAkunHandler() {
-        akunViewModel.getDataAkun().observe(viewLifecycleOwner) { akunModel ->
+        userViewModel.getDataAkun().observe(viewLifecycleOwner) { akunModel ->
             dataTransaksiHandler(akunModel)
 
             with(binding) {
@@ -82,13 +82,13 @@ class ProfilFragment : Fragment() {
             }
 
         }
-        akunViewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
+        userViewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
             binding.akunSaya.isVisible = !isLoading
             binding.shimmerAkunSaya.isVisible = isLoading
             binding.shimmerAkunSaya.apply { if (isLoading) startShimmer() else stopShimmer() }
 
             if (!isLoading) {
-                if (akunViewModel.getDataAkun().value == null)
+                if (userViewModel.getDataAkun().value == null)
                     startAuthLoginActivity(false)
             }
         }
@@ -128,7 +128,7 @@ class ProfilFragment : Fragment() {
             requireContext(),
             requireContext().getColor(R.color.error)
         ) {
-            akunViewModel.clearAkunData()
+            userViewModel.clearAkunData()
 
             val intent = Intent(requireContext(), MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK

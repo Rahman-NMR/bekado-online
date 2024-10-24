@@ -3,7 +3,7 @@ package com.bekado.bekadoonline.data.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.bekado.bekadoonline.data.model.AkunModel
-import com.bekado.bekadoonline.domain.repositories.AkunRepository
+import com.bekado.bekadoonline.domain.repositories.UserRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -12,11 +12,11 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class AkunRepositoryImpl(
+class UserRepositoryImpl(
     private val auth: FirebaseAuth,
     private val db: FirebaseDatabase,
     private val gsiClient: GoogleSignInClient
-) : AkunRepository {
+) : UserRepository {
     private fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
     private val _akunModel = MutableLiveData<AkunModel?>()
@@ -43,10 +43,13 @@ class AkunRepositoryImpl(
         }
     }
 
-    override fun getAkun(): LiveData<AkunModel?> {
+    init {
         val akunRef = db.getReference("akun/${getCurrentUser()?.uid}")
         akunRef.removeEventListener(akunListener)
         akunRef.addValueEventListener(akunListener)
+    }
+
+    override fun getAkun(): LiveData<AkunModel?> {
         return akunModel
     }
 

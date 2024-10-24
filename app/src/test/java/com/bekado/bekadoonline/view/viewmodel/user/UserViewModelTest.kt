@@ -3,7 +3,7 @@ package com.bekado.bekadoonline.view.viewmodel.user
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import com.bekado.bekadoonline.data.model.AkunModel
-import com.bekado.bekadoonline.domain.usecase.AkunUseCase
+import com.bekado.bekadoonline.domain.usecase.UserUseCase
 import com.bekado.bekadoonline.view.viewmodel.getOrAwaitValue
 import org.junit.Assert
 import org.junit.Before
@@ -20,7 +20,7 @@ class UserViewModelTest{
     private lateinit var viewModel: UserViewModel
 
     @Mock
-    private lateinit var getAkun: AkunUseCase
+    private lateinit var getAkun: UserUseCase
 
     @Before
     fun setUp() {
