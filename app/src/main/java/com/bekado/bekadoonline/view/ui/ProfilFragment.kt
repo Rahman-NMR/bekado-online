@@ -43,6 +43,9 @@ class ProfilFragment : Fragment() {
         dataAkunHandler()
 
         with(binding) {
+            notNullLayout.isVisible = userViewModel.currentUser() != null
+            nullLayout.isGone = userViewModel.currentUser() != null
+
             btnLogin.setOnClickListener { startAuthLoginActivity(true) }
             btnRegister.setOnClickListener { startAuthLoginActivity(false) }
             btnInformasiToko.setOnClickListener { startActivity(Intent(context, AboutBekadoActivity::class.java)) }
@@ -55,9 +58,6 @@ class ProfilFragment : Fragment() {
             dataTransaksiHandler(akunModel)
 
             with(binding) {
-                notNullLayout.isGone = akunModel == null
-                nullLayout.isVisible = akunModel == null
-
                 badgeAdmin.isVisible = akunModel != null && akunModel.statusAdmin
                 btnAdminKategoriProduk.isVisible = akunModel != null && akunModel.statusAdmin
 
