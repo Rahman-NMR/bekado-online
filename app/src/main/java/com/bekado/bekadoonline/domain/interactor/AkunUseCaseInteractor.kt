@@ -14,7 +14,11 @@ class AkunUseCaseInteractor(private val akunRepository: AkunRepository) : AkunUs
         return akunRepository.getLoading()
     }
 
-    override fun remove() {
+    override fun executeLogout() {
         akunRepository.logoutAkun()
+    }
+
+    override fun executeRemoveListener() {
+        akunRepository.removeListener()
     }
 }

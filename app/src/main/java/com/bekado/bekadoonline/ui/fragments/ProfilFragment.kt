@@ -21,10 +21,10 @@ import com.bekado.bekadoonline.ui.activities.auth.UbahPasswordActivity
 import com.bekado.bekadoonline.ui.activities.profil.AboutBekadoActivity
 import com.bekado.bekadoonline.ui.activities.profil.AkunSayaActivity
 import com.bekado.bekadoonline.ui.activities.profil.AlamatActivity
-import com.bekado.bekadoonline.view.viewmodel.UserViewModel
-import com.bekado.bekadoonline.view.viewmodel.UserViewModelFactory
 import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiViewModel
 import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiViewModelFactory
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 

@@ -1,4 +1,4 @@
-package com.bekado.bekadoonline.view.viewmodel
+package com.bekado.bekadoonline.view.viewmodel.user
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -10,6 +10,11 @@ class UserViewModel(private val akunUseCase: AkunUseCase) : ViewModel() {
     fun isLoading(): LiveData<Boolean> = akunUseCase.executeLoading()
 
     fun clearAkunData() {
-        akunUseCase.remove()
+        akunUseCase.executeLogout()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        akunUseCase.executeRemoveListener()
     }
 }

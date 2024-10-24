@@ -7,4 +7,5 @@ interface AkunRepository {
     fun getAkun(): LiveData<AkunModel?>
     fun getLoading(): LiveData<Boolean>
     fun logoutAkun()
+    fun removeListener()
 }

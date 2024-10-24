@@ -1,4 +1,4 @@
-package com.bekado.bekadoonline.view.viewmodel
+package com.bekado.bekadoonline.view.viewmodel.user
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

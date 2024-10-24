@@ -6,5 +6,6 @@ import com.bekado.bekadoonline.data.model.AkunModel
 interface AkunUseCase {
     fun execute(): LiveData<AkunModel?>
     fun executeLoading(): LiveData<Boolean>
-    fun remove()
+    fun executeLogout()
+    fun executeRemoveListener()
 }

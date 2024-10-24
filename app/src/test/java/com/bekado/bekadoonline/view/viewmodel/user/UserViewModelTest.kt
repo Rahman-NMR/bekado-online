@@ -1,17 +1,16 @@
-package com.bekado.bekadoonline.view.viewmodel
+package com.bekado.bekadoonline.view.viewmodel.user
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.domain.usecase.AkunUseCase
+import com.bekado.bekadoonline.view.viewmodel.getOrAwaitValue
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 
 class UserViewModelTest{
@@ -42,11 +41,11 @@ class UserViewModelTest{
         val livedata = MutableLiveData<AkunModel>()
         livedata.value = dummyStory
 
-        `when`(getAkun.execute()).thenReturn(livedata)
+        Mockito.`when`(getAkun.execute()).thenReturn(livedata)
 
         val actualAkun = viewModel.getDataAkun().getOrAwaitValue()
-        verify(getAkun).execute()
-        verifyNoMoreInteractions(getAkun)
+        Mockito.verify(getAkun).execute()
+        Mockito.verifyNoMoreInteractions(getAkun)
         if (actualAkun != null) {
             Assert.assertEquals(dummyStory.nama, actualAkun.nama)
         }

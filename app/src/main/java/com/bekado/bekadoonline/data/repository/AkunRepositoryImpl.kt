@@ -14,7 +14,7 @@ import com.google.firebase.database.ValueEventListener
 
 class AkunRepositoryImpl(
     private val auth: FirebaseAuth,
-    db: FirebaseDatabase,
+    private val db: FirebaseDatabase,
     private val gsiClient: GoogleSignInClient
 ) : AkunRepository {
     private fun getCurrentUser(): FirebaseUser? = auth.currentUser
@@ -43,23 +43,23 @@ class AkunRepositoryImpl(
         }
     }
 
-    init {
+    override fun getAkun(): LiveData<AkunModel?> {
         val akunRef = db.getReference("akun/${getCurrentUser()?.uid}")
         akunRef.removeEventListener(akunListener)
         akunRef.addValueEventListener(akunListener)
-    }
-
-    override fun getAkun(): LiveData<AkunModel?> {
         return akunModel
     }
 
-    override fun getLoading(): LiveData<Boolean> {
-        return isLoading
-    }
+    override fun getLoading(): LiveData<Boolean> = isLoading
 
-    override fun logoutAkun(){
+    override fun logoutAkun() {
         _akunModel.value = null
         auth.signOut()
         gsiClient.signOut()
+    }
+
+    override fun removeListener() {
+        val akunRef = db.getReference("akun/${getCurrentUser()?.uid}")
+        akunRef.removeEventListener(akunListener)
     }
 }
