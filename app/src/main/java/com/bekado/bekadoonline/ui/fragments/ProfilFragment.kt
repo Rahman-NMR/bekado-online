@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.ui.activities.MainActivity
@@ -22,14 +23,15 @@ import com.bekado.bekadoonline.ui.activities.profil.AkunSayaActivity
 import com.bekado.bekadoonline.ui.activities.profil.AlamatActivity
 import com.bekado.bekadoonline.view.viewmodel.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.UserViewModelFactory
+import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiViewModel
+import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiViewModelFactory
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 
 class ProfilFragment : Fragment() {
     private lateinit var binding: FragmentProfilBinding
-
     private val akunViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
-//    private val transaksiViewModel: TransaksiViewModel by viewModels { ViewModelFactory.getInstance(requireActivity()) }
+    private val transaksiViewModel: TransaksiViewModel by viewModels { TransaksiViewModelFactory.getInstance() }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentProfilBinding.inflate(inflater, container, false)
@@ -40,7 +42,6 @@ class ProfilFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         dataAkunHandler()
-//        dataTransaksiHandler()
 
         with(binding) {
             btnLogin.setOnClickListener { startAuthLoginActivity(true) }
@@ -52,6 +53,8 @@ class ProfilFragment : Fragment() {
 
     private fun dataAkunHandler() {
         akunViewModel.getDataAkun().observe(viewLifecycleOwner) { akunModel ->
+            dataTransaksiHandler(akunModel)
+
             with(binding) {
                 notNullLayout.isGone = akunModel == null
                 nullLayout.isVisible = akunModel == null
@@ -96,11 +99,13 @@ class ProfilFragment : Fragment() {
         else startActivity(Intent(context, RegisterActivity::class.java))
     }
 
-    /*private fun dataTransaksiHandler() {
-        transaksiViewModel.totalAntrian.observe(viewLifecycleOwner) { binding.countAntrian.text = it.toString() }
-        transaksiViewModel.totalProses.observe(viewLifecycleOwner) { binding.countProses.text = it.toString() }
-        transaksiViewModel.totalSelesai.observe(viewLifecycleOwner) { binding.countSelesai.text = it.toString() }
-        transaksiViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+    private fun dataTransaksiHandler(akunModel: AkunModel?) {
+        transaksiViewModel.totalTransaksi(akunModel).observe(viewLifecycleOwner) { transaksi ->
+            binding.countAntrian.text = transaksi?.totalAntrian.toString()
+            binding.countProses.text = transaksi?.totalProses.toString()
+            binding.countSelesai.text = transaksi?.totalSelesai.toString()
+        }
+        transaksiViewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
             with(binding) {
                 transaksiSaya.isVisible = !isLoading
                 shimmerTransaksiSaya.isGone = !isLoading
@@ -113,7 +118,7 @@ class ProfilFragment : Fragment() {
                 }
             }
         }
-    }*/
+    }
 
     private fun showAlertDialog() {
         Helper.showAlertDialog(
