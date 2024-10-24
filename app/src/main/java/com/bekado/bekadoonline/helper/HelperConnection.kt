@@ -9,9 +9,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
-import com.bekado.bekadoonline.shimmer.AdapterProdukShimmer
-import com.bekado.bekadoonline.shimmer.AdapterTransaksiShimmer
-import com.bekado.bekadoonline.shimmer.ShimmerModel
+import com.bekado.bekadoonline.view.shimmer.AdapterProdukShimmer
+import com.bekado.bekadoonline.view.shimmer.AdapterTransaksiShimmer
+import com.bekado.bekadoonline.view.shimmer.ShimmerModel
 
 object HelperConnection {
     fun isConnected(context: Context): Boolean {
