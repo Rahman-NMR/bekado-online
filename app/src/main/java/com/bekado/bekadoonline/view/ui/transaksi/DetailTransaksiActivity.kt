@@ -179,9 +179,14 @@ class DetailTransaksiActivity : AppCompatActivity() {
                 with(binding) {
                     namaUser.text = data.nama ?: getString(R.string.tidak_ada_data)
                     noHpUser.text = data.noHp ?: getString(R.string.tidak_ada_data)
-                    Glide.with(this@DetailTransaksiActivity).load(data.fotoProfil)
+
+                    val fotopp = if (data.fotoProfil.isNullOrEmpty()) null else data.fotoProfil
+                    Glide.with(this@DetailTransaksiActivity).load(fotopp)
                         .apply(RequestOptions()).centerCrop()
-                        .placeholder(R.drawable.img_broken_image_circle).into(fotoProfil)
+                        .placeholder(R.drawable.img_placeholder_profil)
+                        .fallback(R.drawable.img_fallback_profil)
+                        .error(R.drawable.img_error_profil)
+                        .into(fotoProfil)
 
                     openMaps.setOnClickListener {
                         val gmmIntentUri = Uri.parse("geo:0,0?q=$latitude,$longitude")

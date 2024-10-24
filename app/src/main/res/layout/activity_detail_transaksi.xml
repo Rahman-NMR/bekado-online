@@ -88,7 +88,7 @@
                             android:id="@+id/foto_profil"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
-                            android:src="@drawable/img_broken_image_circle"
+                            android:src="@drawable/img_error"
                             app:civ_border_color="?attr/colorPrimary"
                             app:civ_border_width="2dp"
                             app:layout_constraintEnd_toStartOf="@+id/ll_info_profil"

@@ -33,7 +33,9 @@ class AboutBekadoActivity : AppCompatActivity() {
             with(binding) {
                 Glide.with(this@AboutBekadoActivity).load(it.get("fotoToko").toString())
                     .apply(RequestOptions()).centerCrop()
-                    .placeholder(R.drawable.img_broken_image).into(fotoToko)
+                    .placeholder(R.drawable.img_placeholder)
+                    .error(R.drawable.img_error)
+                    .into(fotoToko)
                 kontakToko.text = it.get("kontakPerson").toString()
                 alamatToko.text = it.get("lokasiToko").toString()
                 namaToko.text = it.get("namaToko").toString()

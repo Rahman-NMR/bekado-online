@@ -9,6 +9,7 @@ import com.bekado.bekadoonline.databinding.BottomsheetShowProdukBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.HelperProduk
 import com.bekado.bekadoonline.data.model.ProdukModel
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseUser
@@ -35,7 +36,10 @@ class ShowProdukBottomSheet(val context: Context) {
         with(bindingPBS) {
             Glide.with(context).load(produk.fotoProduk)
                 .apply(RequestOptions()).centerCrop()
-                .placeholder(R.drawable.img_broken_image).into(fotoProduk)
+                .placeholder(R.drawable.img_placeholder)
+                .error(R.drawable.img_error)
+                .transition(DrawableTransitionOptions.withCrossFade(300))
+                .into(fotoProduk)
             namaProduk.text = produk.namaProduk
             hargaProduk.text = hargaProdukShows
         }

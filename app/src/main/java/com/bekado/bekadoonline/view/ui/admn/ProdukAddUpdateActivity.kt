@@ -24,6 +24,7 @@ import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
@@ -125,7 +126,10 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
                     hargaProduk.setText(produk.hargaProduk.toString())
                     Glide.with(this@ProdukAddUpdateActivity).load(produk.fotoProduk)
                         .apply(RequestOptions().centerCrop())
-                        .placeholder(R.drawable.img_broken_image).into(fotoEditProduk)
+                        .placeholder(R.drawable.img_placeholder)
+                        .error(R.drawable.img_error)
+                        .transition(DrawableTransitionOptions.withCrossFade(300))
+                        .into(fotoEditProduk)
 
                     appBar.setOnMenuItemClickListener {
                         when (it.itemId) {
@@ -175,9 +179,11 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
     }
 
     private fun loadImageWithGlide(imageUri: Uri?, imageBuktiPmbyrn: ImageView) {
-        val requestOptions = RequestOptions().centerInside()
-        Glide.with(this).load(imageUri).apply(requestOptions)
-            .placeholder(R.drawable.img_broken_image).into(imageBuktiPmbyrn)
+        Glide.with(this).load(imageUri).apply(RequestOptions().centerInside())
+            .placeholder(R.drawable.img_placeholder)
+            .error(R.drawable.img_error)
+            .transition(DrawableTransitionOptions.withCrossFade(300))
+            .into(imageBuktiPmbyrn)
         binding.btnSimpanPerubahan.isEnabled = true
     }
 

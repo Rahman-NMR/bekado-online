@@ -11,6 +11,7 @@ import com.bekado.bekadoonline.databinding.LayoutProdukGridBinding
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import java.util.ArrayList
 
@@ -34,7 +35,10 @@ class AdapterProduk(private var listenerProduk: (ProdukModel) -> Unit) : ListAda
 
             Glide.with(binding.root.context).load(produk.fotoProduk)
                 .apply(RequestOptions()).centerCrop()
-                .placeholder(R.drawable.img_broken_image).into(binding.fotoProduk)
+                .placeholder(R.drawable.img_placeholder)
+                .error(R.drawable.img_error)
+                .transition(DrawableTransitionOptions.withCrossFade(300))
+                .into(binding.fotoProduk)
             binding.namaProduk.text = produk.namaProduk
             binding.hargaProduk.text = hargaProduk
 

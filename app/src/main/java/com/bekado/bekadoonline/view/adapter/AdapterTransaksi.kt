@@ -14,6 +14,7 @@ import com.bekado.bekadoonline.helper.Helper
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bekado.bekadoonline.data.model.TransaksiModel
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -88,7 +89,10 @@ class AdapterTransaksi(private var listenerTransaksi: (TransaksiModel) -> Unit) 
                 } else produkLainnya.visibility = View.GONE
                 Glide.with(root.context).load(transaksiModel.fotoProduk)
                     .apply(RequestOptions()).centerCrop()
-                    .placeholder(R.drawable.img_broken_image).into(gambarProduk)
+                    .placeholder(R.drawable.img_placeholder)
+                    .error(R.drawable.img_error)
+                    .transition(DrawableTransitionOptions.withCrossFade(300))
+                    .into(gambarProduk)
 
                 ll.setOnClickListener { listenerTransaksi(transaksiModel) }
             }

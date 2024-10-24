@@ -63,9 +63,14 @@ class ProfilFragment : Fragment() {
 
                 namaProfil.text = akunModel?.nama ?: getString(R.string.strip)
                 emailProfil.text = akunModel?.email ?: getString(R.string.strip)
-                Glide.with(requireContext()).load(akunModel?.fotoProfil)
+
+                val fotopp = if (akunModel?.fotoProfil.isNullOrEmpty()) null else akunModel?.fotoProfil
+                Glide.with(requireContext()).load(fotopp)
                     .apply(RequestOptions()).centerCrop()
-                    .placeholder(R.drawable.img_broken_image_circle).into(fotoProfil)
+                    .placeholder(R.drawable.img_placeholder_profil)
+                    .fallback(R.drawable.img_fallback_profil)
+                    .error(R.drawable.img_error_profil)
+                    .into(fotoProfil)
 
                 btnAkunSaya.isEnabled = akunModel != null
                 btnDetailAlamat.isEnabled = akunModel != null

@@ -9,6 +9,7 @@ import com.bekado.bekadoonline.databinding.RvCheckoutProdukListBinding
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 
 class AdapterCheckout(private var checkoutModelList: ArrayList<CombinedKeranjangModel>) :
@@ -41,7 +42,10 @@ class AdapterCheckout(private var checkoutModelList: ArrayList<CombinedKeranjang
             with(binding) {
                 Glide.with(root.context).load(checkoutPr.fotoProduk)
                     .apply(RequestOptions()).centerCrop()
-                    .placeholder(R.drawable.img_broken_image).into(gambarProduk)
+                    .placeholder(R.drawable.img_placeholder)
+                    .error(R.drawable.img_error)
+                    .transition(DrawableTransitionOptions.withCrossFade(300))
+                    .into(gambarProduk)
                 namaProduk.text = checkoutPr.namaProduk
                 jumlahHargaProduk.text = hargaProduk
                 totalHarga.text = hargaTotal

@@ -11,6 +11,7 @@ import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.databinding.RvDaftarProdukBinding
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 
 class AdapterProdukList(
@@ -37,7 +38,10 @@ class AdapterProdukList(
             with(binding) {
                 Glide.with(root.context).load(produk.fotoProduk)
                     .apply(RequestOptions()).centerCrop()
-                    .placeholder(R.drawable.img_broken_image).into(gambarProduk)
+                    .placeholder(R.drawable.img_placeholder)
+                    .error(R.drawable.img_error)
+                    .transition(DrawableTransitionOptions.withCrossFade(300))
+                    .into(gambarProduk)
                 namaProduk.text = produk.namaProduk
                 hargaProduk.text = harga
                 produkVisibility.isChecked = produk.visibility

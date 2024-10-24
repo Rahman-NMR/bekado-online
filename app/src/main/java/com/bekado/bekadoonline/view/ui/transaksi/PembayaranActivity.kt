@@ -155,9 +155,11 @@ class PembayaranActivity : AppCompatActivity() {
                 binding.atasNama.text = invoice.pemilikBank
 
                 if (!invoice.buktiTransaksi.isNullOrEmpty()) {
-                    Glide.with(this@PembayaranActivity)
-                        .load(invoice.buktiTransaksi).apply(RequestOptions().centerInside())
-                        .placeholder(R.drawable.img_broken_image).into(binding.imageBuktiPmbyrn)
+                    Glide.with(this@PembayaranActivity).load(invoice.buktiTransaksi)
+                        .apply(RequestOptions().centerInside())
+                        .placeholder(R.drawable.img_placeholder)
+                        .error(R.drawable.img_error)
+                        .into(binding.imageBuktiPmbyrn)
 
                     binding.tvBuktiPmbyrn.visibility = View.GONE
                     binding.clImgBktiExist.visibility = View.VISIBLE
@@ -195,9 +197,12 @@ class PembayaranActivity : AppCompatActivity() {
     }
 
     private fun loadImageWithGlide(imageUri: Uri?, imageBuktiPmbyrn: ImageView) {
-        val requestOptions = RequestOptions().centerInside()
-        Glide.with(this).load(imageUri).apply(requestOptions)
-            .placeholder(R.drawable.img_broken_image).into(imageBuktiPmbyrn)
+        Glide.with(this).load(imageUri)
+            .apply(RequestOptions().centerInside())
+            .placeholder(R.drawable.img_placeholder)
+            .error(R.drawable.img_error)
+            .into(imageBuktiPmbyrn)
+
         binding.clImgBktiExist.visibility = View.VISIBLE
         binding.tvBuktiPmbyrn.visibility = View.GONE
         binding.btnSimpanBuktPmbyrn.visibility = View.VISIBLE

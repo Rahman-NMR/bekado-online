@@ -157,9 +157,16 @@ class AkunSayaActivity : AppCompatActivity() {
                 if (!akunModel.noHp.isNullOrEmpty()) binding.nohpView.text = akunModel.noHp.toString()
                 else binding.nohpView.text = getString(R.string.tidak_ada_data)
                 binding.emailView.text = akunModel.email.toString()
-                if (!isDestroyed) Glide.with(this@AkunSayaActivity).load(akunModel.fotoProfil)
-                    .apply(RequestOptions()).centerCrop()
-                    .placeholder(R.drawable.img_broken_image_circle).into(binding.fotoProfil)
+
+                if (!isDestroyed) {
+                    val fotopp = if (akunModel.fotoProfil.isNullOrEmpty()) null else akunModel.fotoProfil
+                    Glide.with(this@AkunSayaActivity).load(fotopp)
+                        .apply(RequestOptions()).centerCrop()
+                        .placeholder(R.drawable.img_placeholder_profil)
+                        .fallback(R.drawable.img_fallback_profil)
+                        .error(R.drawable.img_error_profil)
+                        .into(binding.fotoProfil)
+                }
 
                 binding.namaEdit.setText(akunModel.nama.toString())
                 binding.nohpEdit.setText(akunModel.noHp.toString())

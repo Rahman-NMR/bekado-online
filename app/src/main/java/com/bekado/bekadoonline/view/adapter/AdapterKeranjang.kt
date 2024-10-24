@@ -12,6 +12,7 @@ import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
 import com.bekado.bekadoonline.databinding.LayoutKeranjangListBinding
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 
 class AdapterKeranjang(
@@ -48,7 +49,10 @@ class AdapterKeranjang(
             with(binding) {
                 Glide.with(root.context).load(krjPrdk?.fotoProduk)
                     .apply(RequestOptions()).centerCrop()
-                    .placeholder(R.drawable.img_broken_image).into(gambarProduk)
+                    .placeholder(R.drawable.img_placeholder)
+                    .error(R.drawable.img_error)
+                    .transition(DrawableTransitionOptions.withCrossFade(300))
+                    .into(gambarProduk)
                 namaProduk.text = krjPrdk?.namaProduk
                 hargaProduk.text = hargaProduks
                 hapusProduk.setOnClickListener { itemDelete(krnjng) }
