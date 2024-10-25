@@ -153,7 +153,8 @@ class AkunSayaActivity : AppCompatActivity() {
                 namaUser = akunModel.nama.toString()
                 nohpUser = akunModel.noHp.toString()
 
-                binding.namaView.text = akunModel.nama.toString()
+                if (!akunModel.nama.isNullOrEmpty()) binding.namaView.text = akunModel.nama.toString()
+                else binding.namaView.text = getString(R.string.tidak_ada_data)
                 if (!akunModel.noHp.isNullOrEmpty()) binding.nohpView.text = akunModel.noHp.toString()
                 else binding.nohpView.text = getString(R.string.tidak_ada_data)
                 binding.emailView.text = akunModel.email.toString()

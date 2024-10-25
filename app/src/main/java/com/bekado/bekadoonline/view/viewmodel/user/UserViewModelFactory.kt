@@ -11,6 +11,7 @@ class UserViewModelFactory(private val userUseCase: UserUseCase) : ViewModelProv
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(UserViewModel::class.java) -> UserViewModel(userUseCase) as T
+            modelClass.isAssignableFrom(AuthViewModel::class.java) -> AuthViewModel(userUseCase) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

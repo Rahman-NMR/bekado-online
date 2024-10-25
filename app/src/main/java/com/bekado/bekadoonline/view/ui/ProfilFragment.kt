@@ -2,6 +2,8 @@ package com.bekado.bekadoonline.view.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +15,7 @@ import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
+import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.view.ui.admn.KategoriListActivity
 import com.bekado.bekadoonline.view.ui.auth.LoginActivity
 import com.bekado.bekadoonline.view.ui.auth.RegisterActivity
@@ -22,6 +25,7 @@ import com.bekado.bekadoonline.view.ui.profil.AkunSayaActivity
 import com.bekado.bekadoonline.view.ui.profil.AlamatActivity
 import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiViewModel
 import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiViewModelFactory
+import com.bekado.bekadoonline.view.viewmodel.user.AuthViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 import com.bumptech.glide.Glide
@@ -30,6 +34,7 @@ import com.bumptech.glide.request.RequestOptions
 class ProfilFragment : Fragment() {
     private lateinit var binding: FragmentProfilBinding
     private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
+    private val authViewModel: AuthViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
     private val transaksiViewModel: TransaksiViewModel by viewModels { TransaksiViewModelFactory.getInstance() }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -61,8 +66,9 @@ class ProfilFragment : Fragment() {
                 badgeAdmin.isVisible = akunModel != null && akunModel.statusAdmin
                 btnAdminKategoriProduk.isVisible = akunModel != null && akunModel.statusAdmin
 
-                namaProfil.text = akunModel?.nama ?: getString(R.string.strip)
-                emailProfil.text = akunModel?.email ?: getString(R.string.strip)
+                namaProfil.isVisible = !akunModel?.nama.isNullOrEmpty()
+                namaProfil.text = if (!akunModel?.nama.isNullOrEmpty()) akunModel?.nama else getString(R.string.strip)
+                emailProfil.text = akunModel?.email
 
                 val fotopp = if (akunModel?.fotoProfil.isNullOrEmpty()) null else akunModel?.fotoProfil
                 Glide.with(requireContext()).load(fotopp)
@@ -93,7 +99,17 @@ class ProfilFragment : Fragment() {
 
             if (!isLoading) {
                 if (userViewModel.getDataAkun().value == null)
-                    startAuthLoginActivity(false)
+                    authViewModel.autoRegisterToRtdb { isSuccessful ->
+                        if (isSuccessful) restartApp()
+                        else {
+                            showToastL(getString(R.string.account_problem), requireActivity())
+
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                userViewModel.clearAkunData()
+                                restartApp()
+                            }, 3210)
+                        }
+                    }
             }
         }
     }
@@ -133,10 +149,13 @@ class ProfilFragment : Fragment() {
             requireContext().getColor(R.color.error)
         ) {
             userViewModel.clearAkunData()
-
-            val intent = Intent(requireContext(), MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
+            restartApp()
         }
+    }
+
+    private fun restartApp() {
+        val intent = Intent(requireActivity(), MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
     }
 }

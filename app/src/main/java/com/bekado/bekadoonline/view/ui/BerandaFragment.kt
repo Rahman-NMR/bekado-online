@@ -2,6 +2,8 @@ package com.bekado.bekadoonline.view.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,26 +15,29 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.view.adapter.AdapterButton
-import com.bekado.bekadoonline.view.adapter.AdapterProduk
 import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.data.viewmodel.BerandaViewModel
 import com.bekado.bekadoonline.databinding.FragmentBerandaBinding
 import com.bekado.bekadoonline.helper.Helper.calculateSpanCount
+import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperProduk
 import com.bekado.bekadoonline.helper.HelperSort.sortProduk
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.helper.itemDecoration.HorizontalSpacing
-import com.bekado.bekadoonline.view.shimmer.ShimmerModel
 import com.bekado.bekadoonline.ui.ViewModelFactory
+import com.bekado.bekadoonline.view.adapter.AdapterButton
+import com.bekado.bekadoonline.view.adapter.AdapterProduk
+import com.bekado.bekadoonline.view.shimmer.ShimmerModel
 import com.bekado.bekadoonline.view.ui.auth.LoginActivity
-import com.bekado.bekadoonline.view.ui.auth.RegisterActivity
-import com.bekado.bekadoonline.view.ui.transaksi.KeranjangActivity
 import com.bekado.bekadoonline.view.ui.bottomsheet.ShowProdukBottomSheet
 import com.bekado.bekadoonline.view.ui.bottomsheet.SortProdukBottomSheet
+import com.bekado.bekadoonline.view.ui.transaksi.KeranjangActivity
+import com.bekado.bekadoonline.view.viewmodel.user.AuthViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
@@ -45,6 +50,8 @@ class BerandaFragment : Fragment() {
     private lateinit var adapterProduk: AdapterProduk
     private val dataShimmer: ArrayList<ShimmerModel> = ArrayList()
 
+    private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
+    private val authViewModel: AuthViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
     private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(requireActivity()) }
     private lateinit var berandaViewModel: BerandaViewModel
 
@@ -133,7 +140,7 @@ class BerandaFragment : Fragment() {
                 if (currentUser != null) {
                     val keranjangRef = db.getReference("keranjang/${currentUser.uid}")
                     HelperProduk.addToKeranjang(produk, keranjangRef, requireContext())
-                } else startAuthLoginActivity(true)
+                } else startActivity(Intent(context, LoginActivity::class.java))
             }
         }
         binding.rvProduk.adapter = adapterProduk
@@ -269,20 +276,32 @@ class BerandaFragment : Fragment() {
                         if (akunModel.statusAdmin) adminKeranjangState(requireContext(), it)
                         else startActivity(Intent(context, KeranjangActivity::class.java))
                     }
-                } else startAuthLoginActivity(true)
+                } else startActivity(Intent(context, LoginActivity::class.java))
                 true
             }
         }
         akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             if (!isLoading) {
-                if (auth.currentUser != null && akunViewModel.akunModel.value == null) startAuthLoginActivity(false)
+                if (auth.currentUser != null && akunViewModel.akunModel.value == null)
+                    authViewModel.autoRegisterToRtdb { isSuccessful ->
+                        if (isSuccessful) restartApp()
+                        else {
+                            showToastL(getString(R.string.account_problem), requireActivity())
+
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                userViewModel.clearAkunData()
+                                restartApp()
+                            }, 3210)
+                        }
+                    }
             }
         }
     }
 
-    private fun startAuthLoginActivity(isLogin: Boolean) {
-        if (isLogin) startActivity(Intent(context, LoginActivity::class.java))
-        else startActivity(Intent(context, RegisterActivity::class.java))
+    private fun restartApp() {
+        val intent = Intent(requireActivity(), MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
     }
 
     private fun searchClearText() {

@@ -1,5 +1,6 @@
 package com.bekado.bekadoonline.data.repository
 
+import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.bekado.bekadoonline.data.model.AkunModel
@@ -7,6 +8,7 @@ import com.bekado.bekadoonline.domain.repositories.UserRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -68,5 +70,55 @@ class UserRepositoryImpl(
     override fun removeListener() {
         val akunRef = db.getReference("akun/${getCurrentUser()?.uid}")
         akunRef.removeEventListener(akunListener)
+    }
+
+    override fun loginManual(email: String, password: String, response: (Boolean) -> Unit) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task -> response.invoke(task.isSuccessful) }
+    }
+
+    override fun loginGoogle(idToken: String?, response: (Boolean) -> Unit) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener { task -> response.invoke(task.isSuccessful) }
+    }
+
+    override fun intentGoogleSignIn(): Intent = gsiClient.signInIntent
+
+    override fun registerAuth(email: String, password: String, nama: String, noHp: String, response: (Boolean) -> Unit) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) registerAkunToRtdb(email, nama, noHp, "", response)
+                else response.invoke(false)
+            }.addOnFailureListener { response.invoke(false) }
+    }
+
+    override fun autoRegisterUserToRtdb(response: (Boolean) -> Unit) {
+        getCurrentUser()?.reload()?.addOnCompleteListener {
+            val email = getCurrentUser()?.email ?: ""
+            val fotoProfil = getCurrentUser()?.photoUrl ?: ""
+            val nama = getCurrentUser()?.displayName ?: ""
+            val noHp = getCurrentUser()?.phoneNumber ?: ""
+            registerAkunToRtdb(email, nama, noHp, fotoProfil.toString(), response)
+        }?.addOnFailureListener { logoutAkun() }
+    }
+
+    private fun registerAkunToRtdb(email: String, nama: String, noHp: String, fotoProfil: String, response: (Boolean) -> Unit) {
+        getCurrentUser()?.let { currentUser ->
+            val userID = currentUser.uid
+            val userRef = db.getReference("akun/$userID")
+
+            val user = HashMap<String, Any>()
+            user["email"] = email
+            if (fotoProfil.isNotEmpty()) user["fotoProfil"] = fotoProfil
+            if (nama.isNotEmpty()) user["nama"] = nama
+            if (noHp.isNotEmpty()) user["noHp"] = noHp
+            user["statusAdmin"] = false
+            user["uid"] = userID
+
+            userRef.setValue(user)
+                .addOnCompleteListener { task -> response.invoke(task.isSuccessful) }
+                .addOnFailureListener { response.invoke(false) }
+        } ?: response.invoke(false)
     }
 }

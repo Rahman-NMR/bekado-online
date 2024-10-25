@@ -37,6 +37,8 @@
     <string name="late_upload_bukti">Tidak bisa dilakukan pada status</string>
     <string name="kategori_unselected">Anda belum memilih Kategori</string>
     <string name="location_not_found">Lokasi tidak ditemukan</string>
+    <string name="restricted_admin">Admin tidak dapat mengakses keranjang</string>
+    <string name="account_problem">Akun tidak ditemukan. Akun akan dikeluarkan otomatis dari aplikasi.</string>
 
     <!--    button-->
     <string name="login">Login</string>

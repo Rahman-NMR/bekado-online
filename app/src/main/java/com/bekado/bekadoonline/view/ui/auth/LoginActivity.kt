@@ -12,32 +12,27 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
 import com.bekado.bekadoonline.databinding.ActivityLoginBinding
 import com.bekado.bekadoonline.helper.Helper.showToast
-import com.bekado.bekadoonline.helper.HelperAuth
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.ui.ViewModelFactory
 import com.bekado.bekadoonline.view.ui.MainActivity
+import com.bekado.bekadoonline.view.viewmodel.user.AuthViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.FirebaseDatabase
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseDatabase
-    private lateinit var googleSignInClient: GoogleSignInClient
-    private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(this) }
+
+    private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(this) }
+    private val authViewModel: AuthViewModel by viewModels { UserViewModelFactory.getInstance(this) }
 
     private var isAuthenticating = false
     private val onBackInvokedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            if (!isAuthenticating) finish()
+            if (!isAuthenticating) signOut()
         }
     }
     private val signInClient = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -65,11 +60,6 @@ class LoginActivity : AppCompatActivity() {
         supportActionBar?.hide()
         onBackPressedDispatcher.addCallback(this@LoginActivity, onBackInvokedCallback)
 
-        db = FirebaseDatabase.getInstance()
-        auth = FirebaseAuth.getInstance()
-//        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
-        googleSignInClient = GoogleSignIn.getClient(this, HelperAuth.clientGoogle(this))
-
         with(binding) {
             emailLogin.addTextChangedListener(loginTextWatcher)
             passwordLogin.addTextChangedListener(loginTextWatcher)
@@ -94,21 +84,20 @@ class LoginActivity : AppCompatActivity() {
         }
         btnLupaPassword.setOnClickListener { startActivity(Intent(this@LoginActivity, LupaPasswordActivity::class.java)) }
         googleAutoLogin.setOnClickListener {
-            if (HelperConnection.isConnected(this@LoginActivity)) signInClient.launch(googleSignInClient.signInIntent)
+            if (HelperConnection.isConnected(this@LoginActivity)) signInClient.launch(authViewModel.launchSignInClient())
         }
     }
 
     private fun loginAuthWithGoogle(idToken: String?) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential).addOnCompleteListener(this) {
-            if (it.isSuccessful) signInSuccess()
+        authViewModel.loginAuthWithGoogle(idToken) { isSuccessful ->
+            if (isSuccessful) signInSuccess()
         }
     }
 
     private fun loginAuthManual(email: String, password: String) {
         loadingAuthUI(true)
-        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) {
-            if (it.isSuccessful) signInSuccess()
+        authViewModel.loginAuthManual(email, password) { isSuccessful ->
+            if (isSuccessful) signInSuccess()
             else {
                 showToast(getString(R.string.email_pass_salah), this)
                 loadingAuthUI(false)
@@ -117,27 +106,42 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun signInSuccess() {
-//        akunViewModel.loadCurrentUser()
-        akunViewModel.loadAkunData()
-
-        akunViewModel.isLoading.observe(this) { isLoading ->
-            loadingAuthUI(false)
+        userViewModel.isLoading().observe(this) { isLoading ->
             if (!isLoading) {
-                if (akunViewModel.akunModel.value != null) {
-                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(intent)
+                if (userViewModel.getDataAkun().value != null) {
+                    loadingAuthUI(false)
+                    restartApp()
                 } else {
-                    startActivity(Intent(this, RegisterActivity::class.java))
-                    finish()
+                    authViewModel.autoRegisterToRtdb { isSuccessful ->
+                        if (isSuccessful) restartApp()
+                        else {
+                            showToast(getString(R.string.email_pass_salah), this)
+                            loadingAuthUI(false)
+                        }
+                    }
                 }
             }
         }
     }
 
+    private fun restartApp() {
+        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+    }
+
     private fun loadingAuthUI(isAuthLoading: Boolean) {
         isAuthenticating = isAuthLoading
-        binding.progressbarLogin.isVisible = isAuthLoading
+        with(binding) {
+            progressbarLogin.isVisible = isAuthLoading
+            googleAutoLogin.isEnabled = !isAuthLoading
+            btnLupaPassword.isEnabled = !isAuthLoading
+
+            emailLogin.isEnabled = !isAuthLoading
+            outlineEmailLogin.isEnabled = !isAuthLoading
+            passwordLogin.isEnabled = !isAuthLoading
+            outlinePasswordLogin.isEnabled = !isAuthLoading
+        }
     }
 
     private val loginTextWatcher: TextWatcher = object : TextWatcher {
@@ -165,5 +169,15 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun signOut() {
+        userViewModel.clearAkunData()
+        finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        signOut()
     }
 }
