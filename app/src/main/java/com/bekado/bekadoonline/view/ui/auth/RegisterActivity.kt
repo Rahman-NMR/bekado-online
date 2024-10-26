@@ -219,6 +219,6 @@ class RegisterActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        signOut()
+        if (isAuthenticating) signOut()
     }
 }

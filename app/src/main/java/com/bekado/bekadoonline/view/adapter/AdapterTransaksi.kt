@@ -2,19 +2,19 @@ package com.bekado.bekadoonline.view.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
+import com.bekado.bekadoonline.data.model.TransaksiModel
 import com.bekado.bekadoonline.databinding.LayoutTransaksiBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.bekado.bekadoonline.data.model.TransaksiModel
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -39,26 +39,26 @@ class AdapterTransaksi(private var listenerTransaksi: (TransaksiModel) -> Unit) 
         private val calendar = Calendar.getInstance()
 
         fun bind(transaksiModel: TransaksiModel, listenerTransaksi: (TransaksiModel) -> Unit, context: Context) {
+            val totalBerlnja = transaksiModel.totalBelanja ?: 0
             val sumPrice =
-                if (transaksiModel.totalBelanja!! >= 1)
-                    transaksiModel.currency + Helper.addcoma3digit(transaksiModel.totalBelanja)
+                if (totalBerlnja >= 1) transaksiModel.currency + Helper.addcoma3digit(totalBerlnja)
                 else "Gratis"
-            val itemCount = "${transaksiModel.jumlahProduk} item"
+            val itemCount = "${transaksiModel.jumlahProduk ?: 0} item"
             val nmrPesanan = "${context.getString(R.string.no_pesanan_)} ${transaksiModel.noPesanan}"
 
-            val time = transaksiModel.timestamp?.toLong()
+            val time = transaksiModel.timestamp?.toLong() ?: 0
             with(binding) {
-                if (time != null) {
+                if (time.toInt() != 0) {
                     calendar.timeInMillis = time
                     val waktunya = SimpleDateFormat("d MMMM yyyy", Locale.getDefault()).format(Date(time))
                     tanggalPesan.text = waktunya
                 } else tanggalPesan.text = context.getString(R.string.tidak_ada_data)
 
                 noPesanan.text = nmrPesanan
-                namaProduk.text = transaksiModel.namaProduk
+                namaProduk.text = transaksiModel.namaProduk ?: context.getString(R.string.tidak_ada_data)
                 jumlahItem.text = itemCount
                 totalHarga.text = sumPrice
-                statusPesanan.text = transaksiModel.statusPesanan
+                statusPesanan.text = transaksiModel.statusPesanan ?: context.getString(R.string.tidak_ada_data)
                 when (transaksiModel.statusPesanan) {
                     context.getString(R.string.status_menunggu_pembayaran) -> {
                         statusPesanan.setTextColor(ContextCompat.getColor(context, R.color.outline))
@@ -81,12 +81,12 @@ class AdapterTransaksi(private var listenerTransaksi: (TransaksiModel) -> Unit) 
                     }
                 }
 
-                if (transaksiModel.produkLainnya!! >= 2) {
-                    val moreProduk = "+${transaksiModel.produkLainnya - 1} produk lainnya"
-
-                    produkLainnya.visibility = View.VISIBLE
+                val prdkLainnya = transaksiModel.produkLainnya ?: 0
+                if (prdkLainnya >= 2) {
+                    val moreProduk = "+${prdkLainnya - 1} produk lainnya"
                     produkLainnya.text = moreProduk
-                } else produkLainnya.visibility = View.GONE
+                }
+                produkLainnya.isVisible = prdkLainnya >= 2
                 Glide.with(root.context).load(transaksiModel.fotoProduk)
                     .apply(RequestOptions()).centerCrop()
                     .placeholder(R.drawable.img_placeholder)

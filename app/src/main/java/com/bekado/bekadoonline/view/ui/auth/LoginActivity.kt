@@ -178,6 +178,6 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        signOut()
+        if (isAuthenticating) signOut()
     }
 }

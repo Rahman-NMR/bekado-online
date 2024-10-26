@@ -20,23 +20,20 @@ object Injection {
         .requestIdToken(context.getString(R.string.default_web_client_id))
         .requestEmail().build()
 
+    private fun auth() = FirebaseAuth.getInstance()
+    private fun db() = FirebaseDatabase.getInstance()
+    private fun gsiClient(context: Context) = GoogleSignIn.getClient(context, clientGoogle(context))
+
     fun provideRepository(context: Context): Repository {
-        val auth = FirebaseAuth.getInstance()
-        val db = FirebaseDatabase.getInstance()
-        val googleSignInClient = GoogleSignIn.getClient(context, clientGoogle(context))
-        return Repository.getInstance(auth, db, googleSignInClient)
+        return Repository.getInstance(auth(), db(), gsiClient(context))
     }
 
     private fun provideUserRepository(context: Context): UserRepository {
-        val auth = FirebaseAuth.getInstance()
-        val db = FirebaseDatabase.getInstance()
-        val gsiClient = GoogleSignIn.getClient(context, clientGoogle(context))
-        return UserRepositoryImpl(auth, db, gsiClient)
+        return UserRepositoryImpl(auth(), db(), gsiClient(context))
     }
 
     private fun provideTrxRepository(): TrxRepository {
-        val db = FirebaseDatabase.getInstance()
-        return TrxRepositoryImpl(db)
+        return TrxRepositoryImpl(db())
     }
 
     fun provideUserUseCase(context: Context): UserUseCaseInteractor {

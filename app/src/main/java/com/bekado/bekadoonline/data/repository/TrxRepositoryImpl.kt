@@ -95,13 +95,13 @@ class TrxRepositoryImpl(private val db: FirebaseDatabase) : TrxRepository {
         val timestp = item.child("timestamp").value.toString()
         val sttsPsnn = item.child("statusPesanan").value.toString()
         val currency = item.child("currency").value.toString()
-        val totalBlnj = item.child("totalBelanja").value as Long
+        val totalBlnj = item.child("totalBelanja").value as? Long ?: 0L
         val produkList = item.child("produkList").children.sortedBy { it.child("timestamp").value.toString() }.toList()
-        val lastProduk = produkList[0]
-        val fotoPrdk = lastProduk.child("fotoProduk").value.toString()
-        val namaPrdk = lastProduk.child("namaProduk").value.toString()
-        val jmlhPrdk = lastProduk.child("jumlahProduk").value as Long
-        val lainnya = item.child("totalItem").value as Long
+        val lastProduk = produkList.firstOrNull()
+        val fotoPrdk = lastProduk?.child("fotoProduk")?.value?.toString() ?: ""
+        val namaPrdk = lastProduk?.child("namaProduk")?.value?.toString() ?: ""
+        val jmlhPrdk = lastProduk?.child("jumlahProduk")?.value as? Long ?: 0L
+        val lainnya = item.child("totalItem").value as? Long ?: 0L
         val transaksi = TransaksiModel(idTrx, noPsnn, timestp, sttsPsnn, fotoPrdk, namaPrdk, jmlhPrdk, currency, totalBlnj, lainnya)
 
         dataTransaksi.add(transaksi)

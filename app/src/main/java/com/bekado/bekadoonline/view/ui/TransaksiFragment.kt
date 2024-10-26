@@ -185,7 +185,10 @@ class TransaksiFragment : Fragment() {
 
             if (akunModel != null) {
                 binding.swipeRefresh.setOnRefreshListener {
-                    if (HelperConnection.isConnected(requireContext())) dataTransaksiHandler(akunModel)
+                    if (HelperConnection.isConnected(requireContext())) {
+                        searchClearText()
+                        dataTransaksiHandler(akunModel)
+                    }
                     binding.swipeRefresh.isRefreshing = false
                 }
             }
