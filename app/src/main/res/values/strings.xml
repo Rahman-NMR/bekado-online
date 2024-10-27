@@ -39,6 +39,9 @@
     <string name="location_not_found">Lokasi tidak ditemukan</string>
     <string name="restricted_admin">Admin tidak dapat mengakses keranjang</string>
     <string name="account_problem">Akun tidak ditemukan. Akun akan dikeluarkan otomatis dari aplikasi.</string>
+    <string name="gagal_ubah_jumlah_produk">Gagal mengubah jumlah produk</string>
+    <string name="gagal_hapus_produk">Gagal menghapus produk%1$s</string>
+    <string name="gagal_ubah_selected_produk">%1$s tidak dapat dipilih</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -49,7 +52,6 @@
     <string name="tambah_ke_keranjang">Tambah ke Keranjang</string>
     <string name="pesan_sekarang">Pesan Sekarang</string>
     <string name="hapus">Hapus</string>
-    <string name="hapus_semua">Hapus Semua</string>
     <string name="simpan">Simpan</string>
     <string name="keluar">Keluar</string>
     <string name="record">Record</string>
@@ -106,7 +108,6 @@
     <string name="pilih_status_pesanan">Pilih Status Pesanan</string>
 
     <!--    sub title-->
-    <string name="tidak_dapat_diproses">Tidak dapat diproses</string>
     <string name="titik_lokasi">Titik Lokasi</string>
     <string name="ubah_alamat">Ubah Alamat</string>
     <string name="alamat_penerima">Alamat Penerima</string>
@@ -131,11 +132,11 @@
     <string name="keluar_halaman">Keluar Halaman?</string>
     <string name="konfirmasi_pesanan_">Konfirmasi Pesanan?</string>
     <string name="ubah_status_pesanan">Ubah status pesanan?</string>
+    <string name="hapus_produk_selected">Hapus %1$d produk terpilih?</string>
 
     <!--    msg dialog-->
     <string name="msg_logout">Anda akan keluar dari Akun sekarang</string>
-    <string name="hapus_produk_dipilih">Produk yang dipilih akan dihapus dari Keranjang</string>
-    <string name="hapus_produk_semua">Semua produk ini akan dihapus dari keranjang</string>
+    <string name="hapus_produk_dipilih">Semua produk yang dipilih akan dihapus dari Keranjang</string>
     <string name="msg_alamat">Perubahan alamat akan dibatalkan. Semua perubahan tidak akan disimpan</string>
     <string name="msg_konf_pesanan">Pesanan akan ditambahkan ke daftar transaksi.</string>
     <string name="kirim_tautan_ke_email">Tautan akan di kirim ke email</string>

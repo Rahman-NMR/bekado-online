@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -35,63 +36,60 @@ class AdapterKeranjang(
 
     class ViewHolder(val binding: LayoutKeranjangListBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(
-            krnjng: CombinedKeranjangModel,
+            dataModel: CombinedKeranjangModel,
             itemChecked: (CombinedKeranjangModel, isChecked: Boolean) -> Unit,
             itemDelete: (CombinedKeranjangModel) -> Unit,
             itemCount: (CombinedKeranjangModel, isPlus: Boolean) -> Unit
         ) {
+            val modelProduk = dataModel.produkModel
+            val modelKeranjang = dataModel.keranjangModel
 
-            val krjPrdk = krnjng.produkModel
-            val krjKrnjng = krnjng.keranjangModel
-
-            val hargaProduks = krjPrdk?.currency + addcoma3digit(krjPrdk?.hargaProduk)
+            val produkPrice = modelProduk?.currency + addcoma3digit(modelProduk?.hargaProduk ?: 0)
+            val produkName = modelProduk?.namaProduk ?: binding.root.context.getString(R.string.strip)
 
             with(binding) {
-                Glide.with(root.context).load(krjPrdk?.fotoProduk)
+                Glide.with(root.context).load(modelProduk?.fotoProduk)
                     .apply(RequestOptions()).centerCrop()
                     .placeholder(R.drawable.img_placeholder)
                     .error(R.drawable.img_error)
                     .transition(DrawableTransitionOptions.withCrossFade(300))
                     .into(gambarProduk)
-                namaProduk.text = krjPrdk?.namaProduk
-                hargaProduk.text = hargaProduks
-                hapusProduk.setOnClickListener { itemDelete(krnjng) }
+                namaProduk.text = produkName
+                hargaProduk.text = produkPrice
+                hapusProduk.setOnClickListener { itemDelete(dataModel) }
 
-                if (krjKrnjng != null) {
-                    actionJumlah.visibility = View.VISIBLE
-                    checkBoxSelect.visibility = View.VISIBLE
+                actionJumlah.isVisible = modelKeranjang != null
+                checkBoxSelect.isVisible = modelKeranjang != null
 
-                    val jmlhPrdkKrnjg = krjKrnjng.jumlahProduk ?: 0
+                if (modelKeranjang != null) {
+                    val jmlhPrdkKrnjg = modelKeranjang.jumlahProduk ?: 0
                     jumlahProduk.text = jmlhPrdkKrnjg.toString()
                     kurangJumlahProduk.isEnabled = jmlhPrdkKrnjg.toInt() > 1
                     tambahJumlahProduk.isEnabled = jmlhPrdkKrnjg.toInt() < 100
 
                     checkBoxSelect.apply {
                         setOnCheckedChangeListener(null)
-                        isChecked = krjKrnjng.diPilih
+                        isChecked = modelKeranjang.diPilih
                         setOnCheckedChangeListener { _, isChecked ->
-                            itemChecked(krnjng, isChecked)
+                            itemChecked(dataModel, isChecked)
                         }
                     }
 
-                    tambahJumlahProduk.setOnClickListener { itemCount(krnjng, true) }
-                    kurangJumlahProduk.setOnClickListener { itemCount(krnjng, false) }
+                    tambahJumlahProduk.setOnClickListener { itemCount(dataModel, true) }
+                    kurangJumlahProduk.setOnClickListener { itemCount(dataModel, false) }
                 } else {
                     llProduk.setPaddingInDp(16f, 0f, 0f, 0f)
-                    actionJumlah.visibility = View.GONE
-                    checkBoxSelect.visibility = View.GONE
                 }
             }
         }
 
         private fun View.setPaddingInDp(leftDp: Float, topDp: Float, rightDp: Float, bottomDp: Float) {
-            val context = this.context
-            val density = context.resources.displayMetrics.density
+            val padding = binding.root.resources.displayMetrics.density
 
-            val leftPx = (leftDp * density).toInt()
-            val topPx = (topDp * density).toInt()
-            val rightPx = (rightDp * density).toInt()
-            val bottomPx = (bottomDp * density).toInt()
+            val leftPx = (leftDp * padding).toInt()
+            val topPx = (topDp * padding).toInt()
+            val rightPx = (rightDp * padding).toInt()
+            val bottomPx = (bottomDp * padding).toInt()
 
             this.setPadding(leftPx, topPx, rightPx, bottomPx)
         }

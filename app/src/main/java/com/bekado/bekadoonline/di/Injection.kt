@@ -3,10 +3,13 @@ package com.bekado.bekadoonline.di
 import android.content.Context
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.data.Repository
+import com.bekado.bekadoonline.data.repository.CartRepositoryImpl
 import com.bekado.bekadoonline.data.repository.TrxRepositoryImpl
 import com.bekado.bekadoonline.data.repository.UserRepositoryImpl
+import com.bekado.bekadoonline.domain.interactor.CartUseCaseInteractor
 import com.bekado.bekadoonline.domain.interactor.TrxUseCaseInteractor
 import com.bekado.bekadoonline.domain.interactor.UserUseCaseInteractor
+import com.bekado.bekadoonline.domain.repositories.CartRepository
 import com.bekado.bekadoonline.domain.repositories.TrxRepository
 import com.bekado.bekadoonline.domain.repositories.UserRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -36,6 +39,10 @@ object Injection {
         return TrxRepositoryImpl(db())
     }
 
+    private fun provideCartRepository(): CartRepository {
+        return CartRepositoryImpl(auth(), db())
+    }
+
     fun provideUserUseCase(context: Context): UserUseCaseInteractor {
         val akunRepository = provideUserRepository(context)
         return UserUseCaseInteractor(akunRepository)
@@ -44,5 +51,10 @@ object Injection {
     fun provideTrxUseCase(): TrxUseCaseInteractor {
         val trxRepository = provideTrxRepository()
         return TrxUseCaseInteractor(trxRepository)
+    }
+
+    fun provideCartUseCase(): CartUseCaseInteractor {
+        val cartRepository = provideCartRepository()
+        return CartUseCaseInteractor(cartRepository)
     }
 }
