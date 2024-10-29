@@ -3,11 +3,13 @@ package com.bekado.bekadoonline.domain.interactor
 import android.content.Intent
 import androidx.lifecycle.LiveData
 import com.bekado.bekadoonline.data.model.AkunModel
+import com.bekado.bekadoonline.data.model.AlamatModel
+import com.bekado.bekadoonline.domain.repositories.AddressRepository
 import com.bekado.bekadoonline.domain.repositories.UserRepository
 import com.bekado.bekadoonline.domain.usecase.UserUseCase
 import com.google.firebase.auth.FirebaseUser
 
-class UserUseCaseInteractor(private val userRepository: UserRepository) : UserUseCase {
+class UserUseCaseInteractor(private val userRepository: UserRepository, private val addressRepository: AddressRepository) : UserUseCase {
     override fun executeCurrentUser(): FirebaseUser? {
         return userRepository.getAuthCurrentUser()
     }
@@ -46,5 +48,17 @@ class UserUseCaseInteractor(private val userRepository: UserRepository) : UserUs
 
     override fun executeAutoRegisterUserToRtdb(response: (Boolean) -> Unit) {
         userRepository.autoRegisterUserToRtdb(response)
+    }
+
+    override fun executeGetDataAlamat(): LiveData<AlamatModel?> {
+        return addressRepository.getDataAlamat()
+    }
+
+    override fun executeAlamatLoading(): LiveData<Boolean> {
+        return addressRepository.getLoading()
+    }
+
+    override fun executeRemoveAlamatListener() {
+        addressRepository.removeListener()
     }
 }

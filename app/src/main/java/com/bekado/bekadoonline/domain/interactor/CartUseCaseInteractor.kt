@@ -27,8 +27,8 @@ class CartUseCaseInteractor(private val cartRepository: CartRepository) : CartUs
         return cartRepository.deleteThisProduk(idProduk, response)
     }
 
-    override fun executeDeleteSelectedProduk(selectedKeranjang: List<CombinedKeranjangModel>?, response: (Boolean) -> Unit) {
-        return cartRepository.deleteSelectedProduk(selectedKeranjang, response)
+    override fun executeDeleteSelectedProduk(produkSelected: List<CombinedKeranjangModel>?, response: (Boolean) -> Unit) {
+        return cartRepository.deleteSelectedProduk(produkSelected, response)
     }
 
     override fun executeCancelAction(itemKeranjang: CombinedKeranjangModel): Task<Void>? {

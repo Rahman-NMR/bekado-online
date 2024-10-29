@@ -1,6 +1,5 @@
 package com.bekado.bekadoonline.view.ui
 
-import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -8,8 +7,6 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -18,27 +15,24 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.data.model.AkunModel
-import com.bekado.bekadoonline.data.model.TransaksiModel
+import com.bekado.bekadoonline.data.model.TrxListModel
 import com.bekado.bekadoonline.databinding.FragmentTransaksiBinding
-import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.helper.constval.VariableConstant
+import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.EXTRA_PATH_DTRANSAKSI
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.view.adapter.AdapterTransaksi
 import com.bekado.bekadoonline.view.shimmer.ShimmerModel
 import com.bekado.bekadoonline.view.ui.auth.LoginActivity
 import com.bekado.bekadoonline.view.ui.auth.RegisterActivity
 import com.bekado.bekadoonline.view.ui.transaksi.DetailTransaksiActivity
-import com.bekado.bekadoonline.view.ui.transaksi.DetailTransaksiActivity.Companion
 import com.bekado.bekadoonline.view.ui.transaksi.KeranjangActivity
 import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiListViewModel
 import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiViewModelFactory
 import com.bekado.bekadoonline.view.viewmodel.user.AuthViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
-import com.google.android.material.snackbar.Snackbar
 
 class TransaksiFragment : Fragment() {
     private lateinit var binding: FragmentTransaksiBinding
@@ -48,7 +42,6 @@ class TransaksiFragment : Fragment() {
     private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
     private val authViewModel: AuthViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
     private val transaksiListVM: TransaksiListViewModel by viewModels { TransaksiViewModelFactory.getInstance() }
-    private lateinit var detailTransaksiLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTransaksiBinding.inflate(inflater, container, false)
@@ -57,18 +50,6 @@ class TransaksiFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        detailTransaksiLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val action = result.data?.getStringExtra(VariableConstant.RESULT_ACTION)
-                val noPesanan = result.data?.getStringExtra(VariableConstant.UPDATE_TRANSACTION)
-
-                if (action == VariableConstant.REFRESH_DATA) {
-                    val snackbar = Snackbar.make(binding.root, "Salin No. Pesanan", Snackbar.LENGTH_LONG)
-                    snackbar.setAction("Salin") { Helper.salinPesan(requireContext(), noPesanan.toString()) }.show()
-                }
-            }
-        }
 
         val paddingBottom = resources.getDimensionPixelSize(R.dimen.maxBottomdp)
         val padding = resources.getDimensionPixelSize(R.dimen.normaldp)
@@ -97,7 +78,7 @@ class TransaksiFragment : Fragment() {
         }
     }
 
-    private fun searchTransaksi(dataTransaksi: ArrayList<TransaksiModel>) {
+    private fun searchTransaksi(dataTransaksi: ArrayList<TrxListModel>) {
         val search = object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -112,7 +93,7 @@ class TransaksiFragment : Fragment() {
                             data.totalBelanja.toString().contains(textToSearch, ignoreCase = true) ||
                             data.noPesanan.toString().contains(textToSearch, ignoreCase = true) ||
                             data.statusPesanan.toString().contains(textToSearch, ignoreCase = true)
-                } as ArrayList<TransaksiModel>
+                } as ArrayList<TrxListModel>
 
                 if (HelperConnection.isConnected(requireContext())) {
                     if (searchList.isEmpty()) {
@@ -136,9 +117,11 @@ class TransaksiFragment : Fragment() {
     }
 
     private fun setupAdapter() {
-        adapterTransaksi = AdapterTransaksi { trx ->
-            Companion.detailTransaksi = trx
-            detailTransaksiLauncher.launch(Intent(context, DetailTransaksiActivity::class.java))
+        adapterTransaksi = AdapterTransaksi { transaksiModel ->
+            val pathDetailTrx = "${transaksiModel.uidOwnerTrx}/${transaksiModel.idTransaksi}"
+            val mIntent = Intent(context, DetailTransaksiActivity::class.java)
+                .putExtra(EXTRA_PATH_DTRANSAKSI, pathDetailTrx)
+            startActivity(mIntent)
         }
         binding.rvDaftarTransaksi.adapter = adapterTransaksi
     }

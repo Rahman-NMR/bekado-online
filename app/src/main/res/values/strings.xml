@@ -26,6 +26,7 @@
     <string name="terlalu_panjang">terlalu panjang</string>
     <string name="alamat_uncompleate">Alamat belum lengkap</string>
     <string name="pesanan_baru_berhasil">Pesanan baru berhasil dibuat</string>
+    <string name="pesanan_baru_gagal">Gagal membuat pesanan baru</string>
     <string name="kategori_terhapus">Kategori telah dihapus</string>
     <string name="pilih_produk_dulu">Pilih produk terlebih dahulu</string>
     <string name="syarat_checkout">Minimal pembelanjaan Rp50.000</string>
@@ -36,12 +37,15 @@
     <string name="status_pesanan_belom_pilih">Status pesanan belum dipilih</string>
     <string name="late_upload_bukti">Tidak bisa dilakukan pada status</string>
     <string name="kategori_unselected">Anda belum memilih Kategori</string>
+    <string name="metode_pembayaran_unselected">Anda belum memilih Metode Pembayaran</string>
     <string name="location_not_found">Lokasi tidak ditemukan</string>
     <string name="restricted_admin">Admin tidak dapat mengakses keranjang</string>
+    <string name="restricted_non_admin">Anda tidak memiliki akses Admin</string>
     <string name="account_problem">Akun tidak ditemukan. Akun akan dikeluarkan otomatis dari aplikasi.</string>
     <string name="gagal_ubah_jumlah_produk">Gagal mengubah jumlah produk</string>
     <string name="gagal_hapus_produk">Gagal menghapus produk%1$s</string>
     <string name="gagal_ubah_selected_produk">%1$s tidak dapat dipilih</string>
+    <string name="detail_transaksi_not_found">Detail Transaksi tidak ditemukan</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -140,7 +144,7 @@
     <string name="msg_alamat">Perubahan alamat akan dibatalkan. Semua perubahan tidak akan disimpan</string>
     <string name="msg_konf_pesanan">Pesanan akan ditambahkan ke daftar transaksi.</string>
     <string name="kirim_tautan_ke_email">Tautan akan di kirim ke email</string>
-    <string name="sts_psnsn_ubah_mjd">Status pesanan akan diubah menjadi</string>
+    <string name="sts_psnsn_ubah_mjd">Status pesanan akan diubah menjadi %1$s</string>
 
     <!--    empty condition-->
     <string name="msg_keranjang_kosong">Keranjang masih kosong</string>

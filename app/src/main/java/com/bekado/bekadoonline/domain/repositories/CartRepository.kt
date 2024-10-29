@@ -10,7 +10,7 @@ interface CartRepository {
     fun updateJumlahProduk(path: String?, isPlus: Boolean, response: (Boolean) -> Unit)
     fun updateProdukTerpilih(idProduk: String?, isChecked: Boolean, response: (Boolean) -> Unit)
     fun deleteThisProduk(idProduk: String?, response: (Boolean) -> Unit)
-    fun deleteSelectedProduk(selectedKeranjang: List<CombinedKeranjangModel>?, response: (Boolean) -> Unit)
+    fun deleteSelectedProduk(produkSelected: List<CombinedKeranjangModel>?, response: (Boolean) -> Unit)
     fun cancelAction(itemKeranjang: CombinedKeranjangModel): Task<Void>?
     fun startListener()
     fun removeListener()

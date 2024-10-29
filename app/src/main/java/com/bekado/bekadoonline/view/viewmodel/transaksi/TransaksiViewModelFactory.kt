@@ -11,6 +11,8 @@ class TransaksiViewModelFactory(private val trxUseCase: TrxUseCase) : ViewModelP
         return when {
             modelClass.isAssignableFrom(TransaksiViewModel::class.java) -> TransaksiViewModel(trxUseCase) as T
             modelClass.isAssignableFrom(TransaksiListViewModel::class.java) -> TransaksiListViewModel(trxUseCase) as T
+            modelClass.isAssignableFrom(CheckoutViewModel::class.java) -> CheckoutViewModel(trxUseCase) as T
+            modelClass.isAssignableFrom(DetailTransaksiViewModel::class.java) -> DetailTransaksiViewModel(trxUseCase) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

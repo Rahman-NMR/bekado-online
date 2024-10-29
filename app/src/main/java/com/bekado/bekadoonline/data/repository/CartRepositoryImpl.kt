@@ -23,19 +23,13 @@ class CartRepositoryImpl(auth: FirebaseAuth, db: FirebaseDatabase) : CartReposit
     private val _keranjangModel = MutableLiveData<ArrayList<CombinedKeranjangModel>?>()
     private val keranjangModel: LiveData<ArrayList<CombinedKeranjangModel>?> get() = _keranjangModel
 
-//    private val produkListeners = mutableMapOf<String, ValueEventListener>()
-
     private var keranjangListener: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(keranjangSnapshot: DataSnapshot) {
-//            val keranjangItem = arrayListOf<CombinedKeranjangModel>()
-
             _isLoading.value = true
-            if (keranjangSnapshot.exists()) {
-//                for (keranjangList in keranjangSnapshot.children) {
-                val idProduk = keranjangSnapshot.children.mapNotNull { it.key }.toList()//keranjangList.child("idProduk").getValue(String::class.java)
 
-                dataProduk(idProduk, keranjangSnapshot/*keranjangList*/)
-//                }
+            if (keranjangSnapshot.exists()) {
+                val idProduk = keranjangSnapshot.children.mapNotNull { it.key }.toList()
+                dataProduk(idProduk, keranjangSnapshot)
             } else {
                 _keranjangModel.value = null
                 _isLoading.value = false
@@ -63,8 +57,6 @@ class CartRepositoryImpl(auth: FirebaseAuth, db: FirebaseDatabase) : CartReposit
                 }
 
                 keranjangItem.values.toList().let { _keranjangModel.value = ArrayList(it) }
-//                val keranjangItems = keranjangItem.values.toList() as ArrayList<CombinedKeranjangModel>
-//                _keranjangModel.value = keranjangItems
                 _isLoading.value = false
             }
 
@@ -74,30 +66,10 @@ class CartRepositoryImpl(auth: FirebaseAuth, db: FirebaseDatabase) : CartReposit
             }
 
         })
-        /*if (idProduk != null) {
-            val dataKeranjang = keranjangList.getValue(KeranjangModel::class.java)
-            val produkListener = object : ValueEventListener {
-                override fun onDataChange(produkSnapshot: DataSnapshot) {
-                    val dataProduk = produkSnapshot.getValue(ProdukModel::class.java)
-                    keranjangItem.removeAll { it.produkModel?.idProduk == dataProduk?.idProduk }
-                    keranjangItem.add(CombinedKeranjangModel(dataProduk, dataKeranjang))
-
-                    _keranjangModel.value = keranjangItem
-                    _isLoading.value = false
-                }
-
-                override fun onCancelled(error: DatabaseError) {}
-            }
-            produkRef.child(idProduk).addValueEventListener(produkListener)
-            produkListeners[idProduk] = produkListener
-        }*/
     }
 
     private fun clearKeranjangListeners() {
         keranjangRef.orderByChild("timestamp").removeEventListener(keranjangListener)
-
-//        produkListeners.forEach { (idProduk, listener) -> produkRef.child(idProduk).removeEventListener(listener) }
-//        produkListeners.clear()
     }
 
     init {
@@ -133,9 +105,10 @@ class CartRepositoryImpl(auth: FirebaseAuth, db: FirebaseDatabase) : CartReposit
         } else response.invoke(false)
     }
 
-    override fun deleteSelectedProduk(selectedKeranjang: List<CombinedKeranjangModel>?, response: (Boolean) -> Unit) {
+    override fun deleteSelectedProduk(produkSelected: List<CombinedKeranjangModel>?, response: (Boolean) -> Unit) {
         clearKeranjangListeners()
-        selectedKeranjang?.forEach { keranjang ->
+
+        produkSelected?.forEach { keranjang ->
             keranjangRef.child("${keranjang.produkModel?.idProduk}").removeValue()
                 .addOnCompleteListener {
                     response.invoke(it.isSuccessful)

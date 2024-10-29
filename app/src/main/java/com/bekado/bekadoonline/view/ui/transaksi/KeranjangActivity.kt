@@ -2,8 +2,6 @@ package com.bekado.bekadoonline.view.ui.transaksi
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
@@ -16,7 +14,6 @@ import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.view.adapter.AdapterKeranjang
 import com.bekado.bekadoonline.view.ui.transaksi.CheckOutActivity.Companion.selectedProduk
@@ -33,20 +30,11 @@ class KeranjangActivity : AppCompatActivity() {
     private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(this) }
     private val cartViewModel: KeranjangViewModel by viewModels { KeranjangViewModelFactory.getInstance() }
 
-    private lateinit var resultCheckout: ActivityResultLauncher<Intent>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityKeranjangBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         supportActionBar?.hide()
-        resultCheckout = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val data = result.data?.getStringExtra(VariableConstant.RESULT_ACTION)
-//                if (data == VariableConstant.ACTION_REFRESH_UI) viewModelLoader()
-            }
-        }
 
         val layoutManager = LinearLayoutManager(this@KeranjangActivity, LinearLayoutManager.VERTICAL, false)
         val padding = resources.getDimensionPixelSize(R.dimen.smalldp)
@@ -64,9 +52,8 @@ class KeranjangActivity : AppCompatActivity() {
     }
 
     private fun dataAkunHandler() {
-        userViewModel.getDataAkun().observe(this) { akunModel ->
-            if (akunModel == null) finish()
-            if (akunModel?.statusAdmin == true) finish()
+        userViewModel.getDataAkun().observe(this) { akun ->
+            akun?.let { if (it.statusAdmin) finish() } ?: finish()
         }
     }
 
@@ -113,8 +100,7 @@ class KeranjangActivity : AppCompatActivity() {
     private fun checkout(dataKeranjang: ArrayList<CombinedKeranjangModel>) {
         if (dataKeranjang.isNotEmpty()) {
             selectedProduk = dataKeranjang
-            resultCheckout.launch(Intent(this, CheckOutActivity::class.java))
-            cartViewModel.clearListener()
+            startActivity(Intent(this, CheckOutActivity::class.java))
         } else showToast(getString(R.string.pilih_produk_dulu), this)
     }
 
@@ -153,7 +139,7 @@ class KeranjangActivity : AppCompatActivity() {
                 snackbar.anchorView = binding.llContainerPesanan
                 snackbar.setAction("Batalkan") { cartViewModel.cancelAction(itemKeranjang) }
                 snackbar.show()
-            } else showToast(getString(R.string.gagal_hapus_produk, ""), this)
+            } else showToast(getString(R.string.gagal_hapus_produk), this)
         }
     }
 

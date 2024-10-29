@@ -10,7 +10,7 @@ interface CartUseCase {
     fun executeUpdateJumlahProduk(path: String?, isPlus: Boolean, response: (Boolean) -> Unit)
     fun executeUpdateProdukTerpilih(idProduk: String?, isChecked: Boolean, response: (Boolean) -> Unit)
     fun executeDeleteThisProduk(idProduk: String?, response: (Boolean) -> Unit)
-    fun executeDeleteSelectedProduk(selectedKeranjang: List<CombinedKeranjangModel>?, response: (Boolean) -> Unit)
+    fun executeDeleteSelectedProduk(produkSelected: List<CombinedKeranjangModel>?, response: (Boolean) -> Unit)
     fun executeCancelAction(itemKeranjang: CombinedKeranjangModel): Task<Void>?
     fun executeStartListener()
     fun executeRemoveListener()

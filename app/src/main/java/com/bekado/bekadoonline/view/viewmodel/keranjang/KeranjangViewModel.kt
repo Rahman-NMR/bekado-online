@@ -21,8 +21,8 @@ class KeranjangViewModel(private val cartUseCase: CartUseCase) : ViewModel() {
         cartUseCase.executeDeleteThisProduk(idProduk, response)
     }
 
-    fun deleteSelectedProduk(selectedKeranjang: List<CombinedKeranjangModel>?, response: (Boolean) -> Unit) {
-        cartUseCase.executeDeleteSelectedProduk(selectedKeranjang, response)
+    fun deleteSelectedProduk(produkSelected: List<CombinedKeranjangModel>?, response: (Boolean) -> Unit) {
+        cartUseCase.executeDeleteSelectedProduk(produkSelected, response)
     }
 
     fun cancelAction(itemKeranjang: CombinedKeranjangModel) {
@@ -32,13 +32,9 @@ class KeranjangViewModel(private val cartUseCase: CartUseCase) : ViewModel() {
     fun startListener() {
         cartUseCase.executeStartListener()
     }
-    //todo(remove & start listener taroh kaya deleteSelectedProduk aja pas di tempat checkout kalo make cartRepository)
-    fun clearListener() {
-        cartUseCase.executeRemoveListener()
-    }
 
     override fun onCleared() {
         super.onCleared()
-        clearListener()
+        cartUseCase.executeRemoveListener()
     }
 }

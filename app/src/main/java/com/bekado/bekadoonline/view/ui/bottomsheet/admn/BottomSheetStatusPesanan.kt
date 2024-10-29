@@ -10,22 +10,19 @@ import com.bekado.bekadoonline.helper.Helper.showAlertDialog
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.firebase.database.DatabaseReference
 
-class BottomSheetStatusPesanan(context: Context) {
-    private var bindingBS: BottomsheetSetStatusPesananBinding
-    var dialog: BottomSheetDialog
+class BottomSheetStatusPesanan(private val context: Context) {
+    private var bindingBS: BottomsheetSetStatusPesananBinding = BottomsheetSetStatusPesananBinding.inflate(LayoutInflater.from(context))
+    var dialog: BottomSheetDialog = BottomSheetDialog(context, R.style.AppBottomSheetDialogTheme)
     var selectedParent: String = ""
     var selectedStatus: String = ""
     var selected: Boolean = false
 
     init {
-        bindingBS = BottomsheetSetStatusPesananBinding.inflate(LayoutInflater.from(context))
-        dialog = BottomSheetDialog(context, R.style.AppBottomSheetDialogTheme)
         dialog.setContentView(bindingBS.root)
     }
 
-    fun showDialog(context: Context, trxRef: DatabaseReference, startActive: String?) {
+    fun showDialog(startActive: String?) {
         with(bindingBS) {
             title.text = context.getString(R.string.pilih_status_pesanan)
 
@@ -62,26 +59,26 @@ class BottomSheetStatusPesanan(context: Context) {
             btnPilihStatus.setOnClickListener {
                 showAlertDialog(
                     context.getString(R.string.ubah_status_pesanan),
-                    "${context.getString(R.string.sts_psnsn_ubah_mjd)} '$selectedStatus'.",
+                    context.getString(R.string.sts_psnsn_ubah_mjd, "'$selectedStatus'."),
                     context.getString(R.string.ubah),
                     context,
                     context.getColor(R.color.blue_grey_700)
-                ) { setStatusValue(context, trxRef) }
+                ) { setStatusValue(context) }
             }
         }
 
         dialog.show()
     }
 
-    private fun setStatusValue(context: Context, trxRef: DatabaseReference) {
+    private fun setStatusValue(context: Context) {
         if (HelperConnection.isConnected(context)) {
             if (selectedParent.isNotEmpty())
-                trxRef.child("parentStatus").setValue(selectedParent).addOnSuccessListener {
+                /*trxRef.child("parentStatus").setValue(selectedParent).addOnSuccessListener {
                     trxRef.child("statusPesanan").setValue(selectedStatus).addOnSuccessListener {
                         selected = true
                         dialog.cancel()
                     }
-                }
+                }*/
             else showToast(context.getString(R.string.status_pesanan_belom_pilih), context)
         }
     }

@@ -288,6 +288,7 @@
                 </androidx.cardview.widget.CardView>
 
                 <TextView
+                    android:id="@+id/sub_title_daftar_produk"
                     style="@style/textView.sub.title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

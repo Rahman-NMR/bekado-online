@@ -12,6 +12,7 @@ class UserViewModelFactory(private val userUseCase: UserUseCase) : ViewModelProv
         return when {
             modelClass.isAssignableFrom(UserViewModel::class.java) -> UserViewModel(userUseCase) as T
             modelClass.isAssignableFrom(AuthViewModel::class.java) -> AuthViewModel(userUseCase) as T
+            modelClass.isAssignableFrom(AlamatViewModel::class.java) -> AlamatViewModel(userUseCase) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

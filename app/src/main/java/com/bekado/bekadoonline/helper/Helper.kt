@@ -22,7 +22,7 @@ import kotlin.math.sqrt
 object Helper {
     fun addcoma3digit(number: Long?): String {
         val numberFormat: NumberFormat = DecimalFormat("#,###")
-        return numberFormat.format(number)
+        return numberFormat.format(number ?: 0)
     }
 
     fun calcDistance(latUser: Double, lonUser: Double, latToko: Double, lonToko: Double): Double {

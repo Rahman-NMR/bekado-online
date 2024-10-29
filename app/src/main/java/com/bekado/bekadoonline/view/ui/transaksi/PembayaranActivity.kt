@@ -11,54 +11,40 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.data.model.DetailTransaksiModel
+import com.bekado.bekadoonline.data.model.TrxDetailModel
 import com.bekado.bekadoonline.databinding.ActivityPembayaranBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.showToast
-import com.bekado.bekadoonline.helper.constval.VariableConstant
-import com.bekado.bekadoonline.data.model.TransaksiModel
-import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
-import com.bekado.bekadoonline.data.viewmodel.BuktiPembayaranViewModel
-import com.bekado.bekadoonline.data.viewmodel.ClientDataViewModel
-import com.bekado.bekadoonline.data.viewmodel.TransaksiDetailViewModel
-import com.bekado.bekadoonline.ui.ViewModelFactory
+import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.EXTRA_ID_TRANSAKSI
+import com.bekado.bekadoonline.view.viewmodel.transaksi.DetailTransaksiViewModel
+import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiViewModelFactory
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
 import java.io.File
 
 class PembayaranActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPembayaranBinding
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseDatabase
-    private lateinit var storage: FirebaseStorage
+
+    private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(this) }
+    private val detailTransaksiViewModel: DetailTransaksiViewModel by viewModels { TransaksiViewModelFactory.getInstance() }
 
     private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
+    private var extraIDtransaksi: String? = ""
     private var imageUri: Uri = Uri.parse("")
-
-    private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(this) }
-    private lateinit var transaksiViewModel: TransaksiDetailViewModel
-    private lateinit var clientDataViewModel: ClientDataViewModel
-    private lateinit var invoiceViewModel: BuktiPembayaranViewModel
-
-    private lateinit var akunRef: DatabaseReference
-    private lateinit var invRef: DatabaseReference
     private var status: List<String> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPembayaranBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         supportActionBar?.hide()
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseDatabase.getInstance()
-        storage = FirebaseStorage.getInstance()
+
+        extraIDtransaksi = intent?.getStringExtra(EXTRA_ID_TRANSAKSI) ?: ""
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
@@ -69,7 +55,6 @@ class PembayaranActivity : AppCompatActivity() {
                 }
             }
         }
-        invRef = db.getReference("transaksi/$uidnIdtrx")
         status = listOf(
             getString(R.string.status_dalam_pengiriman),
             getString(R.string.status_dalam_proses),
@@ -77,13 +62,8 @@ class PembayaranActivity : AppCompatActivity() {
             getString(R.string.status_dibatalkan)
         )
 
-//        akunViewModel = ViewModelProvider(this)[AkunViewModel::class.java]
-        transaksiViewModel = ViewModelProvider(this)[TransaksiDetailViewModel::class.java]
-        clientDataViewModel = ViewModelProvider(this)[ClientDataViewModel::class.java]
-        invoiceViewModel = ViewModelProvider(this)[BuktiPembayaranViewModel::class.java]
-
-        dataHandler()
-        getDataBuktiTrx()
+        dataAkunHandler()
+        dataPembayaranHandler()
 
         with(binding) {
             appBar.setNavigationOnClickListener { finish() }
@@ -96,85 +76,72 @@ class PembayaranActivity : AppCompatActivity() {
         }
     }
 
-    private fun dataHandler() {
-//        akunViewModel.loadCurrentUser()
-        akunViewModel.loadAkunData()
-
-//        akunViewModel.currentUser.observe(this) { if (it == null) finish() }
-        akunViewModel.akunModel.observe(this) { akunModel ->
-            if (akunModel != null) {
-                akunRef = db.getReference("akun/${akunModel.uid}")
-
-                val isAdmin = akunModel.statusAdmin
+    private fun dataAkunHandler() {
+        userViewModel.getDataAkun().observe(this) { akun ->
+            if (akun != null) {
+                val isAdmin = akun.statusAdmin
                 val drawableTop = if (isAdmin) 0 else R.drawable.icon_outline_add_photo_alternate_24
                 val txtBuktiTrx = if (isAdmin) getString(R.string.belum_upload_bukti) else getString(R.string.tambah_bukti_pembayaran)
 
                 with(binding) {
                     tvBuktiPmbyrn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, drawableTop, 0, 0)
                     tvBuktiPmbyrn.text = txtBuktiTrx
-                    btnUbahImageBukti.visibility = if (!isAdmin) View.VISIBLE else View.GONE
+                    btnUbahImageBukti.isVisible = !isAdmin
                     if (!isAdmin) tvBuktiPmbyrn.setOnClickListener { pilihGambarIntent() }
                     btnSimpanBuktPmbyrn.setOnClickListener { uploadImage() }
                 }
+            } else finish()
+        }
+    }
 
-                transaksiViewModel.loadDetailTransaksi(invRef, akunModel.statusAdmin, BuktiDetailTransaksi.idTransaksi)
+    private fun dataPembayaranHandler() {
+        detailTransaksiViewModel.getDetailTransaksi(extraIDtransaksi).observe(this) { detail ->
+            if (detail != null) {
+                if (!detail.metodePembayaran.isNullOrEmpty()) if (detail.metodePembayaran == getString(R.string.cod)) finish()
+                if (!detail.statusPesanan.isNullOrEmpty())
+                    if (status.any { detail.statusPesanan.contains(it) }) {
+                        binding.btnUbahImageBukti.visibility = View.GONE
+                        binding.btnSimpanBuktPmbyrn.visibility = View.GONE
+                        binding.btnSimpanBuktPmbyrn.setOnClickListener { limitedClickListener(detail) }
+                        binding.tvBuktiPmbyrn.setOnClickListener { limitedClickListener(detail) }
+                    }
             } else {
-                akunRef = db.getReference("akun")
+                showToast(getString(R.string.detail_transaksi_not_found), this@PembayaranActivity)
                 finish()
             }
         }
-        transaksiViewModel.detailTransaksi.observe(this) { data ->
-            if (data != null) {
-                if (!data.metodePembayaran.isNullOrEmpty()) if (data.metodePembayaran == getString(R.string.cod)) finish()
-                if (!data.statusPesanan.isNullOrEmpty())
-                    if (status.any { data.statusPesanan.contains(it) }) {
-                        binding.btnUbahImageBukti.visibility = View.GONE
-                        binding.btnSimpanBuktPmbyrn.visibility = View.GONE
-                        binding.btnSimpanBuktPmbyrn.setOnClickListener { limitedClickListener(data) }
-                        binding.tvBuktiPmbyrn.setOnClickListener { limitedClickListener(data) }
-                    }
-            }
+        detailTransaksiViewModel.isLoading().observe(this) { isLoading ->
+            binding.progressbarBuktiPembayaran.isVisible = isLoading
+            binding.layoutBuktiPembayaran.isVisible = !isLoading
+            binding.progressbarRingkasanPembayaran.isVisible = isLoading
+            binding.layoutRingkasanPembayaran.isVisible = !isLoading
         }
-    }
-
-    private fun limitedClickListener(data: DetailTransaksiModel) {
-        showToast("${getString(R.string.late_upload_bukti)} ${data.statusPesanan}", this@PembayaranActivity)
-    }
-
-    private fun getDataBuktiTrx() {
-        invoiceViewModel.loadInvoice(invRef.child("buktiTransaksi"))
-
-        invoiceViewModel.dataInvoice.observe(this) { invoice ->
-            if (invoice != null) {
-                val nilai = invoice.biayaTransfer ?: 0
+        detailTransaksiViewModel.getPayment().observe(this) { detail ->
+            if (detail != null) {
+                val nilai = detail.biayaTransfer ?: 0
                 val nominal = if (nilai.toInt() != 0) "Rp${Helper.addcoma3digit(nilai)}" else getString(R.string.strip)
 
                 binding.nominalTf.text = nominal
-                binding.namaBank.text = invoice.namaBank
-                binding.noRek.text = invoice.noRek
-                binding.atasNama.text = invoice.pemilikBank
+                binding.namaBank.text = detail.namaBank ?: getString(R.string.strip)
+                binding.noRek.text = detail.noRek ?: getString(R.string.strip)
+                binding.atasNama.text = detail.pemilikBank ?: getString(R.string.strip)
 
-                if (!invoice.buktiTransaksi.isNullOrEmpty()) {
-                    Glide.with(this@PembayaranActivity).load(invoice.buktiTransaksi)
+                binding.tvBuktiPmbyrn.isGone = !detail.buktiTransaksi.isNullOrEmpty()
+                binding.clImgBktiExist.isVisible = !detail.buktiTransaksi.isNullOrEmpty()
+
+                if (!detail.buktiTransaksi.isNullOrEmpty()) {
+                    Glide.with(this@PembayaranActivity).load(detail.buktiTransaksi)
                         .apply(RequestOptions().centerInside())
                         .placeholder(R.drawable.img_placeholder)
                         .error(R.drawable.img_error)
                         .into(binding.imageBuktiPmbyrn)
-
-                    binding.tvBuktiPmbyrn.visibility = View.GONE
-                    binding.clImgBktiExist.visibility = View.VISIBLE
-                } else {
-                    binding.tvBuktiPmbyrn.visibility = View.VISIBLE
-                    binding.clImgBktiExist.visibility = View.GONE
                 }
             }
         }
-        invoiceViewModel.isLoading.observe(this) { isLoading ->
-            binding.progressbarBuktiPembayaran.visibility = if (isLoading) View.VISIBLE else View.GONE
-            binding.layoutBuktiPembayaran.visibility = if (!isLoading) View.VISIBLE else View.GONE
-            binding.progressbarRingkasanPembayaran.visibility = if (isLoading) View.VISIBLE else View.GONE
-            binding.layoutRingkasanPembayaran.visibility = if (!isLoading) View.VISIBLE else View.GONE
-        }
+    }
+
+    private fun limitedClickListener(data: TrxDetailModel) {
+        showToast("${getString(R.string.late_upload_bukti)} ${data.statusPesanan}", this@PembayaranActivity)
     }
 
     private fun pilihGambarIntent() {
@@ -210,29 +177,11 @@ class PembayaranActivity : AppCompatActivity() {
     }
 
     private fun uploadImage() {
-        val storageReference = storage.getReference("transaksi/$uidnIdtrx.jpg")
-
-        storageReference.putFile(imageUri).addOnSuccessListener {
-            storageReference.downloadUrl.addOnCompleteListener { task ->
-                val imgLink = task.result.toString()
-                invRef.child("buktiTransaksi/buktiTransaksi").setValue(imgLink).addOnSuccessListener {
-                    binding.btnSimpanBuktPmbyrn.isEnabled = false
-                    showToast("${getString(R.string.bukti_pembayaran)} ${getString(R.string.berhasil_diupload)}", this@PembayaranActivity)
-
-                    setResult(RESULT_OK, Intent().putExtra(VariableConstant.RESULT_ACTION, VariableConstant.ACTION_REFRESH_UI))
-                }
-                invRef.child("statusPesanan").setValue(getString(R.string.status_menunggu_konfirmasi))
-            }
-        }.addOnFailureListener { showToast(getString(R.string.masalah_database), this@PembayaranActivity) }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        invoiceViewModel.removeInvoiceListener(invRef.child("buktiTransaksi"))
-    }
-
-    companion object {
-        var BuktiDetailTransaksi: TransaksiModel = TransaksiModel()
-        var uidnIdtrx: String? = ""
+        detailTransaksiViewModel.uploadBuktiPembayaran(imageUri, getString(R.string.status_menunggu_konfirmasi)) { isSucceful ->
+            if (isSucceful) {
+                binding.btnSimpanBuktPmbyrn.isEnabled = false
+                showToast("${getString(R.string.bukti_pembayaran)} ${getString(R.string.berhasil_diupload)}", this@PembayaranActivity)
+            } else showToast(getString(R.string.masalah_database), this@PembayaranActivity)
+        }
     }
 }
