@@ -9,9 +9,14 @@ import com.bekado.bekadoonline.databinding.BottomsheetSetStatusPesananBinding
 import com.bekado.bekadoonline.helper.Helper.showAlertDialog
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
+import com.bekado.bekadoonline.view.viewmodel.transaksi.DetailTransaksiViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
-class BottomSheetStatusPesanan(private val context: Context) {
+class BottomSheetStatusPesanan(
+    private val context: Context,
+    private val extraPathDTransaksi: String?,
+    private val viewModel: DetailTransaksiViewModel
+) {
     private var bindingBS: BottomsheetSetStatusPesananBinding = BottomsheetSetStatusPesananBinding.inflate(LayoutInflater.from(context))
     var dialog: BottomSheetDialog = BottomSheetDialog(context, R.style.AppBottomSheetDialogTheme)
     var selectedParent: String = ""
@@ -22,11 +27,11 @@ class BottomSheetStatusPesanan(private val context: Context) {
         dialog.setContentView(bindingBS.root)
     }
 
-    fun showDialog(startActive: String?) {
+    fun showDialog(statusPesanan: String?) {
         with(bindingBS) {
             title.text = context.getString(R.string.pilih_status_pesanan)
 
-            when (startActive) {
+            when (statusPesanan) {
                 context.getString(R.string.status_menunggu_pembayaran) -> updateIsActivatedStatus(stsTungguBayar)
                 context.getString(R.string.status_menunggu_konfirmasi) -> updateIsActivatedStatus(stsTungguKonfirm)
                 context.getString(R.string.status_dalam_proses) -> updateIsActivatedStatus(stsDlmProses)
@@ -48,7 +53,7 @@ class BottomSheetStatusPesanan(private val context: Context) {
                 }
 
                 selectedStatus = (view as TextView).text.toString()
-                btnPilihStatus.isEnabled = startActive != selectedStatus
+                btnPilihStatus.isEnabled = statusPesanan != selectedStatus
                 view.isActivated = true
             }
 
@@ -63,22 +68,25 @@ class BottomSheetStatusPesanan(private val context: Context) {
                     context.getString(R.string.ubah),
                     context,
                     context.getColor(R.color.blue_grey_700)
-                ) { setStatusValue(context) }
+                ) { setStatusValue() }
             }
         }
 
         dialog.show()
     }
 
-    private fun setStatusValue(context: Context) {
+    private fun setStatusValue() {
         if (HelperConnection.isConnected(context)) {
-            if (selectedParent.isNotEmpty())
-                /*trxRef.child("parentStatus").setValue(selectedParent).addOnSuccessListener {
-                    trxRef.child("statusPesanan").setValue(selectedStatus).addOnSuccessListener {
-                        selected = true
-                        dialog.cancel()
+            if (selectedParent.isNotEmpty() && selectedStatus.isNotEmpty())
+                if (!extraPathDTransaksi.isNullOrEmpty()) {
+                    viewModel.updateStatusPesanan(extraPathDTransaksi, selectedStatus, selectedParent) { isSuccessful ->
+                        if (isSuccessful) {
+                            showToast(context.getString(R.string.status_pesanan_response, "berhasil"), context)
+                            selected = true
+                            dialog.cancel()
+                        } else showToast(context.getString(R.string.status_pesanan_response, "gagal"), context)
                     }
-                }*/
+                } else showToast(context.getString(R.string.detail_transaksi_not_found, "ID "), context)
             else showToast(context.getString(R.string.status_pesanan_belom_pilih), context)
         }
     }

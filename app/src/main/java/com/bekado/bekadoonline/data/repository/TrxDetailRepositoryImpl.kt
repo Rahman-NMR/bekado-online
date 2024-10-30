@@ -139,6 +139,15 @@ class TrxDetailRepositoryImpl(db: FirebaseDatabase, private val storage: Firebas
         }.addOnFailureListener { response.invoke(false) }
     }
 
+    override fun updateStatusPesanan(pathDetailTrx: String, selectedStatus: String, selectedParent: String, response: (Boolean) -> Unit) {
+        val statusValue = hashMapOf<String, Any>()
+        statusValue["parentStatus"] = selectedParent
+        statusValue["statusPesanan"] = selectedStatus
+        transaksiRef.child(pathDetailTrx).updateChildren(statusValue)
+            .addOnCompleteListener { response.invoke(it.isSuccessful) }
+            .addOnFailureListener { response.invoke(false) }
+    }
+
     override fun removeListener(pathDetailTrx: String?) {
         val detailTrxPath = pathDetailTrx ?: ""
         val uidOwnerTrx = pathDetailTrx?.split("/")?.get(0) ?: ""

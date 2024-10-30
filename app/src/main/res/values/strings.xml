@@ -45,7 +45,8 @@
     <string name="gagal_ubah_jumlah_produk">Gagal mengubah jumlah produk</string>
     <string name="gagal_hapus_produk">Gagal menghapus produk%1$s</string>
     <string name="gagal_ubah_selected_produk">%1$s tidak dapat dipilih</string>
-    <string name="detail_transaksi_not_found">Detail Transaksi tidak ditemukan</string>
+    <string name="detail_transaksi_not_found">%1$sDetail Transaksi tidak ditemukan</string>
+    <string name="status_pesanan_response">Status pesanan %1$s diubah</string>
 
     <!--    button-->
     <string name="login">Login</string>

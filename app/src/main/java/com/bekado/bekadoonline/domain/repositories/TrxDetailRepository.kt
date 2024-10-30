@@ -16,5 +16,6 @@ interface TrxDetailRepository {
     fun getProdukList(): LiveData<ArrayList<CombinedKeranjangModel>?>
     fun uploadBuktiPembayaran(imageUri: Uri, statusPesanan: String, pathDetailTrx: String?, response: (Boolean) -> Unit)
     fun getDataAkunOwner(): LiveData<AkunModel?>
+    fun updateStatusPesanan(pathDetailTrx: String, selectedStatus: String, selectedParent: String, response: (Boolean) -> Unit)
     fun removeListener(pathDetailTrx: String?)
 }

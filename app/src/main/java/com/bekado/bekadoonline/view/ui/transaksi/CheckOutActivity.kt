@@ -15,6 +15,7 @@ import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.Helper.showToastL
+import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.view.ui.profil.AlamatActivity
 import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModel
 import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModelFactory
@@ -167,22 +168,24 @@ class CheckOutActivity : AppCompatActivity() {
 
     private fun validateBeforeConfirm(nama: String?, noHp: String?, alamatFull: String?, kodePos: String?, lati: String?, longi: String?) {
         binding.btnKonfirmasiPesanan.setOnClickListener {
-            if (lati?.isNotEmpty() == true && longi?.isNotEmpty() == true &&
-                nama?.isNotEmpty() == true && noHp?.isNotEmpty() == true &&
-                alamatFull?.isNotEmpty() == true && kodePos?.isNotEmpty() == true
-            ) {
-                if (metodePembayaran.isNotEmpty()) {
-                    if (totalBelanja >= 50000) {
-                        Helper.showAlertDialog(
-                            getString(R.string.konfirmasi_pesanan_),
-                            getString(R.string.msg_konf_pesanan),
-                            getString(R.string.konfirmasi),
-                            this@CheckOutActivity,
-                            getColor(R.color.blue_grey_700)
-                        ) { addTransaksi(nama, noHp, alamatFull, kodePos, lati, longi) }
-                    } else showToastL(getString(R.string.syarat_checkout), this@CheckOutActivity)
-                } else showToast(getString(R.string.metode_pembayaran_unselected), this@CheckOutActivity)
-            } else showToast(getString(R.string.alamat_uncompleate), this@CheckOutActivity)
+            if (HelperConnection.isConnected(this)) {
+                if (lati?.isNotEmpty() == true && longi?.isNotEmpty() == true &&
+                    nama?.isNotEmpty() == true && noHp?.isNotEmpty() == true &&
+                    alamatFull?.isNotEmpty() == true && kodePos?.isNotEmpty() == true
+                ) {
+                    if (metodePembayaran.isNotEmpty()) {
+                        if (totalBelanja >= 50000) {
+                            Helper.showAlertDialog(
+                                getString(R.string.konfirmasi_pesanan_),
+                                getString(R.string.msg_konf_pesanan),
+                                getString(R.string.konfirmasi),
+                                this@CheckOutActivity,
+                                getColor(R.color.blue_grey_700)
+                            ) { addTransaksi(nama, noHp, alamatFull, kodePos, lati, longi) }
+                        } else showToastL(getString(R.string.syarat_checkout), this@CheckOutActivity)
+                    } else showToast(getString(R.string.metode_pembayaran_unselected), this@CheckOutActivity)
+                } else showToast(getString(R.string.alamat_uncompleate), this@CheckOutActivity)
+            } else showToast(getString(R.string.no_internet_connection), this@CheckOutActivity)
         }
     }
 

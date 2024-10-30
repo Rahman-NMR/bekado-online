@@ -42,8 +42,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
     private var latitude: String = ""
     private var longitude: String = ""
 
-    private var statusAdmin: Boolean = false
-    private var onStartViewActive: String? = ""
+    private var txtStatusPesananWadmin: String? = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,52 +52,48 @@ class DetailTransaksiActivity : AppCompatActivity() {
 
         extraPathDTransaksi = intent?.getStringExtra(EXTRA_PATH_DTRANSAKSI) ?: ""
 
+        dataAkunHandler()
         detailTransaksiHandler()
 
-        with(binding) {
-            appBar.setNavigationOnClickListener { finish() }
-            rvDaftarProduk.layoutManager = LinearLayoutManager(this@DetailTransaksiActivity, LinearLayoutManager.VERTICAL, false)
-            btnUbahStatus.isEnabled = !(tvStatusPesanan.text == getString(R.string.status_selesai)
-                    || tvStatusPesanan.text == getString(R.string.status_dibatalkan))
-        }
+        binding.appBar.setNavigationOnClickListener { finish() }
+        binding.rvDaftarProduk.layoutManager = LinearLayoutManager(this@DetailTransaksiActivity, LinearLayoutManager.VERTICAL, false)
     }
 
     private fun setStatusPesanan(akunModel: AkunModel) {
         binding.btnUbahStatus.setOnClickListener {
             if (akunModel.statusAdmin) {
-                val bsStatusPsnn = BottomSheetStatusPesanan(this)
-                bsStatusPsnn.showDialog(onStartViewActive)
+                val bsStatusPsnn = BottomSheetStatusPesanan(this, extraPathDTransaksi, detailTransaksiViewModel)
+                bsStatusPsnn.showDialog(txtStatusPesananWadmin)
 
                 bsStatusPsnn.dialog.setOnCancelListener {
                     if (bsStatusPsnn.selectedStatus.isNotEmpty() && bsStatusPsnn.selectedParent.isNotEmpty() && bsStatusPsnn.selected) {
-                        onStartViewActive = bsStatusPsnn.selectedStatus
+                        txtStatusPesananWadmin = bsStatusPsnn.selectedStatus
                         binding.status.text = bsStatusPsnn.selectedStatus
                         binding.tvStatusPesanan.text = bsStatusPsnn.selectedStatus
-
-                        binding.btnUbahStatus.isEnabled = !(binding.status.text == getString(R.string.status_selesai)
-                                || binding.status.text == getString(R.string.status_dibatalkan))
                     }
                 }
             } else showToast(getString(R.string.restricted_non_admin), this)
         }
     }
 
-    private fun detailTransaksiHandler() {
+    private fun dataAkunHandler() {
         userViewModel.getDataAkun().observe(this) { akunModel ->
             binding.containerChangeStatus.isVisible = akunModel?.statusAdmin == true
             if (akunModel != null) {
-                statusAdmin = akunModel.statusAdmin
                 setStatusPesanan(akunModel)
                 dataAkunOwnerTrxHandler(akunModel)
             } else finish()
         }
+    }
 
-        detailTransaksiViewModel.isLoading().observe(this) { isLoading -> setupIsLoadingTransaksi(isLoading) }
+    private fun detailTransaksiHandler() {
+        detailTransaksiViewModel.isLoading().observe(this) { isLoading -> setupIsLoading(isLoading) }
         detailTransaksiViewModel.getDetailTransaksi(extraPathDTransaksi).observe(this) { detailTransaksi ->
             setupStatusPesanan(detailTransaksi)
             val metodePembayaran = setupRincianPembayaran(detailTransaksi)
             val isTransfer = metodePembayaran == getString(R.string.transfer)
 
+            binding.btnUbahStatus.isEnabled = detailTransaksi?.parentStatus != getString(R.string.key_selesai)
             binding.lihatPembayaran.isEnabled = isTransfer
             binding.rlLihatPembayaran.isVisible = isTransfer
 
@@ -149,6 +144,17 @@ class DetailTransaksiActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupIsLoading(isLoading: Boolean) {
+        binding.progressbarStatusPesanan.isVisible = isLoading
+        binding.layoutStatusPesanan.isVisible = !isLoading
+        binding.progressbarInformasiPengiriman.isVisible = isLoading
+        binding.layoutInformasiPengiriman.isVisible = !isLoading
+        binding.progressbarRincianPembayaran.isVisible = isLoading
+        binding.layoutRincianPembayaran.isVisible = !isLoading
+        binding.progressbarDaftarProduk.isVisible = isLoading
+        binding.rvDaftarProduk.isVisible = !isLoading
+    }
+
     private fun dataAkunOwnerTrxHandler(akunModel: AkunModel) {
         detailTransaksiViewModel.getDataAkunOwner().observe(this) { dataAkun ->
             binding.userCard.isVisible = dataAkun != null && akunModel.statusAdmin
@@ -179,23 +185,12 @@ class DetailTransaksiActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupIsLoadingTransaksi(isLoading: Boolean) {
-        binding.progressbarStatusPesanan.isVisible = isLoading
-        binding.layoutStatusPesanan.isVisible = !isLoading
-        binding.progressbarInformasiPengiriman.isVisible = isLoading
-        binding.layoutInformasiPengiriman.isVisible = !isLoading
-        binding.progressbarRincianPembayaran.isVisible = isLoading
-        binding.layoutRincianPembayaran.isVisible = !isLoading
-        binding.progressbarDaftarProduk.isVisible = isLoading
-        binding.rvDaftarProduk.isVisible = !isLoading
-    }
-
     private fun setupStatusPesanan(transaksi: TrxDetailModel?) {
-        onStartViewActive = transaksi?.statusPesanan
+        txtStatusPesananWadmin = transaksi?.statusPesanan
 
         binding.status.text = transaksi?.statusPesanan ?: getString(R.string.strip)
         binding.noPesanan.text = transaksi?.noPesanan ?: getString(R.string.strip)
-        if (statusAdmin) binding.tvStatusPesanan.text = transaksi?.statusPesanan
+        binding.tvStatusPesanan.text = transaksi?.statusPesanan ?: getString(R.string.strip)
 
         val timeBuy = "${convertTstmp(transaksi?.timestamp?.toLong() ?: 0)} WIB"
         binding.waktuPembelian.text = timeBuy

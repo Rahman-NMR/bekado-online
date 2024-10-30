@@ -59,18 +59,21 @@ class KeranjangActivity : AppCompatActivity() {
 
     private fun setupAdapter() {
         adapterKeranjang = AdapterKeranjang({ itemKeranjang, isChecked ->
-            itemKeranjang.keranjangModel?.diPilih = isChecked
-            cartViewModel.updateProdukTerpilih(itemKeranjang.produkModel?.idProduk, isChecked) { isSuccessful ->
-                if (!isSuccessful) showToast(getString(R.string.gagal_ubah_selected_produk, itemKeranjang.produkModel?.namaProduk), this)
-            }
+            if (HelperConnection.isConnected(this)) {
+                itemKeranjang.keranjangModel?.diPilih = isChecked
+                cartViewModel.updateProdukTerpilih(itemKeranjang.produkModel?.idProduk, isChecked) { isSuccessful ->
+                    if (!isSuccessful) showToast(getString(R.string.gagal_ubah_selected_produk, itemKeranjang.produkModel?.namaProduk), this)
+                }
+            } else showToast(getString(R.string.no_internet_connection), this)
         }, { itemKeranjang ->
-            if (HelperConnection.isConnected(this))
-                actionDelete(itemKeranjang)
+            if (HelperConnection.isConnected(this)) actionDelete(itemKeranjang)
+            else showToast(getString(R.string.no_internet_connection), this)
         }, { item, isPlus ->
             if (HelperConnection.isConnected(this))
                 cartViewModel.addJumlahProduk(item.produkModel?.idProduk, isPlus) { isSuccessful ->
                     if (!isSuccessful) showToast(getString(R.string.gagal_ubah_jumlah_produk), this)
                 }
+            else showToast(getString(R.string.no_internet_connection), this)
         })
     }
 
@@ -157,7 +160,7 @@ class KeranjangActivity : AppCompatActivity() {
                 cartViewModel.deleteSelectedProduk(selectedKeranjang) { isSuccessful ->
                     if (!isSuccessful) showToast(getString(R.string.gagal_hapus_produk, " terpilih"), this)
                 }
-            }
+            } else showToast(getString(R.string.no_internet_connection), this)
         }
     }
 

@@ -71,6 +71,10 @@ class TrxUseCaseInteractor(
         return detailRepository.getDataAkunOwner()
     }
 
+    override fun executeUpdateStatusPesanan(pathDetailTrx: String, selectedStatus: String, selectedParent: String, response: (Boolean) -> Unit) {
+        detailRepository.updateStatusPesanan(pathDetailTrx, selectedStatus, selectedParent, response)
+    }
+
     override fun executeRemoveDetailListener(pathDetailTrx: String?) {
         detailRepository.removeListener(pathDetailTrx)
     }

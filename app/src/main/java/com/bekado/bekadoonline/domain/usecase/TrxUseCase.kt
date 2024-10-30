@@ -30,5 +30,6 @@ interface TrxUseCase {
     fun executeGetProdukList(): LiveData<ArrayList<CombinedKeranjangModel>?>
     fun executeUploadBuktiPembayaran(imageUri: Uri, statusPesanan: String, pathDetailTrx: String?, response: (Boolean) -> Unit)
     fun executeGetDataAkunOwner(): LiveData<AkunModel?>
+    fun executeUpdateStatusPesanan(pathDetailTrx: String, selectedStatus: String, selectedParent: String, response: (Boolean) -> Unit)
     fun executeRemoveDetailListener(pathDetailTrx: String?)
 }

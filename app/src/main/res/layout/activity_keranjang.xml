@@ -115,7 +115,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ll_produk_selected"
                 app:layout_constraintWidth_max="700dp"
-                tools:itemCount="2"
+                app:layout_goneMarginTop="16dp"
+                tools:itemCount="3"
                 tools:listitem="@layout/layout_keranjang_list"
                 tools:visibility="visible" />
         </androidx.constraintlayout.widget.ConstraintLayout>

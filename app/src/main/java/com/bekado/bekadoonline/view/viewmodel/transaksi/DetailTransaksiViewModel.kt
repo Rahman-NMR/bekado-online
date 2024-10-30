@@ -28,6 +28,10 @@ class DetailTransaksiViewModel(private val trxUseCase: TrxUseCase) : ViewModel()
         trxUseCase.executeUploadBuktiPembayaran(imageUri, statusPesanan, pathDetailTrx, response)
     }
 
+    fun updateStatusPesanan(pathDetailTrx: String, selectedStatus: String, selectedParent: String, response: (Boolean) -> Unit) {
+        trxUseCase.executeUpdateStatusPesanan(pathDetailTrx, selectedStatus, selectedParent, response)
+    }
+
     override fun onCleared() {
         super.onCleared()
         trxUseCase.executeRemoveDetailListener(pathDetailTrx)
