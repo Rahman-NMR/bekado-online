@@ -1,6 +1,7 @@
 package com.bekado.bekadoonline.domain.interactor
 
 import android.content.Intent
+import android.location.Location
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.bekado.bekadoonline.data.model.AkunModel
@@ -62,6 +63,20 @@ class UserUseCaseInteractor(
 
     override fun executeAlamatLoading(): LiveData<Boolean> {
         return addressRepository.getLoading()
+    }
+
+    override fun executeUpdateDataAlamat(
+        namaAlamat: String,
+        nohpAlamat: String,
+        alamatLengkap: String,
+        kodePos: String,
+        response: (Boolean) -> Unit
+    ) {
+        addressRepository.updateDataAlamat(namaAlamat, nohpAlamat, alamatLengkap, kodePos, response)
+    }
+
+    override fun executeSaveLatLong(location: Location, response: (Boolean) -> Unit) {
+        addressRepository.saveLatLong(location, response)
     }
 
     override fun executeRemoveAlamatListener() {

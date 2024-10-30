@@ -1,5 +1,6 @@
 package com.bekado.bekadoonline.data.repository
 
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.bekado.bekadoonline.data.model.AlamatModel
@@ -44,8 +45,33 @@ class AddressRepositoryImpl(private val auth: FirebaseAuth, private val db: Fire
         alamatRef.addValueEventListener(alamatListener)
     }
 
-    override fun getLoading(): LiveData<Boolean> = isLoading
     override fun getDataAlamat(): LiveData<AlamatModel?> = alamatModel
+    override fun getLoading(): LiveData<Boolean> = isLoading
+
+    override fun updateDataAlamat(namaAlamat: String, nohpAlamat: String, alamatLengkap: String, kodePos: String, response: (Boolean) -> Unit) {
+        val alamatRef = db.getReference("alamat/${getCurrentUser()?.uid}")
+        val address = HashMap<String, Any>()
+        address["nama"] = namaAlamat
+        address["noHp"] = nohpAlamat
+        address["alamatLengkap"] = alamatLengkap
+        address["kodePos"] = kodePos
+        alamatRef.updateChildren(address)
+            .addOnCompleteListener { response.invoke(it.isSuccessful) }
+            .addOnFailureListener { response.invoke(false) }
+
+    }
+
+    override fun saveLatLong(location: Location, response: (Boolean) -> Unit) {
+        val alamatRef = db.getReference("alamat/${getCurrentUser()?.uid}")
+
+        val address = HashMap<String, Any>()
+        address["latitude"] = location.latitude.toString()
+        address["longitude"] = location.longitude.toString()
+
+        alamatRef.updateChildren(address)
+            .addOnCompleteListener { response.invoke(it.isSuccessful) }
+            .addOnFailureListener { response.invoke(false) }
+    }
 
     override fun removeListener() {
         val alamatRef = db.getReference("alamat/${getCurrentUser()?.uid}")

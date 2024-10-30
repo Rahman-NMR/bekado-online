@@ -92,10 +92,8 @@ class KategoriListActivity : AppCompatActivity() {
 
     private fun validateEditText(kategoriList: ArrayList<KategoriModel>?) {
         if (isConnected(this@KategoriListActivity)) if (binding.etAddKategori.error == null) {
-            val errorMsg = "${getString(R.string.nama_kategori)} ${getString(R.string.tidak_dapat_kosong)}"
-
             if (binding.etAddKategori.text.isNotEmpty()) addKategoriToDatabase(binding.etAddKategori, kategoriList)
-            else showToast(errorMsg, this@KategoriListActivity)
+            else showToast(getString(R.string.tidak_dapat_kosong, getString(R.string.nama_kategori)), this@KategoriListActivity)
         }
     }
 
@@ -127,10 +125,10 @@ class KategoriListActivity : AppCompatActivity() {
 
         override fun afterTextChanged(s: Editable?) {
             val textInput = binding.etAddKategori.text
-            val errorMsg = "${getString(R.string.nama_kategori)} ${getString(R.string.tidak_dapat_kosong)}"
 
             if (s == textInput) {
-                if (textInput.toString().trim().isEmpty()) binding.etAddKategori.error = errorMsg
+                if (textInput.toString().trim().isEmpty()) binding.etAddKategori.error =
+                    getString(R.string.tidak_dapat_kosong, getString(R.string.nama_kategori))
                 else binding.etAddKategori.error = null
             }
         }

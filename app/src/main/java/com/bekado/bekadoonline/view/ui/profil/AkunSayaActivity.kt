@@ -228,6 +228,6 @@ class AkunSayaActivity : AppCompatActivity() {
                     else showToast("$string ${getString(R.string.gagal_mengubah)}", this)
                 }
             }
-        } else showToast("$string ${getString(R.string.tidak_dapat_kosong)}", this)
+        } else showToast(getString(R.string.tidak_dapat_kosong, string), this)
     }
 }

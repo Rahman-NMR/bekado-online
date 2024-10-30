@@ -78,7 +78,7 @@ class BottomSheetEditKategori(var context: Context) {
             ref.child("namaKategori").setValue(value)
                 .addOnSuccessListener { showToast("$string ${context.getString(R.string.berhasil_mengubah)}", context) }
                 .addOnFailureListener { showToast("$string ${context.getString(R.string.gagal_mengubah)}", context) }
-        } else showToast("$string ${context.getString(R.string.tidak_dapat_kosong)}", context)
+        } else showToast(context.getString(R.string.tidak_dapat_kosong, string), context)
     }
 
     private fun toggleEditView(

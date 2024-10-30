@@ -198,10 +198,17 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
     }
 
     private fun ActivityProdukAddUpdateBinding.validateNull(produk: ProdukModel?) {
-        val notEmpty = getString(R.string.tidak_dapat_kosong)
         when {
-            namaProduk.text.isNullOrEmpty() -> showToast("${getString(R.string.nama_produk)} $notEmpty", this@ProdukAddUpdateActivity)
-            hargaProduk.text.isNullOrEmpty() -> showToast("${getString(R.string.harga_produk)} $notEmpty", this@ProdukAddUpdateActivity)
+            namaProduk.text.isNullOrEmpty() -> showToast(
+                getString(R.string.tidak_dapat_kosong, getString(R.string.nama_produk)),
+                this@ProdukAddUpdateActivity
+            )
+
+            hargaProduk.text.isNullOrEmpty() -> showToast(
+                getString(R.string.tidak_dapat_kosong, getString(R.string.harga_produk)),
+                this@ProdukAddUpdateActivity
+            )
+
             updateKategoriId.isNullOrEmpty() -> showToast(getString(R.string.kategori_unselected), this@ProdukAddUpdateActivity)
             else -> uploadToDatabase(produk)
         }
@@ -248,11 +255,13 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
 
             val namaProduk = getString(R.string.nama_produk)
             val hargaProduk = getString(R.string.harga_produk)
-            val notNull = getString(R.string.tidak_dapat_kosong)
 
             when (s) {
-                namaInput -> binding.outlineNamaProduk.helperText = if (namaInput.toString().trim().isEmpty()) "$namaProduk $notNull" else null
-                hargaInput -> binding.outlineHargaProduk.helperText = if (hargaInput.isNullOrEmpty()) "$hargaProduk $notNull" else null
+                namaInput -> binding.outlineNamaProduk.helperText =
+                    if (namaInput.toString().trim().isEmpty()) getString(R.string.tidak_dapat_kosong, namaProduk) else null
+
+                hargaInput -> binding.outlineHargaProduk.helperText =
+                    if (hargaInput.isNullOrEmpty()) getString(R.string.tidak_dapat_kosong, hargaProduk) else null
             }
 
             binding.btnSimpanPerubahan.isEnabled = !(namaInput.toString() == produkNama && hargaInput.toString() == produkHarga.toString())

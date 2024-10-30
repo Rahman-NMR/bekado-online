@@ -21,7 +21,7 @@
     <string name="berhasil_diupload">berhasil diupload</string>
     <string name="berhasil_mengubah">berhasil diubah</string>
     <string name="gagal_mengubah">tidak berhasil diubah</string>
-    <string name="tidak_dapat_kosong">tidak dapat kosong</string>
+    <string name="tidak_dapat_kosong">%1$s tidak dapat kosong</string>
     <string name="terlalu_singkat">%1$s terlalu singkat</string>
     <string name="terlalu_panjang">%1$s terlalu panjang</string>
     <string name="alamat_uncompleate">Alamat belum lengkap</string>
@@ -88,8 +88,8 @@
 
     <!--    snackbar-->
     <string name="pastikan_no_error">Pastikan tidak ada pesan error</string>
-    <string name="alamat_berhasil_save">Alamat berhasil di simpan</string>
-    <string name="lokasi_sekarang_disave">Lokasi sekarang di simpan</string>
+    <string name="alamat_berhasil_save">Alamat berhasil disimpan</string>
+    <string name="lokasi_sekarang_disave">Lokasi Anda sekarang telah disimpan</string>
 
     <!--    sort-->
     <string name="random">Random</string>

@@ -33,7 +33,7 @@ class LupaPasswordActivity : AppCompatActivity() {
                 if (outlineEmailLupapw.helperText == null) {
                     val emailTxt = emailLupapw.text
                     if (emailTxt.isNullOrEmpty())
-                        showToast("${getString(R.string.email)} ${getString(R.string.tidak_dapat_kosong)}", this@LupaPasswordActivity)
+                        showToast(getString(R.string.tidak_dapat_kosong, getString(R.string.email)), this@LupaPasswordActivity)
                     else showAlrtDialog(emailTxt)
                 } else {
                     val snackbar = Snackbar.make(binding.root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
