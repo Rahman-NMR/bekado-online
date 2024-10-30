@@ -22,8 +22,8 @@
     <string name="berhasil_mengubah">berhasil diubah</string>
     <string name="gagal_mengubah">tidak berhasil diubah</string>
     <string name="tidak_dapat_kosong">tidak dapat kosong</string>
-    <string name="terlalu_singkat">terlalu singkat</string>
-    <string name="terlalu_panjang">terlalu panjang</string>
+    <string name="terlalu_singkat">%1$s terlalu singkat</string>
+    <string name="terlalu_panjang">%1$s terlalu panjang</string>
     <string name="alamat_uncompleate">Alamat belum lengkap</string>
     <string name="pesanan_baru_berhasil">Pesanan baru berhasil dibuat</string>
     <string name="pesanan_baru_gagal">Gagal membuat pesanan baru</string>
@@ -214,4 +214,5 @@
     <string name="kontak_toko">Kontak Toko</string>
     <string name="jam_toko">Jam Operasional Toko</string>
     <string name="nama_toko">Nama Toko</string>
+    <string name="loading">Loading…</string>
 </resources>

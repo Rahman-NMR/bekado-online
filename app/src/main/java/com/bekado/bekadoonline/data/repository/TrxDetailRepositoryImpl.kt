@@ -135,7 +135,7 @@ class TrxDetailRepositoryImpl(db: FirebaseDatabase, private val storage: Firebas
                     transaksiRef.child("$pathDetailTrx/statusPesanan").setValue(statusPesanan)
                     response.invoke(it.isSuccessful)
                 }.addOnFailureListener { response.invoke(false) }
-            }
+            }.addOnFailureListener { response.invoke(false) }
         }.addOnFailureListener { response.invoke(false) }
     }
 

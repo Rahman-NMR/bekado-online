@@ -1,15 +1,21 @@
 package com.bekado.bekadoonline.domain.interactor
 
 import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.data.model.AlamatModel
 import com.bekado.bekadoonline.domain.repositories.AddressRepository
 import com.bekado.bekadoonline.domain.repositories.UserRepository
+import com.bekado.bekadoonline.domain.repositories.UserUpdateRepository
 import com.bekado.bekadoonline.domain.usecase.UserUseCase
 import com.google.firebase.auth.FirebaseUser
 
-class UserUseCaseInteractor(private val userRepository: UserRepository, private val addressRepository: AddressRepository) : UserUseCase {
+class UserUseCaseInteractor(
+    private val userRepository: UserRepository,
+    private val addressRepository: AddressRepository,
+    private val userUpdateRepository: UserUpdateRepository
+) : UserUseCase {
     override fun executeCurrentUser(): FirebaseUser? {
         return userRepository.getAuthCurrentUser()
     }
@@ -60,5 +66,13 @@ class UserUseCaseInteractor(private val userRepository: UserRepository, private 
 
     override fun executeRemoveAlamatListener() {
         addressRepository.removeListener()
+    }
+
+    override fun executeUpdateDataAkun(pathDb: String, value: String, response: (Boolean) -> Unit) {
+        userUpdateRepository.updateDataAkun(pathDb, value, response)
+    }
+
+    override fun executeUpdateImageUri(imageUri: Uri, response: (Boolean) -> Unit) {
+        userUpdateRepository.updateImageUri(imageUri, response)
     }
 }

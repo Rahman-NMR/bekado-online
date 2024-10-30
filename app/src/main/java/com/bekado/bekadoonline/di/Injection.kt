@@ -8,6 +8,7 @@ import com.bekado.bekadoonline.data.repository.CartRepositoryImpl
 import com.bekado.bekadoonline.data.repository.TrxDetailRepositoryImpl
 import com.bekado.bekadoonline.data.repository.TrxRepositoryImpl
 import com.bekado.bekadoonline.data.repository.UserRepositoryImpl
+import com.bekado.bekadoonline.data.repository.UserUpdateRepositoryImpl
 import com.bekado.bekadoonline.domain.interactor.CartUseCaseInteractor
 import com.bekado.bekadoonline.domain.interactor.TrxUseCaseInteractor
 import com.bekado.bekadoonline.domain.interactor.UserUseCaseInteractor
@@ -16,6 +17,7 @@ import com.bekado.bekadoonline.domain.repositories.CartRepository
 import com.bekado.bekadoonline.domain.repositories.TrxDetailRepository
 import com.bekado.bekadoonline.domain.repositories.TrxRepository
 import com.bekado.bekadoonline.domain.repositories.UserRepository
+import com.bekado.bekadoonline.domain.repositories.UserUpdateRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -41,6 +43,10 @@ object Injection {
         return UserRepositoryImpl(auth(), db(), gsiClient(context))
     }
 
+    private fun provideUserUpdateRepository(): UserUpdateRepository {
+        return UserUpdateRepositoryImpl(auth(), db(), storage())
+    }
+
     private fun provideAddressRepository(): AddressRepository {
         return AddressRepositoryImpl(auth(), db())
     }
@@ -58,9 +64,10 @@ object Injection {
     }
 
     fun provideUserUseCase(context: Context): UserUseCaseInteractor {
-        val akunRepository = provideUserRepository(context)
-        val alamatRepository = provideAddressRepository()
-        return UserUseCaseInteractor(akunRepository, alamatRepository)
+        val akun = provideUserRepository(context)
+        val alamat = provideAddressRepository()
+        val userUpdate = provideUserUpdateRepository()
+        return UserUseCaseInteractor(akun, alamat, userUpdate)
     }
 
     fun provideTrxUseCase(): TrxUseCaseInteractor {

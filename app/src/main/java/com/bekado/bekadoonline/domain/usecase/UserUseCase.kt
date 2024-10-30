@@ -1,6 +1,7 @@
 package com.bekado.bekadoonline.domain.usecase
 
 import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.data.model.AlamatModel
@@ -20,4 +21,6 @@ interface UserUseCase {
     fun executeGetDataAlamat(): LiveData<AlamatModel?>
     fun executeAlamatLoading(): LiveData<Boolean>
     fun executeRemoveAlamatListener()
+    fun executeUpdateDataAkun(pathDb: String, value: String, response: (Boolean) -> Unit)
+    fun executeUpdateImageUri(imageUri: Uri, response: (Boolean) -> Unit)
 }
