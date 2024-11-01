@@ -2,6 +2,7 @@ package com.bekado.bekadoonline.domain.interactor
 
 import androidx.lifecycle.LiveData
 import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
+import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.domain.repositories.CartRepository
 import com.bekado.bekadoonline.domain.usecase.CartUseCase
 import com.google.android.gms.tasks.Task
@@ -33,6 +34,14 @@ class CartUseCaseInteractor(private val cartRepository: CartRepository) : CartUs
 
     override fun executeCancelAction(itemKeranjang: CombinedKeranjangModel): Task<Void>? {
         return cartRepository.cancelAction(itemKeranjang)
+    }
+
+    override fun executeProdukExistsInKeranjang(idProduk: String?, response: (Boolean, Long) -> Unit) {
+        return cartRepository.produkExistsInKeranjang(idProduk, response)
+    }
+
+    override fun executeAddDataProdukKeKeranjang(produk: ProdukModel, response: (Boolean) -> Unit) {
+        return cartRepository.addDataProdukKeKeranjang(produk, response)
     }
 
     override fun executeStartListener() {

@@ -2,18 +2,20 @@ package com.bekado.bekadoonline.di
 
 import android.content.Context
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.data.Repository
 import com.bekado.bekadoonline.data.repository.AddressRepositoryImpl
 import com.bekado.bekadoonline.data.repository.CartRepositoryImpl
+import com.bekado.bekadoonline.data.repository.ProductRepositoryImpl
 import com.bekado.bekadoonline.data.repository.TrxDetailRepositoryImpl
 import com.bekado.bekadoonline.data.repository.TrxRepositoryImpl
 import com.bekado.bekadoonline.data.repository.UserRepositoryImpl
 import com.bekado.bekadoonline.data.repository.UserUpdateRepositoryImpl
 import com.bekado.bekadoonline.domain.interactor.CartUseCaseInteractor
+import com.bekado.bekadoonline.domain.interactor.ProductUseCaseInteractor
 import com.bekado.bekadoonline.domain.interactor.TrxUseCaseInteractor
 import com.bekado.bekadoonline.domain.interactor.UserUseCaseInteractor
 import com.bekado.bekadoonline.domain.repositories.AddressRepository
 import com.bekado.bekadoonline.domain.repositories.CartRepository
+import com.bekado.bekadoonline.domain.repositories.ProductRepository
 import com.bekado.bekadoonline.domain.repositories.TrxDetailRepository
 import com.bekado.bekadoonline.domain.repositories.TrxRepository
 import com.bekado.bekadoonline.domain.repositories.UserRepository
@@ -34,10 +36,6 @@ object Injection {
     private fun db() = FirebaseDatabase.getInstance()
     private fun storage() = FirebaseStorage.getInstance()
     private fun gsiClient(context: Context) = GoogleSignIn.getClient(context, clientGoogle(context))
-
-    fun provideRepository(context: Context): Repository { //todo : delete this after complete all
-        return Repository.getInstance(auth(), db(), gsiClient(context))
-    }
 
     private fun provideUserRepository(context: Context): UserRepository {
         return UserRepositoryImpl(auth(), db(), gsiClient(context))
@@ -61,6 +59,15 @@ object Injection {
 
     private fun provideCartRepository(): CartRepository {
         return CartRepositoryImpl(auth(), db())
+    }
+
+    private fun provideProductRepository(): ProductRepository {
+        return ProductRepositoryImpl(db())
+    }
+
+    fun provideProductUseCase(): ProductUseCaseInteractor {
+        val product = provideProductRepository()
+        return ProductUseCaseInteractor(product)
     }
 
     fun provideUserUseCase(context: Context): UserUseCaseInteractor {

@@ -1,23 +1,24 @@
-package com.bekado.bekadoonline.data.viewmodel
+package com.bekado.bekadoonline.data.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.bekado.bekadoonline.data.model.ButtonModel
 import com.bekado.bekadoonline.data.model.ProdukModel
+import com.bekado.bekadoonline.domain.repositories.ProductRepository
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.util.ArrayList
 
-class BerandaViewModel : ViewModel() {
-    private val produkRef = FirebaseDatabase.getInstance().getReference("produk")
+class ProductRepositoryImpl(db: FirebaseDatabase) : ProductRepository {
+    private val produkRef = db.getReference("produk")
 
     private val _dataProduk = MutableLiveData<ArrayList<ProdukModel>?>()
-    val dataProduk: LiveData<ArrayList<ProdukModel>?> get() = _dataProduk
+    private val dataProduk: LiveData<ArrayList<ProdukModel>?> get() = _dataProduk
 
     private val _dataButton = MutableLiveData<ArrayList<ButtonModel>?>()
-    val dataButton: LiveData<ArrayList<ButtonModel>?> get() = _dataButton
+    private val dataButton: LiveData<ArrayList<ButtonModel>?> get() = _dataButton
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
@@ -67,8 +68,11 @@ class BerandaViewModel : ViewModel() {
         produkRef.addValueEventListener(produkListener)
     }
 
-    override fun onCleared() {
-        super.onCleared()
+    override fun getLoading(): LiveData<Boolean> = isLoading
+    override fun getAllDataProduk(): LiveData<ArrayList<ProdukModel>?> = dataProduk
+    override fun filterByKategori(): LiveData<ArrayList<ButtonModel>?> = dataButton
+
+    override fun removeListener() {
         produkRef.removeEventListener(produkListener)
     }
 }

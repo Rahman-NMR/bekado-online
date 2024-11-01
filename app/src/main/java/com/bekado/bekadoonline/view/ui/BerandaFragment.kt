@@ -8,26 +8,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.data.model.ProdukModel
-import com.bekado.bekadoonline.data.viewmodel.AkunViewModel
-import com.bekado.bekadoonline.data.viewmodel.BerandaViewModel
 import com.bekado.bekadoonline.databinding.FragmentBerandaBinding
 import com.bekado.bekadoonline.helper.Helper.calculateSpanCount
+import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.helper.HelperProduk
 import com.bekado.bekadoonline.helper.HelperSort.sortProduk
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.helper.itemDecoration.HorizontalSpacing
-import com.bekado.bekadoonline.ui.ViewModelFactory
 import com.bekado.bekadoonline.view.adapter.AdapterButton
 import com.bekado.bekadoonline.view.adapter.AdapterProduk
 import com.bekado.bekadoonline.view.shimmer.ShimmerModel
@@ -35,25 +32,24 @@ import com.bekado.bekadoonline.view.ui.auth.LoginActivity
 import com.bekado.bekadoonline.view.ui.bottomsheet.ShowProdukBottomSheet
 import com.bekado.bekadoonline.view.ui.bottomsheet.SortProdukBottomSheet
 import com.bekado.bekadoonline.view.ui.transaksi.KeranjangActivity
+import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModel
+import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModelFactory
+import com.bekado.bekadoonline.view.viewmodel.produk.ProdukViewModel
+import com.bekado.bekadoonline.view.viewmodel.produk.ProdukViewModelFactory
 import com.bekado.bekadoonline.view.viewmodel.user.AuthViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 
 class BerandaFragment : Fragment() {
     private lateinit var binding: FragmentBerandaBinding
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseDatabase
-
     private lateinit var adapterButton: AdapterButton
     private lateinit var adapterProduk: AdapterProduk
     private val dataShimmer: ArrayList<ShimmerModel> = ArrayList()
 
     private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
     private val authViewModel: AuthViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
-    private val akunViewModel: AkunViewModel by viewModels { ViewModelFactory.getInstance(requireActivity()) }
-    private lateinit var berandaViewModel: BerandaViewModel
+    private val keranjangViewModel: KeranjangViewModel by viewModels { KeranjangViewModelFactory.getInstance() }
+    private val productViewModel: ProdukViewModel by viewModels { ProdukViewModelFactory.getInstance() }
 
     private var sortFilter = 0
 
@@ -64,12 +60,6 @@ class BerandaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseDatabase.getInstance()
-
-//        akunViewModel = ViewModelProvider(requireActivity())[AkunViewModel::class.java]
-        berandaViewModel = ViewModelProvider(requireActivity())[BerandaViewModel::class.java]
 
         val paddingBottom = resources.getDimensionPixelSize(R.dimen.maxBottomdp)
         val padding = resources.getDimensionPixelSize(R.dimen.smalldp)
@@ -134,12 +124,13 @@ class BerandaFragment : Fragment() {
     }
 
     private fun setupAdapter() {
-        val currentUser = auth.currentUser
         adapterProduk = AdapterProduk { produk ->
-            ShowProdukBottomSheet(requireContext()).showDialog(produk, currentUser, db) {
-                if (currentUser != null) {
-                    val keranjangRef = db.getReference("keranjang/${currentUser.uid}")
-                    HelperProduk.addToKeranjang(produk, keranjangRef, requireContext())
+            ShowProdukBottomSheet(requireContext()).showDialog(produk, keranjangViewModel) {
+                if (userViewModel.currentUser() != null && userViewModel.getDataAkun().value != null) {
+                    keranjangViewModel.addDataProdukKeKeranjang(produk) { isSuccessful ->
+                        if (isSuccessful) showToast("${produk.namaProduk} ditambahkan ke keranjang", requireContext())
+                        else showToast("Tidak dapat menambahkan ${produk.namaProduk} ke keranjang", requireContext())
+                    }
                 } else startActivity(Intent(context, LoginActivity::class.java))
             }
         }
@@ -147,17 +138,17 @@ class BerandaFragment : Fragment() {
     }
 
     private fun setupViewModel() {
-        berandaViewModel.dataProduk.observe(viewLifecycleOwner) { dataProduk ->
+        productViewModel.getAllProduk().observe(viewLifecycleOwner) { dataProduk ->
             if (dataProduk != null) {
                 sortProduk(dataProduk, sortFilter)
                 searchProduk(dataProduk)
 
                 adapterProduk.submitList(dataProduk)
-                binding.produkKosong.visibility = if (dataProduk.isEmpty()) View.VISIBLE else View.GONE
+                binding.produkKosong.isVisible = dataProduk.isEmpty()
                 if (dataProduk.isEmpty()) emptyTextProduk()
             } else binding.produkKosong.visibility = View.VISIBLE
         }
-        berandaViewModel.dataButton.observe(viewLifecycleOwner) { dataButton ->
+        productViewModel.filterByKategori().observe(viewLifecycleOwner) { dataButton ->
             if (dataButton != null) {
                 adapterButton = AdapterButton(dataButton) { button ->
                     if (button.isActive) {
@@ -172,7 +163,7 @@ class BerandaFragment : Fragment() {
 
             if ((dataButton?.size ?: 0) < 2) binding.filterNKategori.visibility = View.GONE
         }
-        berandaViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+        productViewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
             if (isLoading) {
                 binding.shimmerRvProduk.startShimmer()
                 binding.shimmerRvButtonSelector.startShimmer()
@@ -231,7 +222,7 @@ class BerandaFragment : Fragment() {
     private fun getAllProduk() {
         searchClearText()
 
-        berandaViewModel.dataProduk.value?.let {
+        productViewModel.getAllProduk().value?.let {
             val sortedProduk = it.toMutableList()
             sortProduk(sortedProduk as ArrayList<ProdukModel>, sortFilter)
             adapterProduk.submitList(sortedProduk)
@@ -243,7 +234,7 @@ class BerandaFragment : Fragment() {
     private fun getProdukFiltered(idKategori: String) {
         searchClearText()
 
-        berandaViewModel.dataProduk.value?.let { dataProduk ->
+        productViewModel.getAllProduk().value?.let { dataProduk ->
             val filteredProduk = dataProduk.filter { it.idKategori == idKategori }
             val sortedProduk = filteredProduk.toMutableList()
             sortProduk(sortedProduk as ArrayList<ProdukModel>, sortFilter)
@@ -266,23 +257,18 @@ class BerandaFragment : Fragment() {
     }
 
     private fun dataAkunHandler() {
-//        akunViewModel.loadCurrentUser()
-        akunViewModel.loadAkunData()
-
-        akunViewModel.akunModel.observe(viewLifecycleOwner) { akunModel ->
+        userViewModel.getDataAkun().observe(viewLifecycleOwner) { akun ->
             binding.appBar.setOnMenuItemClickListener {
-                if (auth.currentUser != null) {
-                    if (akunModel != null) {
-                        if (akunModel.statusAdmin) adminKeranjangState(requireContext(), it)
-                        else startActivity(Intent(context, KeranjangActivity::class.java))
-                    }
+                if (akun != null) {
+                    if (akun.statusAdmin) adminKeranjangState(requireContext(), it)
+                    else startActivity(Intent(context, KeranjangActivity::class.java))
                 } else startActivity(Intent(context, LoginActivity::class.java))
                 true
             }
         }
-        akunViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+        userViewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
             if (!isLoading) {
-                if (auth.currentUser != null && akunViewModel.akunModel.value == null)
+                if (userViewModel.getDataAkun().value == null)
                     authViewModel.autoRegisterToRtdb { isSuccessful ->
                         if (isSuccessful) restartApp()
                         else {

@@ -11,7 +11,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import java.util.ArrayList
+import java.util.Date
 
 class CartRepositoryImpl(auth: FirebaseAuth, db: FirebaseDatabase) : CartRepository {
     private val keranjangRef = db.getReference("keranjang/${auth.currentUser?.uid}")
@@ -133,6 +133,27 @@ class CartRepositoryImpl(auth: FirebaseAuth, db: FirebaseDatabase) : CartReposit
 
             keranjangRef.child(path).setValue(restoreData)
         }
+    }
+
+    override fun produkExistsInKeranjang(idProduk: String?, response: (Boolean, Long) -> Unit) {
+        keranjangRef.child("$idProduk").get().addOnSuccessListener { dataSnapshot ->
+            response.invoke(dataSnapshot.exists(), dataSnapshot.child("jumlahProduk").value as? Long ?: 0)
+        }
+    }
+
+    override fun addDataProdukKeKeranjang(produk: ProdukModel, response: (Boolean) -> Unit) {
+        val idProduk = produk.idProduk ?: ""
+
+        if (idProduk.isNotEmpty()) {
+            val tambahKeranjang = HashMap<String, Any>()
+            tambahKeranjang["idProduk"] = idProduk
+            tambahKeranjang["jumlahProduk"] = 1
+            tambahKeranjang["timestamp"] = Date().time.toString()
+            tambahKeranjang["diPilih"] = false
+            keranjangRef.child(idProduk).setValue(tambahKeranjang)
+                .addOnCompleteListener { response.invoke(it.isSuccessful) }
+                .addOnFailureListener { response.invoke(false) }
+        } else response.invoke(false)
     }
 
     override fun startListener() {

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_produk_bottom_sheet"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -76,7 +75,7 @@
                     android:gravity="center_vertical"
                     android:lineSpacingExtra="2sp"
                     android:paddingHorizontal="8dp"
-                    android:text="@string/default_text"
+                    android:text="@string/strip"
                     android:textColor="@color/grey_700"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -88,77 +87,10 @@
                     android:gravity="center_vertical"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="1dp"
-                    android:text="@string/default_text"
+                    android:text="@string/strip"
                     android:textColor="?attr/colorPrimary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
-
-                <View
-                    android:id="@+id/line"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="16dp"
-                    android:background="@color/outline_variant" />
-
-                <LinearLayout
-                    android:id="@+id/ll_keranjang_jumlah"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginVertical="8dp"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:gravity="center_vertical|end"
-                    android:orientation="horizontal"
-                    android:visibility="gone"
-                    tools:visibility="visible">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="8dp"
-                        android:layout_weight="1"
-                        android:drawablePadding="8dp"
-                        android:ellipsize="end"
-                        android:gravity="center_vertical"
-                        android:maxLines="2"
-                        android:text="@string/jumlah_di_keranjang"
-                        android:textColor="@color/grey_700"
-                        android:textSize="16sp"
-                        app:drawableStartCompat="@drawable/icon_outline_shopping_cart_24"
-                        app:drawableTint="?attr/colorPrimary" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/kurang_jumlah_produk"
-                        style="@style/iconOnly.outlined"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:cornerRadius="99dp"
-                        app:icon="@drawable/icon_round_remove_24"
-                        app:strokeColor="@color/outline_variant" />
-
-                    <TextView
-                        android:id="@+id/jumlah_produk"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="8dp"
-                        android:gravity="center"
-                        android:paddingHorizontal="8dp"
-                        android:text="@string/default_angka"
-                        android:textAlignment="center"
-                        android:textColor="@color/black"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/tambah_jumlah_produk"
-                        style="@style/iconOnly.outlined"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:cornerRadius="99dp"
-                        app:icon="@drawable/icon_round_add_24"
-                        app:strokeColor="@color/outline_variant" />
-                </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_tambah_keranjang"
@@ -166,11 +98,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="16dp"
+                    android:enabled="false"
                     android:text="@string/tambah_ke_keranjang"
                     android:textSize="16sp"
-                    android:visibility="gone"
-                    app:cornerRadius="99dp"
-                    tools:visibility="visible" />
+                    app:cornerRadius="99dp" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </LinearLayout>

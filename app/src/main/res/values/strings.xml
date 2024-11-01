@@ -176,7 +176,7 @@
     <string name="masukkan_nomor_telepon_anda">Masukkan nomor telepon Anda</string>
     <string name="masukkan_nama_anda">Masukkan nama Anda</string>
     <string name="tidak_ada_data">Tidak ada data</string>
-    <string name="jumlah_di_keranjang">Jumlah di keranjang</string>
+    <string name="jumlah_di_keranjang">%1$d produk dalam keranjang</string>
     <string name="total_harga">Total Harga</string>
     <string name="strip">-</string>
     <string name="nama_penerima">Nama penerima</string>
