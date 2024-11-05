@@ -5,41 +5,42 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.KeyEvent
-import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.view.adapter.admn.AdapterKategoriList
 import com.bekado.bekadoonline.data.model.KategoriModel
-import com.bekado.bekadoonline.data.viewmodel.KategoriListViewModel
 import com.bekado.bekadoonline.databinding.ActivityKategoriListBinding
 import com.bekado.bekadoonline.helper.Helper.hideKeyboard
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection.isConnected
-import com.bekado.bekadoonline.view.ui.admn.ProdukListActivity.Companion.dataKategoriModel
+import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.EXTRA_ID_KATEGORI
+import com.bekado.bekadoonline.view.adapter.admn.AdapterKategoriList
 import com.bekado.bekadoonline.view.ui.bottomsheet.admn.BottomSheetEditKategori
-import com.google.firebase.database.FirebaseDatabase
+import com.bekado.bekadoonline.view.viewmodel.admin.AdminViewModelFactory
+import com.bekado.bekadoonline.view.viewmodel.admin.KategoriListViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 
 class KategoriListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityKategoriListBinding
-    private lateinit var db: FirebaseDatabase
     private lateinit var adapterKategoriList: AdapterKategoriList
-    private lateinit var kategoriListViewModel: KategoriListViewModel
+
+    private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(this) }
+    private val kategoriListViewModel: KategoriListViewModel by viewModels { AdminViewModelFactory.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityKategoriListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         supportActionBar?.hide()
-        db = FirebaseDatabase.getInstance()
-        kategoriListViewModel = ViewModelProvider(this)[KategoriListViewModel::class.java]
 
+        dataAkunHandler()
         setupAdapter()
-        setupKategoriList()
+        kategoriListHandler()
 
         with(binding) {
             rvKategori.layoutManager = LinearLayoutManager(this@KategoriListActivity, LinearLayoutManager.VERTICAL, false)
@@ -48,14 +49,19 @@ class KategoriListActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupKategoriList() {
-        kategoriListViewModel.kategoriList.observe(this) { kategoriList ->
+    private fun dataAkunHandler() {
+        userViewModel.getDataAkun().observe(this) { akun ->
+            akun?.let { if (!it.statusAdmin) finish() } ?: finish()
+        }
+    }
+
+    private fun kategoriListHandler() {
+        kategoriListViewModel.getKategoriList().observe(this) { kategoriList ->
             adapterKategoriList.submitList(kategoriList)
 
             with(binding) {
-                val visibiliti = if (kategoriList != null) View.VISIBLE else View.GONE
-                rvKategori.visibility = visibiliti
-                lineDivider.visibility = visibiliti
+                rvKategori.isVisible = kategoriList != null
+                lineDivider.isVisible = kategoriList != null
 
                 fabAddKategori.setOnClickListener { validateEditText(kategoriList) }
                 etAddKategori.setOnEditorActionListener { _, actionId, _ ->
@@ -73,18 +79,18 @@ class KategoriListActivity : AppCompatActivity() {
                 }
             }
         }
-        kategoriListViewModel.isLoading.observe(this) { isLoading ->
-            binding.progressbarKategoriList.visibility = if (isLoading) View.VISIBLE else View.GONE
+        kategoriListViewModel.isLoading().observe(this) { isLoading ->
+            binding.progressbarKategoriList.isVisible = isLoading
         }
     }
 
     private fun setupAdapter() {
         adapterKategoriList = AdapterKategoriList({ kategori ->
-            dataKategoriModel = kategori
-            startActivity(Intent(this@KategoriListActivity, ProdukListActivity::class.java))
+            val mIntent = Intent(this@KategoriListActivity, ProdukListActivity::class.java)
+                .putExtra(EXTRA_ID_KATEGORI, kategori.idKategori)
+            startActivity(mIntent)
         }, { kategori ->
-            val ref = db.getReference("produk/kategori/${kategori.idKategori}")
-            BottomSheetEditKategori(this@KategoriListActivity).showDialog(ref, kategori)
+            BottomSheetEditKategori(this@KategoriListActivity, kategori, kategoriListViewModel).showDialog()
         })
 
         binding.rvKategori.adapter = adapterKategoriList
@@ -98,20 +104,14 @@ class KategoriListActivity : AppCompatActivity() {
     }
 
     private fun addKategoriToDatabase(etAddKategori: EditText, kategoriList: ArrayList<KategoriModel>?) {
-        val kategoriRef = db.getReference("produk/kategori")
-        val addKategori = HashMap<String, Any>()
-        val idKategori = kategoriRef.push().key.toString()
-        addKategori["idKategori"] = idKategori
-        addKategori["namaKategori"] = etAddKategori.text.toString().trim()
-        addKategori["posisi"] = (kategoriList?.size ?: 0) + 1
-        addKategori["visibilitas"] = false
-        kategoriRef.child(idKategori).setValue(addKategori)
-            .addOnFailureListener { showToast("Terjadi kesalahan: ${it.message}", this) }
-
-        etAddKategori.clearFocus()
-        etAddKategori.text.clear()
-        etAddKategori.error = null
-        hideKeyboard(this, etAddKategori)
+        kategoriListViewModel.addKategori(etAddKategori.text.toString().trim(), ((kategoriList?.size ?: 0) + 1).toLong()) { isSuccessful ->
+            if (isSuccessful) {
+                etAddKategori.clearFocus()
+                etAddKategori.text.clear()
+                etAddKategori.error = null
+                hideKeyboard(this, etAddKategori)
+            } else showToast(getString(R.string.gagal_menambahkan_x_baru, getString(R.string.kategori)), this)
+        }
     }
 
     private val addKategoriTextWatcher: TextWatcher = object : TextWatcher {
@@ -119,8 +119,7 @@ class KategoriListActivity : AppCompatActivity() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             val textInput = binding.etAddKategori.text.toString().trim { it <= ' ' }
-            if (textInput.isNotEmpty()) binding.fabAddKategori.visibility = View.VISIBLE
-            else binding.fabAddKategori.visibility = View.GONE
+            binding.fabAddKategori.isVisible = textInput.isNotEmpty()
         }
 
         override fun afterTextChanged(s: Editable?) {

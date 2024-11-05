@@ -5,40 +5,38 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.view.adapter.admn.AdapterProdukList
 import com.bekado.bekadoonline.data.model.KategoriModel
 import com.bekado.bekadoonline.data.model.ProdukModel
-import com.bekado.bekadoonline.data.viewmodel.KategoriProdukListViewModel
-import com.bekado.bekadoonline.data.viewmodel.KategoriSingleViewModel
 import com.bekado.bekadoonline.databinding.ActivityProdukListBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.bekado.bekadoonline.helper.constval.VariableConstant
+import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.EXTRA_ID_KATEGORI
+import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.EXTRA_ID_PRODUK
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.storage.FirebaseStorage
+import com.bekado.bekadoonline.view.viewmodel.admin.AdminViewModelFactory
+import com.bekado.bekadoonline.view.viewmodel.admin.KategoriViewModel
+import com.bekado.bekadoonline.view.viewmodel.admin.ProdukListViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 
 class ProdukListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProdukListBinding
-    private lateinit var db: FirebaseDatabase
-    private lateinit var storage: FirebaseStorage
     private lateinit var adapterProduk: AdapterProdukList
 
-    private lateinit var kategoriRef: DatabaseReference
-    private var namaKategori: String? = ""
+    private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(this) }
+    private val kategoriViewModel: KategoriViewModel by viewModels { AdminViewModelFactory.getInstance() }
+    private val produkListViewModel: ProdukListViewModel by viewModels { AdminViewModelFactory.getInstance() }
 
-    private lateinit var singleKategori: KategoriSingleViewModel
-    private lateinit var produkViewModel: KategoriProdukListViewModel
+    private var extraIdKategori: String? = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,15 +44,12 @@ class ProdukListActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.hide()
-        db = FirebaseDatabase.getInstance()
-        storage = FirebaseStorage.getInstance()
+        extraIdKategori = intent?.getStringExtra(EXTRA_ID_KATEGORI) ?: ""
 
-        produkViewModel = ViewModelProvider(this)[KategoriProdukListViewModel::class.java]
-        singleKategori = ViewModelProvider(this)[KategoriSingleViewModel::class.java]
-
-        monitorKategori()
+        dataAkunHandler()
+        kategoriHandler()
         setupAdapter()
-        handlerDataProduk()
+        produkListHandler()
 
         val padding = resources.getDimensionPixelSize(R.dimen.normaldp)
         binding.rvDaftarProduk.layoutManager = LinearLayoutManager(this@ProdukListActivity, LinearLayoutManager.VERTICAL, false)
@@ -63,26 +58,24 @@ class ProdukListActivity : AppCompatActivity() {
         binding.appBar.setNavigationOnClickListener { finish() }
     }
 
-    private fun monitorKategori() {
-        dataKategoriModel?.idKategori?.let { singleKategori.loadKategoriProduk(it) }
+    private fun dataAkunHandler() {
+        userViewModel.getDataAkun().observe(this) { akun ->
+            akun?.let { if (!it.statusAdmin) finish() } ?: finish()
+        }
+    }
 
-        singleKategori.isLoading.observe(this) { binding.loadingKategori.visibility = if (it) View.VISIBLE else View.GONE }
-        singleKategori.kategoriModel.observe(this) { kategori ->
-            kategoriRef = db.getReference("produk/kategori/${kategori?.idKategori}")
-
+    private fun kategoriHandler() {
+        kategoriViewModel.getDataKategori(extraIdKategori).observe(this) { kategori ->
             binding.tvKategoriSekarang.text = kategori?.namaKategori ?: getString(R.string.strip)
-            binding.fabTambahProduk.visibility = if (kategori != null) View.VISIBLE else View.GONE
-            binding.btnHapusKategori.visibility = if (kategori != null) View.VISIBLE else View.GONE
+            binding.fabTambahProduk.isVisible = kategori != null
+            binding.btnHapusKategori.isVisible = kategori != null
             binding.btnHapusKategori.setOnClickListener { if (kategori != null) showAlertDialog(kategori) }
 
             if (kategori != null) {
-                namaKategori = kategori.namaKategori
-                produkViewModel.loadKategoriProduk(kategori.idKategori)
-
                 binding.fabTambahProduk.setOnClickListener {
                     val intentExtra = Intent(this@ProdukListActivity, ProdukAddUpdateActivity::class.java)
-                        .putExtra(VariableConstant.ID_PRODUCT, "")
-                    ProdukAddUpdateActivity.dataKategoriModel = kategori
+                        .putExtra(EXTRA_ID_PRODUK, "")
+                        .putExtra(EXTRA_ID_KATEGORI, extraIdKategori)
 
                     startActivity(intentExtra)
                 }
@@ -91,45 +84,38 @@ class ProdukListActivity : AppCompatActivity() {
                 finish()
             }
         }
+        kategoriViewModel.isLoading().observe(this) { binding.loadingKategori.isVisible = it }
     }
 
-    private fun handlerDataProduk() {
-        produkViewModel.produkList.observe(this) { produk ->
+    private fun produkListHandler() {
+        produkListViewModel.getProdukList(extraIdKategori).observe(this) { produk ->
+            adapterProduk.submitList(produk)
+
+            val totalProdukTxt = "${produk?.size ?: 0} produk"
+            binding.tvLimitProduk.text = totalProdukTxt
+
             if (produk != null) {
-                adapterProduk.submitList(produk)
-
-                val produkHidden = produk.filter { !it.visibility }.size
-                val totalProduk = produk.size
-                val totalProdukTxt = "$totalProduk produk"
-
-                binding.tvLimitProduk.text = totalProdukTxt
-                if (totalProduk == 0 || produkHidden == totalProduk) {
-                    kategoriRef.child("visibilitas").setValue(false)
-                    showToast("Visibilitas $namaKategori dinonaktifkan", this)
-                }
-
-                binding.kosong.visibility = if (produk.isNotEmpty()) View.GONE else View.VISIBLE
-                binding.rvDaftarProduk.visibility = if (produk.isNotEmpty()) View.VISIBLE else View.GONE
+                binding.kosong.isGone = produk.isNotEmpty()
+                binding.rvDaftarProduk.isVisible = produk.isNotEmpty()
             } else {
                 binding.kosong.visibility = View.VISIBLE
                 binding.rvDaftarProduk.visibility = View.GONE
             }
         }
-        produkViewModel.isLoading.observe(this) {
-            binding.loadingProduk.visibility = if (it) View.VISIBLE else View.GONE
-            binding.kosong.text = if (!it) getString(R.string.tidak_ada_data) else "Loading..."
+        produkListViewModel.isLoading().observe(this) { isLoading ->
+            binding.loadingProduk.isVisible = isLoading
+            binding.kosong.text = if (!isLoading) getString(R.string.msg_beranda_kosong) else getString(R.string.loading)
         }
     }
 
     private fun setupAdapter() {
         adapterProduk = AdapterProdukList({ itemProduk ->
             val intentExtra = Intent(this@ProdukListActivity, ProdukAddUpdateActivity::class.java)
-                .putExtra(VariableConstant.ID_PRODUCT, itemProduk.idProduk)
-            ProdukAddUpdateActivity.dataKategoriModel = dataKategoriModel
+                .putExtra(EXTRA_ID_PRODUK, itemProduk.idProduk)
 
             startActivity(intentExtra)
         }, { itemProduk, isChecked ->
-            Handler(Looper.getMainLooper()).postDelayed({ setVisibility(itemProduk, isChecked) }, 500)
+            Handler(Looper.getMainLooper()).postDelayed({ setVisibility(itemProduk, isChecked) }, 300)
         })
         binding.rvDaftarProduk.adapter = adapterProduk
     }
@@ -138,53 +124,29 @@ class ProdukListActivity : AppCompatActivity() {
         val visibilitas = if (isChecked) "ditampilkan" else "disembunyikan"
 
         if (HelperConnection.isConnected(this)) {
-            db.getReference("produk/produk").child("${produk.idProduk}/visibility").setValue(isChecked)
-                .addOnSuccessListener { showToast("${produk.namaProduk} $visibilitas", this) }
+            produkListViewModel.updateVisibilitasProduk(produk.idProduk, isChecked) { isSuccessful ->
+                if (isSuccessful) showToast("${produk.namaProduk} $visibilitas", this)
+                else showToast(getString(R.string.tidak_dapat_menampilkan_x, produk.namaProduk), this)
+            }
         }
     }
 
     private fun showAlertDialog(kategori: KategoriModel) {
         Helper.showAlertDialog(
             "Hapus Kategori ${kategori.namaKategori}?",
-            "Kategori ${kategori.namaKategori} akan dihapus secara permanen bersama dengan daftar produk didalamnya.",
+            getString(R.string.msg_del_kategori, kategori.namaKategori),
             getString(R.string.hapus_kategori),
             this,
             getColor(R.color.error)
         ) {
-            deleteKategoriNProduknya(kategori)
-            finish()
-        }
-    }
-
-    private fun deleteKategoriNProduknya(kategori: KategoriModel) {
-        if (HelperConnection.isConnected(this)) {
-            val idKategori = kategori.idKategori
-            val kategoriRef = db.getReference("produk")
-            val idProdukList = ArrayList<String>()
-
-            val listener = object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (item in snapshot.children) {
-                        val idProduk = item.child("idProduk").value.toString()
-                        idProdukList.add(idProduk)
-                        item.ref.removeValue()
-                    }
-                    for (idProduk in idProdukList) {
-                        val storageReference = storage.getReference("produk/$idProduk.png")
-                        storageReference.delete()
+            if (HelperConnection.isConnected(this)) {
+                kategoriViewModel.deleteKategori(kategori.idKategori) { isSuccessful ->
+                    if (isSuccessful) {
+                        showToastL("Kategori ${kategori.namaKategori} berhasil dihapus", this)
+                        finish()
                     }
                 }
-
-                override fun onCancelled(error: DatabaseError) {}
             }
-
-            kategoriRef.child("produk").orderByChild("idKategori").equalTo(idKategori).addListenerForSingleValueEvent(listener)
-            kategoriRef.child("kategori/${idKategori}").removeValue()
-            showToastL("Kategori ${kategori.namaKategori} berhasil dihapus", this)
         }
-    }
-
-    companion object {
-        var dataKategoriModel: KategoriModel? = null
     }
 }

@@ -30,12 +30,13 @@
     <string name="kategori_terhapus">Kategori telah dihapus</string>
     <string name="pilih_produk_dulu">Pilih produk terlebih dahulu</string>
     <string name="syarat_checkout">Minimal pembelanjaan Rp50.000</string>
-    <string name="berhasil_ditambahkan">berhasil ditambahkan</string>
-    <string name="berhasil_diperbarui">berhasil diperbarui</string>
+    <string name="berhasil_ditambahkan">%1$s berhasil ditambahkan</string>
+    <string name="berhasil_diperbarui">%1$s berhasil diperbarui</string>
+    <string name="gagal_menambahkan_x_baru">Gagal menambahkan %1$s baru</string>
     <string name="tautan_reset_pw_sukses">Tautan reset password dikirim ke email Anda</string>
     <string name="masalah_database">Terjadi masalah pada database</string>
     <string name="status_pesanan_belom_pilih">Status pesanan belum dipilih</string>
-    <string name="late_upload_bukti">Tidak bisa dilakukan pada status</string>
+    <string name="late_upload_bukti">Tidak bisa dilakukan pada status %1$s</string>
     <string name="kategori_unselected">Anda belum memilih Kategori</string>
     <string name="metode_pembayaran_unselected">Anda belum memilih Metode Pembayaran</string>
     <string name="location_not_found">Lokasi tidak ditemukan</string>
@@ -47,6 +48,7 @@
     <string name="gagal_ubah_selected_produk">%1$s tidak dapat dipilih</string>
     <string name="detail_transaksi_not_found">%1$sDetail Transaksi tidak ditemukan</string>
     <string name="status_pesanan_response">Status pesanan %1$s diubah</string>
+    <string name="tidak_dapat_menampilkan_x">Tidak dapat menampilkan %1$s</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -146,6 +148,7 @@
     <string name="msg_konf_pesanan">Pesanan akan ditambahkan ke daftar transaksi.</string>
     <string name="kirim_tautan_ke_email">Tautan akan di kirim ke email</string>
     <string name="sts_psnsn_ubah_mjd">Status pesanan akan diubah menjadi %1$s</string>
+    <string name="msg_del_kategori">Kategori %1$s akan dihapus secara permanen bersama dengan daftar produk didalamnya.</string>
 
     <!--    empty condition-->
     <string name="msg_keranjang_kosong">Keranjang masih kosong</string>

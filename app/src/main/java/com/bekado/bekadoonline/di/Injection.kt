@@ -4,18 +4,27 @@ import android.content.Context
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.data.repository.AddressRepositoryImpl
 import com.bekado.bekadoonline.data.repository.CartRepositoryImpl
+import com.bekado.bekadoonline.data.repository.KategoriListRepositoryImpl
+import com.bekado.bekadoonline.data.repository.KategoriRepositoryImpl
 import com.bekado.bekadoonline.data.repository.ProductRepositoryImpl
+import com.bekado.bekadoonline.data.repository.ProdukListRepositoryImpl
+import com.bekado.bekadoonline.data.repository.ProdukRepositoryImpl
 import com.bekado.bekadoonline.data.repository.TrxDetailRepositoryImpl
 import com.bekado.bekadoonline.data.repository.TrxRepositoryImpl
 import com.bekado.bekadoonline.data.repository.UserRepositoryImpl
 import com.bekado.bekadoonline.data.repository.UserUpdateRepositoryImpl
+import com.bekado.bekadoonline.domain.interactor.AdminUseCaseInteractor
 import com.bekado.bekadoonline.domain.interactor.CartUseCaseInteractor
 import com.bekado.bekadoonline.domain.interactor.ProductUseCaseInteractor
 import com.bekado.bekadoonline.domain.interactor.TrxUseCaseInteractor
 import com.bekado.bekadoonline.domain.interactor.UserUseCaseInteractor
 import com.bekado.bekadoonline.domain.repositories.AddressRepository
 import com.bekado.bekadoonline.domain.repositories.CartRepository
+import com.bekado.bekadoonline.domain.repositories.KategoriListRepository
+import com.bekado.bekadoonline.domain.repositories.KategoriRepository
 import com.bekado.bekadoonline.domain.repositories.ProductRepository
+import com.bekado.bekadoonline.domain.repositories.ProdukListRepository
+import com.bekado.bekadoonline.domain.repositories.ProdukRepository
 import com.bekado.bekadoonline.domain.repositories.TrxDetailRepository
 import com.bekado.bekadoonline.domain.repositories.TrxRepository
 import com.bekado.bekadoonline.domain.repositories.UserRepository
@@ -65,9 +74,20 @@ object Injection {
         return ProductRepositoryImpl(db())
     }
 
-    fun provideProductUseCase(): ProductUseCaseInteractor {
-        val product = provideProductRepository()
-        return ProductUseCaseInteractor(product)
+    private fun provideKategoriListRepository(): KategoriListRepository {
+        return KategoriListRepositoryImpl(db())
+    }
+
+    private fun provideKategoriRepository(): KategoriRepository {
+        return KategoriRepositoryImpl(db(), storage())
+    }
+
+    private fun provideProdukListRepository(): ProdukListRepository {
+        return ProdukListRepositoryImpl(db())
+    }
+
+    private fun provideProdukRepository(): ProdukRepository {
+        return ProdukRepositoryImpl(db(), storage())
     }
 
     fun provideUserUseCase(context: Context): UserUseCaseInteractor {
@@ -86,5 +106,23 @@ object Injection {
     fun provideCartUseCase(): CartUseCaseInteractor {
         val cartRepository = provideCartRepository()
         return CartUseCaseInteractor(cartRepository)
+    }
+
+    fun provideProductUseCase(): ProductUseCaseInteractor {
+        val product = provideProductRepository()
+        return ProductUseCaseInteractor(product)
+    }
+
+    fun provideAdminUseCase(): AdminUseCaseInteractor {
+        val kategoriList = provideKategoriListRepository()
+        val kategori = provideKategoriRepository()
+        val produkList = provideProdukListRepository()
+        val produk = provideProdukRepository()
+        return AdminUseCaseInteractor(
+            kategoriListRepository = kategoriList,
+            produkListRepository = produkList,
+            kategoriRepository = kategori,
+            produkRepository = produk
+        )
     }
 }

@@ -6,47 +6,46 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.view.isVisible
 import com.bekado.bekadoonline.R
-import com.bekado.bekadoonline.data.model.KategoriModel
 import com.bekado.bekadoonline.data.model.ProdukModel
-import com.bekado.bekadoonline.data.viewmodel.KategoriListViewModel
-import com.bekado.bekadoonline.data.viewmodel.ProdukSingleViewModel
 import com.bekado.bekadoonline.databinding.ActivityProdukAddUpdateBinding
 import com.bekado.bekadoonline.helper.Helper.showAlertDialog
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.constval.VariableConstant
+import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.EXTRA_ID_KATEGORI
+import com.bekado.bekadoonline.view.viewmodel.admin.AdminViewModelFactory
+import com.bekado.bekadoonline.view.viewmodel.admin.KategoriListViewModel
+import com.bekado.bekadoonline.view.viewmodel.admin.ProdukViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
 import java.io.File
 
 class ProdukAddUpdateActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProdukAddUpdateBinding
-    private lateinit var storage: FirebaseStorage
-    private lateinit var produkRef: DatabaseReference
-
     private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
-    private var imageUri: Uri = Uri.parse("")
 
-    private lateinit var produkViewModel: ProdukSingleViewModel
-    private lateinit var kategoriListViewModel: KategoriListViewModel
+    private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(this) }
+    private val kategoriListViewModel: KategoriListViewModel by viewModels { AdminViewModelFactory.getInstance() }
+    private val produkViewModel: ProdukViewModel by viewModels { AdminViewModelFactory.getInstance() }
 
-    private var updateKategoriId: String? = ""
-    private var dataIdProduk: String = ""
+    private var extraIdProduk: String? = ""
+    private var extraIdKategori: String? = ""
 
+    private var imageUri: Uri? = Uri.parse("")
+    private var idKategori: String? = ""
     private var produkNama: String? = ""
     private var produkHarga: Long? = 0
 
@@ -54,11 +53,10 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityProdukAddUpdateBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         supportActionBar?.hide()
-        storage = FirebaseStorage.getInstance()
-        produkRef = FirebaseDatabase.getInstance().getReference("produk/produk")
-        dataIdProduk = intent.getStringExtra(VariableConstant.ID_PRODUCT) ?: ""
+
+        extraIdProduk = intent.getStringExtra(VariableConstant.EXTRA_ID_PRODUK) ?: ""
+        extraIdKategori = intent?.getStringExtra(EXTRA_ID_KATEGORI) ?: ""
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
@@ -70,11 +68,9 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
             }
         }
 
-        produkViewModel = ViewModelProvider(this)[ProdukSingleViewModel::class.java]
-        kategoriListViewModel = ViewModelProvider(this)[KategoriListViewModel::class.java]
-        updateKategoriId = dataKategoriModel?.idKategori
-
-        dataHandler()
+        dataAkunHandler()
+        produkHandler()
+        kategoriListHandler()
 
         with(binding) {
             namaProduk.addTextChangedListener(produkTextWatcher)
@@ -82,24 +78,21 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
 
             appBar.setNavigationOnClickListener { finish() }
             fotoEditProduk.setOnClickListener { pilihGambarIntent() }
-            kategoriDropdown.setOnItemClickListener { parent, _, position, _ ->
-                val selectedNamaKategori = parent.getItemAtPosition(position) as String
-                val selectedIdKategori = kategoriListViewModel.kategoriList.value?.find { it.namaKategori == selectedNamaKategori }?.idKategori
-
-                updateKategoriId = selectedIdKategori.toString()
-                binding.btnSimpanPerubahan.isEnabled = selectedIdKategori != dataKategoriModel?.idKategori
-            }
         }
     }
 
-    private fun dataHandler() {
-        produkViewModel.loadProdukProduk(dataIdProduk)
-
-        produkViewModel.isLoading.observe(this) {
-            binding.progressbarProdukDetail.visibility = if (it) View.VISIBLE else View.GONE
-            binding.layoutProdukDetail.visibility = if (!it) View.VISIBLE else View.GONE
+    private fun dataAkunHandler() {
+        userViewModel.getDataAkun().observe(this) { akun ->
+            akun?.let { if (!it.statusAdmin) finish() } ?: finish()
         }
-        produkViewModel.produkModel.observe(this) { produk ->
+    }
+
+    private fun produkHandler() {
+        produkViewModel.isLoading().observe(this) { isLoading ->
+            binding.progressbarProdukDetail.isVisible = isLoading
+            binding.layoutProdukDetail.isVisible = !isLoading
+        }
+        produkViewModel.getDataProduk(extraIdProduk).observe(this) { produk ->
             with(binding) {
                 appBar.title = if (produk != null) getString(R.string.edit_produk) else getString(R.string.tambah_produk)
                 appBar.menu.findItem(R.id.menu_hapus).isVisible = produk != null
@@ -117,11 +110,20 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
                             snackbar.setAction("Oke") { snackbar.dismiss() }.show()
                         }
                 }
+                kategoriDropdown.setOnItemClickListener { parent, _, position, _ ->
+                    val selectedNamaKategori = parent.getItemAtPosition(position) as String
+                    val selectedIdKategori = kategoriListViewModel.getKategoriList()
+                        .value?.find { it.namaKategori == selectedNamaKategori }?.idKategori
+
+                    idKategori = selectedIdKategori.toString()
+                    binding.btnSimpanPerubahan.isEnabled = selectedIdKategori != produk?.idKategori
+                }
+
+                idKategori = if (produk != null) produk.idKategori else extraIdKategori
+                produkNama = produk?.namaProduk ?: ""
+                produkHarga = produk?.hargaProduk ?: 0
 
                 if (produk != null) {
-                    produkNama = produk.namaProduk
-                    produkHarga = produk.hargaProduk
-
                     namaProduk.setText(produk.namaProduk)
                     hargaProduk.setText(produk.hargaProduk.toString())
                     Glide.with(this@ProdukAddUpdateActivity).load(produk.fotoProduk)
@@ -140,15 +142,18 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
-        kategoriListViewModel.isLoading.observe(this) {
-            binding.progressbarKategoriProduk.visibility = if (it) View.VISIBLE else View.GONE
-            binding.outlineKategoriDropdown.visibility = if (!it) View.VISIBLE else View.GONE
+    private fun kategoriListHandler() {
+        kategoriListViewModel.isLoading().observe(this) { isLoading ->
+            binding.progressbarKategoriProduk.isVisible = isLoading
+            binding.outlineKategoriDropdown.isVisible = !isLoading
         }
-        kategoriListViewModel.kategoriList.observe(this) { kategoriList ->
+        kategoriListViewModel.getKategoriList().observe(this) { kategoriList ->
             if (kategoriList != null) {
                 val listNamaKategori = kategoriList.mapNotNull { it.namaKategori }
                 val adapterKategori = ArrayAdapter(this, R.layout.drop_down_kategori_produk, listNamaKategori)
+                val dataKategoriModel = kategoriList.find { it.idKategori == idKategori }
 
                 binding.kategoriDropdown.setAdapter(adapterKategori)
                 binding.kategoriDropdown.setText(dataKategoriModel?.namaKategori ?: getString(R.string.pilih_kategori), false)
@@ -178,23 +183,13 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
         loadImageWithGlide(Uri.fromFile(destinationFile), binding.fotoEditProduk)
     }
 
-    private fun loadImageWithGlide(imageUri: Uri?, imageBuktiPmbyrn: ImageView) {
+    private fun loadImageWithGlide(imageUri: Uri?, fotoProduk: ImageView) {
         Glide.with(this).load(imageUri).apply(RequestOptions().centerInside())
             .placeholder(R.drawable.img_placeholder)
             .error(R.drawable.img_error)
             .transition(DrawableTransitionOptions.withCrossFade(300))
-            .into(imageBuktiPmbyrn)
+            .into(fotoProduk)
         binding.btnSimpanPerubahan.isEnabled = true
-    }
-
-    private fun uploadImage(produkId: String?) {
-        val storageReference = storage.getReference("produk/$produkId.png")
-
-        storageReference.putFile(imageUri).addOnSuccessListener {
-            storageReference.downloadUrl.addOnCompleteListener { task ->
-                produkRef.child("$produkId/fotoProduk").setValue(task.result.toString())
-            }
-        }.addOnFailureListener { showToast(getString(R.string.masalah_database), this@ProdukAddUpdateActivity) }
     }
 
     private fun ActivityProdukAddUpdateBinding.validateNull(produk: ProdukModel?) {
@@ -209,34 +204,23 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
                 this@ProdukAddUpdateActivity
             )
 
-            updateKategoriId.isNullOrEmpty() -> showToast(getString(R.string.kategori_unselected), this@ProdukAddUpdateActivity)
+            idKategori.isNullOrEmpty() -> showToast(getString(R.string.kategori_unselected), this@ProdukAddUpdateActivity)
             else -> uploadToDatabase(produk)
         }
     }
 
     private fun ActivityProdukAddUpdateBinding.uploadToDatabase(produk: ProdukModel?) {
         val isEdit = produk != null
-        val produkId = if (produk != null) produk.idProduk else produkRef.push().key
-        val kategoriSkrng = if (isEdit) updateKategoriId else dataKategoriModel?.idKategori
-        val visibiliti = produk?.visibility ?: false
-
+        val idProduk = produk?.idProduk ?: ""
         val namaProduk = namaProduk.text.toString().trim()
-        if (imageUri != Uri.parse("")) uploadImage(produkId)
+        val hargaProduk = hargaProduk.text.toString().trim().toLong()
+        val toastTxt = if (isEdit) getString(R.string.berhasil_diperbarui, namaProduk) else getString(R.string.berhasil_ditambahkan, namaProduk)
 
-        val produkHash = HashMap<String, Any>()
-        produkHash["currency"] = "Rp"
-        produkHash["hargaProduk"] = binding.hargaProduk.text.toString().trim()
-        produkHash["idKategori"] = kategoriSkrng.toString()
-        produkHash["idProduk"] = produkId.toString()
-        produkHash["namaProduk"] = namaProduk
-        produkHash["visibility"] = visibiliti
-
-        val ref = produkRef.child(produkId.toString())
-        val reference = if (isEdit) ref.updateChildren(produkHash) else ref.setValue(produkHash)
-        val toastTxt = if (isEdit) getString(R.string.berhasil_diperbarui) else getString(R.string.berhasil_ditambahkan)
-        reference.addOnSuccessListener {
-            showToast("$namaProduk $toastTxt", this@ProdukAddUpdateActivity)
-            finish()
+        produkViewModel.updateDataProduk(isEdit, imageUri, idProduk, idKategori, namaProduk, hargaProduk) { isSuccessful ->
+            if (isSuccessful) {
+                showToast(toastTxt, this@ProdukAddUpdateActivity)
+                finish()
+            } else showToast(getString(R.string.masalah_database), this@ProdukAddUpdateActivity)
         }
     }
 
@@ -277,15 +261,13 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
             getColor(R.color.error)
         ) {
             if (HelperConnection.isConnected(this@ProdukAddUpdateActivity)) {
-                storage.getReference("produk/${produk.idProduk}.png").delete()
-                produkRef.child(produk.idProduk.toString()).removeValue()
-                showToast("${produk.namaProduk} berhasil dihapus", this@ProdukAddUpdateActivity)
-                finish()
+                produkViewModel.deleteProduk(produk.idProduk) { isSuccessful ->
+                    if (isSuccessful) {
+                        showToast("${produk.namaProduk} berhasil dihapus", this@ProdukAddUpdateActivity)
+                        finish()
+                    } else showToast(getString(R.string.gagal_hapus_produk, ""), this@ProdukAddUpdateActivity)
+                }
             }
         }
-    }
-
-    companion object {
-        var dataKategoriModel: KategoriModel? = null
     }
 }

@@ -3,22 +3,27 @@ package com.bekado.bekadoonline.view.ui.bottomsheet.admn
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
 import android.view.LayoutInflater
-import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.data.model.KategoriModel
 import com.bekado.bekadoonline.databinding.BottomsheetEditKategoriBinding
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.HelperConnection
+import com.bekado.bekadoonline.view.viewmodel.admin.KategoriListViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
-import com.google.firebase.database.DatabaseReference
 
-class BottomSheetEditKategori(var context: Context) {
+class BottomSheetEditKategori(
+    private val context: Context,
+    private val kategori: KategoriModel,
+    private val kategoriListViewModel: KategoriListViewModel
+) {
     private var bindingBS: BottomsheetEditKategoriBinding = BottomsheetEditKategoriBinding.inflate(LayoutInflater.from(context))
     private var dialog: BottomSheetDialog = BottomSheetDialog(context, R.style.AppBottomSheetDialogTheme)
 
@@ -26,10 +31,10 @@ class BottomSheetEditKategori(var context: Context) {
         dialog.setContentView(bindingBS.root)
     }
 
-    fun showDialog(ref: DatabaseReference, kategori: KategoriModel) {
+    fun showDialog() {
         with(bindingBS) {
-            val toastTxt = context.getString(R.string.msg_beranda_kosong)
             val namaKategori = kategori.namaKategori
+            val idKategori = kategori.idKategori
             val jumlahProduk = kategori.jumlahProduk.toInt()
             val produkHidden = kategori.produkHidden.toInt()
 
@@ -39,9 +44,9 @@ class BottomSheetEditKategori(var context: Context) {
             kategoriVisibilitas.isChecked = kategori.visibilitas
             kategoriVisibilitas.setOnCheckedChangeListener { _, checked ->
                 if (jumlahProduk > 0 && produkHidden < jumlahProduk) {
-                    Handler(Looper.getMainLooper()).postDelayed({ setVisibility(context, ref, checked, namaKategori) }, 500)
+                    Handler(Looper.getMainLooper()).postDelayed({ setVisibility(checked, namaKategori, idKategori) }, 300)
                 } else {
-                    Handler(Looper.getMainLooper()).postDelayed({ showToast(toastTxt, context) }, 500)
+                    Handler(Looper.getMainLooper()).postDelayed({ showToast(context.getString(R.string.msg_beranda_kosong), context) }, 300)
                     dialog.cancel()
                 }
             }
@@ -50,10 +55,10 @@ class BottomSheetEditKategori(var context: Context) {
                 toggleEditView(namaKategoriEdit, namaKategoriView, btnEditNamaKategori, btnCancelNamaKategori)
                 if (!namaKategoriEdit.isEnabled) {
                     if (HelperConnection.isConnected(context)) if (namaKategori != namaKategoriEdit.text.toString()) {
-                        updateData(context, context.getString(R.string.nama_kategori), namaKategoriEdit, ref, namaKategoriEdit.text.toString().trim())
+                        setNamaKategori(context.getString(R.string.nama_kategori), namaKategoriEdit.text, idKategori)
                         dialog.cancel()
                     }
-                } else focusRequest(context, namaKategoriEdit)
+                } else focusRequest(namaKategoriEdit)
             }
             btnCancelNamaKategori.setOnClickListener {
                 toggleEditView(namaKategoriEdit, namaKategoriView, btnEditNamaKategori, btnCancelNamaKategori)
@@ -63,22 +68,25 @@ class BottomSheetEditKategori(var context: Context) {
         dialog.show()
     }
 
-    private fun setVisibility(context: Context, ref: DatabaseReference, isChecked: Boolean, namaKategori: String?) {
+    private fun setVisibility(isChecked: Boolean, namaKategori: String?, idKategori: String?) {
         val visibilitas = if (isChecked) "ditampilkan" else "disembunyikan"
 
         if (HelperConnection.isConnected(context))
-            ref.child("visibilitas").setValue(isChecked).addOnSuccessListener {
-                showToast("Kategori $namaKategori $visibilitas", context)
-                dialog.cancel()
+            kategoriListViewModel.updateVisibilitasKategori(idKategori, isChecked) { isSuccessful ->
+                if (isSuccessful) {
+                    showToast("Kategori $namaKategori $visibilitas", context)
+                    dialog.cancel()
+                } else showToast(context.getString(R.string.tidak_dapat_menampilkan_x, namaKategori), context)
             }
     }
 
-    private fun updateData(context: Context, string: String, editText: EditText, ref: DatabaseReference, value: String) {
-        if (editText.text.isNotEmpty()) {
-            ref.child("namaKategori").setValue(value)
-                .addOnSuccessListener { showToast("$string ${context.getString(R.string.berhasil_mengubah)}", context) }
-                .addOnFailureListener { showToast("$string ${context.getString(R.string.gagal_mengubah)}", context) }
-        } else showToast(context.getString(R.string.tidak_dapat_kosong, string), context)
+    private fun setNamaKategori(namaKategori: String, editText: Editable, idKategori: String?) {
+        if (editText.isNotEmpty()) {
+            kategoriListViewModel.updateNamaKategori(idKategori, editText.toString().trim()) { isSucessful ->
+                if (isSucessful) showToast(context.getString(R.string.berhasil_diperbarui, namaKategori), context)
+                else showToast("$namaKategori ${context.getString(R.string.gagal_mengubah)}", context)
+            }
+        } else showToast(context.getString(R.string.tidak_dapat_kosong, namaKategori), context)
     }
 
     private fun toggleEditView(
@@ -88,13 +96,13 @@ class BottomSheetEditKategori(var context: Context) {
         cancelButton: MaterialButton
     ) {
         editText.isEnabled = !editText.isEnabled
-        editText.visibility = if (editText.isEnabled) View.VISIBLE else View.GONE
-        textView.visibility = if (!editText.isEnabled) View.VISIBLE else View.GONE
+        editText.isVisible = editText.isEnabled
+        textView.isVisible = !editText.isEnabled
         editButton.setIconResource(if (editText.isEnabled) R.drawable.icon_round_done_24 else R.drawable.icon_round_mode_edit_24)
-        cancelButton.visibility = if (editText.isEnabled) View.VISIBLE else View.GONE
+        cancelButton.isVisible = editText.isEnabled
     }
 
-    private fun focusRequest(context: Context, editText: EditText) {
+    private fun focusRequest(editText: EditText) {
         editText.requestFocus()
 
         editText.setSelection(editText.text.length)

@@ -141,7 +141,7 @@ class PembayaranActivity : AppCompatActivity() {
     }
 
     private fun limitedClickListener(data: TrxDetailModel) {
-        showToast("${getString(R.string.late_upload_bukti)} ${data.statusPesanan}", this@PembayaranActivity)
+        showToast(getString(R.string.late_upload_bukti, data.statusPesanan), this@PembayaranActivity)
     }
 
     private fun pilihGambarIntent() {

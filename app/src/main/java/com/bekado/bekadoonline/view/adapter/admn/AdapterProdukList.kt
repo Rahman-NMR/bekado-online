@@ -42,12 +42,17 @@ class AdapterProdukList(
                     .error(R.drawable.img_error)
                     .transition(DrawableTransitionOptions.withCrossFade(300))
                     .into(gambarProduk)
-                namaProduk.text = produk.namaProduk
+                namaProduk.text = produk.namaProduk ?: binding.root.context.getString(R.string.tidak_ada_data)
                 hargaProduk.text = harga
-                produkVisibility.isChecked = produk.visibility
+                produkVisibility.apply {
+                    setOnCheckedChangeListener(null)
+                    isChecked = produk.visibility
+                    setOnCheckedChangeListener { _, checked ->
+                        listenerChecked(produk, checked)
+                    }
+                }
 
                 btnEditProduk.setOnClickListener { listenerProduk(produk) }
-                produkVisibility.setOnCheckedChangeListener { _, checked -> listenerChecked(produk, checked) }
             }
         }
     }

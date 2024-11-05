@@ -121,7 +121,7 @@ class AkunSayaActivity : AppCompatActivity() {
 
     private fun uploadImgtoDb(selectedImageUri: Uri) {
         userUpdateViewModel.updateImageUri(selectedImageUri) { isSuccessful ->
-            if (isSuccessful) showToast("Foto profil ${getString(R.string.berhasil_diperbarui)}", this@AkunSayaActivity)
+            if (isSuccessful) showToast(getString(R.string.berhasil_diperbarui, "Foto profil"), this@AkunSayaActivity)
             else showToast(getString(R.string.masalah_database), this@AkunSayaActivity)
         }
     }
