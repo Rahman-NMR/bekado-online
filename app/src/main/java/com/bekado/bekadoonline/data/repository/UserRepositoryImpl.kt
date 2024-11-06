@@ -4,8 +4,10 @@ import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.bekado.bekadoonline.data.model.AkunModel
+import com.bekado.bekadoonline.data.model.VerificationResult
 import com.bekado.bekadoonline.domain.repositories.UserRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -51,15 +53,15 @@ class UserRepositoryImpl(
         akunRef.addValueEventListener(akunListener)
     }
 
-    override fun getAuthCurrentUser(): FirebaseUser? {
-        return getCurrentUser()
-    }
-
-    override fun getAkun(): LiveData<AkunModel?> {
-        return akunModel
-    }
-
+    override fun getAuthCurrentUser(): FirebaseUser? = getCurrentUser()
+    override fun getAkun(): LiveData<AkunModel?> = akunModel
     override fun getLoading(): LiveData<Boolean> = isLoading
+
+    override fun isVerified(): VerificationResult {
+        val googleVerified = getCurrentUser()?.providerData?.any { it.providerId == GoogleAuthProvider.PROVIDER_ID } ?: false
+        val emailVerified = getCurrentUser()?.providerData?.any { it.providerId == EmailAuthProvider.PROVIDER_ID } ?: false
+        return VerificationResult(googleVerified, emailVerified)
+    }
 
     override fun logoutAkun() {
         _akunModel.value = null

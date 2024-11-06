@@ -3,12 +3,14 @@ package com.bekado.bekadoonline.domain.repositories
 import android.content.Intent
 import androidx.lifecycle.LiveData
 import com.bekado.bekadoonline.data.model.AkunModel
+import com.bekado.bekadoonline.data.model.VerificationResult
 import com.google.firebase.auth.FirebaseUser
 
 interface UserRepository {
     fun getAuthCurrentUser(): FirebaseUser?
     fun getAkun(): LiveData<AkunModel?>
     fun getLoading(): LiveData<Boolean>
+    fun isVerified(): VerificationResult
     fun logoutAkun()
     fun removeListener()
     fun loginManual(email: String, password: String, response: (Boolean) -> Unit)

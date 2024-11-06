@@ -13,7 +13,7 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = 2
-        versionName = "1.2.0.15"
+        versionName = "1.2.0.16"
 //        big update
 //        sprint
 //        stable
@@ -53,6 +53,7 @@ dependencies {
     implementation("com.facebook.shimmer:shimmer:0.5.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
     implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
 
     //google
     implementation("com.google.android.material:material:1.12.0")

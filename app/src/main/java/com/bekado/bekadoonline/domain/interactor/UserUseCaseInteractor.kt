@@ -6,6 +6,7 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.data.model.AlamatModel
+import com.bekado.bekadoonline.data.model.VerificationResult
 import com.bekado.bekadoonline.domain.repositories.AddressRepository
 import com.bekado.bekadoonline.domain.repositories.UserRepository
 import com.bekado.bekadoonline.domain.repositories.UserUpdateRepository
@@ -27,6 +28,10 @@ class UserUseCaseInteractor(
 
     override fun executeLoading(): LiveData<Boolean> {
         return userRepository.getLoading()
+    }
+
+    override fun executeIsVerified(): VerificationResult {
+        return userRepository.isVerified()
     }
 
     override fun executeLogout() {

@@ -7,6 +7,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -15,6 +16,7 @@ import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.databinding.FragmentProfilBinding
 import com.bekado.bekadoonline.helper.Helper
+import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.view.ui.admn.KategoriListActivity
 import com.bekado.bekadoonline.view.ui.auth.LoginActivity
@@ -58,17 +60,46 @@ class ProfilFragment : Fragment() {
         }
     }
 
+    private fun FragmentProfilBinding.uiVerifiedHandler(akunModel: AkunModel?, emailVerified: Boolean, googleVerified: Boolean) {
+        btnVerifiedGoogle.apply {
+            isVisible = akunModel != null && !googleVerified
+            isEnabled = akunModel != null && !googleVerified
+            setOnClickListener { showToast("Dalam pengembangan", requireActivity())/*startActivity(Intent(context, x::class.java))*/ }
+        }
+        btnVerifiedEmail.apply {
+            isVisible = akunModel != null && !emailVerified
+            isEnabled = akunModel != null && !emailVerified
+            setOnClickListener { showToast("Dalam pengembangan", requireActivity())/*startActivity(Intent(context, x::class.java))*/ }
+        }
+
+        badgeGoogleVerified.apply {
+            isVisible = akunModel != null && googleVerified
+            setOnClickListener { showToast(getString(R.string.can_login_by_x, "akun Google"), requireActivity()) }
+        }
+        badgeEmailVerified.apply {
+            isVisible = akunModel != null && emailVerified
+            setOnClickListener { showToast(getString(R.string.can_login_by_x, "Email dan Password"), requireActivity()) }
+        }
+    }
+
     private fun dataAkunHandler() {
         userViewModel.getDataAkun().observe(viewLifecycleOwner) { akunModel ->
             dataTransaksiHandler(akunModel)
 
             with(binding) {
+                val emailVerified = userViewModel.isVerified().isEmailVerified ?: false
+                val googleVerified = userViewModel.isVerified().isGoogleVerified ?: false
+                uiVerifiedHandler(akunModel, emailVerified, googleVerified)
+
                 badgeAdmin.isVisible = akunModel != null && akunModel.statusAdmin
                 btnAdminKategoriProduk.isVisible = akunModel != null && akunModel.statusAdmin
 
                 namaProfil.isVisible = !akunModel?.nama.isNullOrEmpty()
                 namaProfil.text = if (!akunModel?.nama.isNullOrEmpty()) akunModel?.nama else getString(R.string.strip)
                 emailProfil.text = akunModel?.email
+
+                val borderColorProfil = if (akunModel?.statusAdmin == true) R.color.verif else R.color.blue_700
+                fotoProfil.borderColor = ContextCompat.getColor(requireContext(), borderColorProfil)
 
                 val fotopp = if (akunModel?.fotoProfil.isNullOrEmpty()) null else akunModel?.fotoProfil
                 Glide.with(requireContext()).load(fotopp)
@@ -80,7 +111,7 @@ class ProfilFragment : Fragment() {
 
                 btnAkunSaya.isEnabled = akunModel != null
                 btnDetailAlamat.isEnabled = akunModel != null
-                btnUbahPassword.isEnabled = akunModel != null
+                btnUbahPassword.isEnabled = akunModel != null && emailVerified
                 btnAdminKategoriProduk.isEnabled = akunModel != null
 
                 if (akunModel != null) {

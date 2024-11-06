@@ -49,6 +49,7 @@
     <string name="detail_transaksi_not_found">%1$sDetail Transaksi tidak ditemukan</string>
     <string name="status_pesanan_response">Status pesanan %1$s diubah</string>
     <string name="tidak_dapat_menampilkan_x">Tidak dapat menampilkan %1$s</string>
+    <string name="can_login_by_x">Anda dapat Login menggunakan %1$s Anda</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -131,6 +132,8 @@
     <string name="akun_saya">Akun Saya</string>
     <string name="detail_alamat">Detail Alamat</string>
     <string name="ubah_password">Ubah Password</string>
+    <string name="verif_google">Verifikasi Google</string>
+    <string name="verif_email">Verifikasi Email</string>
     <string name="kategori_produk">Kategori/Produk</string>
     <string name="informasi_toko">Informasi Toko</string>
 
@@ -218,4 +221,6 @@
     <string name="jam_toko">Jam Operasional Toko</string>
     <string name="nama_toko">Nama Toko</string>
     <string name="loading">Loading…</string>
+    <string name="email_verified">Email Verified</string>
+    <string name="google_verified">Google Verified</string>
 </resources>

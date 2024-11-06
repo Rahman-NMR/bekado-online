@@ -11,6 +11,7 @@
 
 <!--    <color name="blue">#52A7CF</color>-->
     <color name="verif">#526A91</color>
+    <color name="verified">#0095F6</color>
     <color name="blue_grey_700">#455A64</color>
     <color name="grey_500">#9E9E9E</color>
     <color name="grey_700">#616161</color>
