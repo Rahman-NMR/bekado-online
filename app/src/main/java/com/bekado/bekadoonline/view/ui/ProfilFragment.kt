@@ -22,6 +22,7 @@ import com.bekado.bekadoonline.view.ui.admn.KategoriListActivity
 import com.bekado.bekadoonline.view.ui.auth.LoginActivity
 import com.bekado.bekadoonline.view.ui.auth.RegisterActivity
 import com.bekado.bekadoonline.view.ui.auth.UbahPasswordActivity
+import com.bekado.bekadoonline.view.ui.auth.VerificationActivity
 import com.bekado.bekadoonline.view.ui.profil.AboutBekadoActivity
 import com.bekado.bekadoonline.view.ui.profil.AkunSayaActivity
 import com.bekado.bekadoonline.view.ui.profil.AlamatActivity
@@ -61,15 +62,10 @@ class ProfilFragment : Fragment() {
     }
 
     private fun FragmentProfilBinding.uiVerifiedHandler(akunModel: AkunModel?, emailVerified: Boolean, googleVerified: Boolean) {
-        btnVerifiedGoogle.apply {
-            isVisible = akunModel != null && !googleVerified
-            isEnabled = akunModel != null && !googleVerified
-            setOnClickListener { showToast("Dalam pengembangan", requireActivity())/*startActivity(Intent(context, x::class.java))*/ }
-        }
-        btnVerifiedEmail.apply {
-            isVisible = akunModel != null && !emailVerified
-            isEnabled = akunModel != null && !emailVerified
-            setOnClickListener { showToast("Dalam pengembangan", requireActivity())/*startActivity(Intent(context, x::class.java))*/ }
+        btnLinkAccount.apply {
+            isVisible = akunModel != null
+            isEnabled = akunModel != null
+            setOnClickListener { startActivity(Intent(context, VerificationActivity::class.java)) }
         }
 
         badgeGoogleVerified.apply {

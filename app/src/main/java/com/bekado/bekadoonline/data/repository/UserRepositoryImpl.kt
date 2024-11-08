@@ -6,7 +6,11 @@ import androidx.lifecycle.MutableLiveData
 import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.data.model.VerificationResult
 import com.bekado.bekadoonline.domain.repositories.UserRepository
+import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.RES_MISCAST
+import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.RES_DIFFRNT
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -76,13 +80,19 @@ class UserRepositoryImpl(
 
     override fun loginManual(email: String, password: String, response: (Boolean) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task -> response.invoke(task.isSuccessful) }
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) response.invoke(true)
+                else response.invoke(false)
+            }.addOnFailureListener { response.invoke(false) }
     }
 
     override fun loginGoogle(idToken: String?, response: (Boolean) -> Unit) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
-            .addOnCompleteListener { task -> response.invoke(task.isSuccessful) }
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) response.invoke(true)
+                else response.invoke(false)
+            }.addOnFailureListener { response.invoke(false) }
     }
 
     override fun intentGoogleSignIn(): Intent = gsiClient.signInIntent
@@ -122,5 +132,30 @@ class UserRepositoryImpl(
                 .addOnCompleteListener { task -> response.invoke(task.isSuccessful) }
                 .addOnFailureListener { response.invoke(false) }
         } ?: response.invoke(false)
+    }
+
+    override fun linkToGoogle(data: Intent?, response: (Boolean, String) -> Unit) {
+        GoogleSignIn.getSignedInAccountFromIntent(data).addOnCompleteListener { task ->
+            val googleAccount = task.result
+            if (googleAccount != null) {
+                val googleEmail = googleAccount.email
+                val currentUserEmail = getCurrentUser()?.email
+
+                if (googleEmail == currentUserEmail) {
+                    googleAccount.idToken?.let { idToken -> response.invoke(true, idToken) }
+                } else {
+                    response.invoke(false, RES_DIFFRNT)
+                    gsiClient.signOut()
+                }
+            } else response.invoke(false, RES_MISCAST)
+        }.addOnFailureListener { response.invoke(false, RES_MISCAST) }
+    }
+
+    override fun linkCredentials(credential: AuthCredential, response: (Boolean) -> Unit) {
+        auth.currentUser?.linkWithCredential(credential)
+            ?.addOnCompleteListener {
+                if (it.isSuccessful) response.invoke(true)
+                else response.invoke(false)
+            }?.addOnFailureListener { response.invoke(false) }
     }
 }

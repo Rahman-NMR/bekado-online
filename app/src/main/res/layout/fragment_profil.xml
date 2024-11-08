@@ -316,24 +316,6 @@
                         android:paddingVertical="8dp">
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_verified_google"
-                            style="@style/materialTextListButtonIcon.grey"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:enabled="false"
-                            android:text="@string/verif_google"
-                            app:icon="@drawable/icon_baseline_verified_24" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_verified_email"
-                            style="@style/materialTextListButtonIcon.grey"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:enabled="false"
-                            android:text="@string/verif_email"
-                            app:icon="@drawable/icon_baseline_verified_24" />
-
-                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_akun_saya"
                             style="@style/materialTextListButtonIcon.grey"
                             android:layout_width="match_parent"
@@ -359,6 +341,17 @@
                             android:enabled="false"
                             android:text="@string/ubah_password"
                             app:icon="@drawable/icon_outline_lock_24" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_link_account"
+                            style="@style/materialTextListButtonIcon.grey"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:enabled="false"
+                            android:text="@string/link_account"
+                            android:visibility="gone"
+                            app:icon="@drawable/icon_outline_verified_24"
+                            tools:visibility="visible" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 

@@ -91,6 +91,11 @@ class LoginActivity : AppCompatActivity() {
     private fun loginAuthWithGoogle(idToken: String?) {
         authViewModel.loginAuthWithGoogle(idToken) { isSuccessful ->
             if (isSuccessful) signInSuccess()
+            else {
+                showToast(getString(R.string.gagal_login_google), this)
+                userViewModel.clearAkunData()
+                loadingAuthUI(false)
+            }
         }
     }
 

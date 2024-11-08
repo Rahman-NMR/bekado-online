@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.data.model.AlamatModel
 import com.bekado.bekadoonline.data.model.VerificationResult
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 
 interface UserUseCase {
@@ -31,4 +32,7 @@ interface UserUseCase {
 
     fun executeUpdateDataAkun(pathDb: String, value: String, response: (Boolean) -> Unit)
     fun executeUpdateImageUri(imageUri: Uri, response: (Boolean) -> Unit)
+
+    fun executeLinkToGoogle(data: Intent?, response: (Boolean, String) -> Unit)
+    fun executeLinkCredentials(credential: AuthCredential, response: (Boolean) -> Unit)
 }

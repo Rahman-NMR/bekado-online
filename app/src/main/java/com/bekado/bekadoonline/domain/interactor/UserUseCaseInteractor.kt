@@ -11,6 +11,7 @@ import com.bekado.bekadoonline.domain.repositories.AddressRepository
 import com.bekado.bekadoonline.domain.repositories.UserRepository
 import com.bekado.bekadoonline.domain.repositories.UserUpdateRepository
 import com.bekado.bekadoonline.domain.usecase.UserUseCase
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 
 class UserUseCaseInteractor(
@@ -94,5 +95,13 @@ class UserUseCaseInteractor(
 
     override fun executeUpdateImageUri(imageUri: Uri, response: (Boolean) -> Unit) {
         userUpdateRepository.updateImageUri(imageUri, response)
+    }
+
+    override fun executeLinkToGoogle(data: Intent?, response: (Boolean, String) -> Unit) {
+        userRepository.linkToGoogle(data, response)
+    }
+
+    override fun executeLinkCredentials(credential: AuthCredential, response: (Boolean) -> Unit) {
+        userRepository.linkCredentials(credential, response)
     }
 }

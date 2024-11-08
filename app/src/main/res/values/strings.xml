@@ -50,6 +50,12 @@
     <string name="status_pesanan_response">Status pesanan %1$s diubah</string>
     <string name="tidak_dapat_menampilkan_x">Tidak dapat menampilkan %1$s</string>
     <string name="can_login_by_x">Anda dapat Login menggunakan %1$s Anda</string>
+    <string name="x_berhasil_terhubung">%1$s berhasil terhubung</string>
+    <string name="gagal_menghubungkan_x">Gagal menghubungkan %1$s</string>
+    <string name="gagal_login_google">Terjadi kesalahan saat login dengan Google</string>
+    <string name="different_email">Email akun Google yang dipilih tidak cocok dengan akun sekarang</string>
+    <string name="miscast_google_akun">Terjadi kesalahan saat memilih akun Google</string>
+    <string name="x_masih_kosong">%1$s masih kosong</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -76,6 +82,7 @@
     <string name="simpan_perubahan">Simpan Perubahan</string>
     <string name="reset_password">Reset Password</string>
     <string name="reset">Reset</string>
+    <string name="hubungkan">Hubungkan</string>
 
     <!--    fab-->
     <string name="tambah_produk">Tambah Produk</string>
@@ -132,8 +139,7 @@
     <string name="akun_saya">Akun Saya</string>
     <string name="detail_alamat">Detail Alamat</string>
     <string name="ubah_password">Ubah Password</string>
-    <string name="verif_google">Verifikasi Google</string>
-    <string name="verif_email">Verifikasi Email</string>
+    <string name="link_account">Hubungkan Akun</string>
     <string name="kategori_produk">Kategori/Produk</string>
     <string name="informasi_toko">Informasi Toko</string>
 
@@ -165,6 +171,7 @@
     <string name="desc_cari_kosong_prdk">Tidak dapat menemukan produk yang dicari.</string>
 
     <string name="atau">Atau masuk dengan</string>
+    <string name="google">Google</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="daftar_akun">Daftar Akun</string>
@@ -223,4 +230,6 @@
     <string name="loading">Loading…</string>
     <string name="email_verified">Email Verified</string>
     <string name="google_verified">Google Verified</string>
+    <string name="akun_sekarang_">Akun Sekarang :</string>
+    <string name="link_account_hint">Email dan Password dapat digunakan untuk metode login dengan email.</string>
 </resources>
