@@ -31,10 +31,10 @@ class ProductRepositoryImpl(db: FirebaseDatabase) : ProductRepository {
 
             dataButtonList.add(ButtonModel("Semua", "", true, 0))
             for (item in snapshot.child("kategori").children) {
-                val namaKategori = item.child("namaKategori").value as String
-                val posisi = item.child("posisi").value as Long
-                val idKategori = item.child("idKategori").value as String
-                val visibilitas = item.child("visibilitas").value as Boolean
+                val namaKategori = item.child("namaKategori").value as? String ?: "Kosong"
+                val posisi = item.child("posisi").value as? Long ?: 9999
+                val idKategori = item.child("idKategori").value as? String ?: "Kosong"
+                val visibilitas = item.child("visibilitas").value as? Boolean ?: false
 
                 visibilityKategori[idKategori] = visibilitas
                 if (visibilitas) {

@@ -26,7 +26,7 @@ class ProdukListRepositoryImpl(db: FirebaseDatabase) : ProdukListRepository {
 
             if (snapshot.exists()) {
                 for (item in snapshot.children) {
-                    val idKategori = item.child("idKategori").value as String
+                    val idKategori = item.child("idKategori").value as? String ?: ""
                     if (kategoriId == idKategori) {
                         val produk = item.getValue(ProdukModel::class.java) ?: ProdukModel()
                         listProduk.add(produk)
@@ -36,7 +36,7 @@ class ProdukListRepositoryImpl(db: FirebaseDatabase) : ProdukListRepository {
                 val produkHidden = listProduk.filter { !it.visibility }.size
                 val totalProduk = listProduk.size
                 if (totalProduk == 0 || produkHidden == totalProduk)
-                    reference.child("kategori/$kategoriId/visibilitas").setValue(false)
+                    if (!kategoriId.isNullOrEmpty()) reference.child("kategori/$kategoriId/visibilitas").setValue(false)
 
                 _produkList.value = listProduk
                 _isLoading.value = false

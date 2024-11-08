@@ -59,7 +59,7 @@ class VerificationActivity : AppCompatActivity() {
     }
 
     private fun actionUI() {
-        binding.currentAccount.text = userViewModel.currentUser()?.email ?: ""
+        binding.currentAccount.text = userViewModel.currentUser()?.email ?: getString(R.string.tidak_ada_data)
 
         binding.appBar.setNavigationOnClickListener { backPressed() }
         binding.linkEmail.setOnClickListener { actionLinkEmail() }

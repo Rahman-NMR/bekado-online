@@ -13,7 +13,7 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = 2
-        versionName = "1.2.0.17"
+        versionName = "1.2.1.0"
 //        big update
 //        sprint
 //        stable

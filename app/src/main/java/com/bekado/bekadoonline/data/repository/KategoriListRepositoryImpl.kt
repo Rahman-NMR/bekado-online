@@ -26,10 +26,10 @@ class KategoriListRepositoryImpl(db: FirebaseDatabase) : KategoriListRepository 
             _isLoading.value = true
             if (snapshot.exists()) {
                 for (item in snapshot.child("kategori").children) {
-                    val idKategori = item.child("idKategori").value as String
-                    val namaKategori = item.child("namaKategori").value as String
-                    val posisi = item.child("posisi").value as Long
-                    val visibilitas = item.child("visibilitas").value as Boolean
+                    val idKategori = item.child("idKategori").value as? String ?: ""
+                    val namaKategori = item.child("namaKategori").value as? String ?: ""
+                    val posisi = item.child("posisi").value as? Long ?: 0
+                    val visibilitas = item.child("visibilitas").value as? Boolean ?: false
 
                     var jumlahProdukNya = 0
                     var hidden = 0
@@ -39,8 +39,11 @@ class KategoriListRepositoryImpl(db: FirebaseDatabase) : KategoriListRepository 
                         if (jumlahProduk == idKategori) jumlahProdukNya++
                         if (jumlahProduk == idKategori && !visibility) hidden++
                     }
-                    val kategoriData = KategoriModel(idKategori, namaKategori, posisi, visibilitas, jumlahProdukNya.toLong(), hidden.toLong())
-                    kategoriList.add(kategoriData)
+
+                    if (idKategori.isNotEmpty()) {
+                        val kategoriData = KategoriModel(idKategori, namaKategori, posisi, visibilitas, jumlahProdukNya.toLong(), hidden.toLong())
+                        kategoriList.add(kategoriData)
+                    }
                 }
 
                 kategoriList.sortBy { it.posisi }
