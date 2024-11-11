@@ -56,6 +56,7 @@
     <string name="different_email">Email akun Google yang dipilih tidak cocok dengan akun sekarang</string>
     <string name="miscast_google_akun">Terjadi kesalahan saat memilih akun Google</string>
     <string name="x_masih_kosong">%1$s masih kosong</string>
+    <string name="press_back_again">Tekan sekali lagi untuk keluar</string>
 
     <!--    button-->
     <string name="login">Login</string>

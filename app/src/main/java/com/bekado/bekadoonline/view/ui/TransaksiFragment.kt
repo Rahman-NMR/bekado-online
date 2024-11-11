@@ -2,8 +2,6 @@ package com.bekado.bekadoonline.view.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +15,6 @@ import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.data.model.TrxListModel
 import com.bekado.bekadoonline.databinding.FragmentTransaksiBinding
-import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.EXTRA_PATH_DTRANSAKSI
@@ -30,7 +27,6 @@ import com.bekado.bekadoonline.view.ui.transaksi.DetailTransaksiActivity
 import com.bekado.bekadoonline.view.ui.transaksi.KeranjangActivity
 import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiListViewModel
 import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiViewModelFactory
-import com.bekado.bekadoonline.view.viewmodel.user.AuthViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 
@@ -40,7 +36,6 @@ class TransaksiFragment : Fragment() {
 
     private val dataShimmer: ArrayList<ShimmerModel> = ArrayList()
     private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
-    private val authViewModel: AuthViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
     private val transaksiListVM: TransaksiListViewModel by viewModels { TransaksiViewModelFactory.getInstance() }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -176,28 +171,6 @@ class TransaksiFragment : Fragment() {
                 }
             }
         }
-        userViewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
-            if (!isLoading) {
-                if (userViewModel.getDataAkun().value == null)
-                    authViewModel.autoRegisterToRtdb { isSuccessful ->
-                        if (isSuccessful) restartApp()
-                        else {
-                            showToastL(getString(R.string.account_problem), requireActivity())
-
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                userViewModel.clearAkunData()
-                                restartApp()
-                            }, 3210)
-                        }
-                    }
-            }
-        }
-    }
-
-    private fun restartApp() {
-        val intent = Intent(requireActivity(), MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
     }
 
     private fun startAuthLoginActivity(isRegistered: Boolean) {

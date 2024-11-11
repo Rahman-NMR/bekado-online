@@ -2,8 +2,6 @@ package com.bekado.bekadoonline.view.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +17,6 @@ import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.databinding.FragmentBerandaBinding
 import com.bekado.bekadoonline.helper.Helper.calculateSpanCount
 import com.bekado.bekadoonline.helper.Helper.showToast
-import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.helper.HelperAuth.adminKeranjangState
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.HelperSort.sortProduk
@@ -36,7 +33,6 @@ import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModel
 import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModelFactory
 import com.bekado.bekadoonline.view.viewmodel.produk.ProdukViewModel
 import com.bekado.bekadoonline.view.viewmodel.produk.ProdukViewModelFactory
-import com.bekado.bekadoonline.view.viewmodel.user.AuthViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 
@@ -47,7 +43,6 @@ class BerandaFragment : Fragment() {
     private val dataShimmer: ArrayList<ShimmerModel> = ArrayList()
 
     private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
-    private val authViewModel: AuthViewModel by viewModels { UserViewModelFactory.getInstance(requireActivity()) }
     private val keranjangViewModel: KeranjangViewModel by viewModels { KeranjangViewModelFactory.getInstance() }
     private val productViewModel: ProdukViewModel by viewModels { ProdukViewModelFactory.getInstance() }
 
@@ -266,28 +261,6 @@ class BerandaFragment : Fragment() {
                 true
             }
         }
-        userViewModel.isLoading().observe(viewLifecycleOwner) { isLoading ->
-            if (!isLoading) {
-                if (userViewModel.getDataAkun().value == null)
-                    authViewModel.autoRegisterToRtdb { isSuccessful ->
-                        if (isSuccessful) restartApp()
-                        else {
-                            showToastL(getString(R.string.account_problem), requireActivity())
-
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                userViewModel.clearAkunData()
-                                restartApp()
-                            }, 3210)
-                        }
-                    }
-            }
-        }
-    }
-
-    private fun restartApp() {
-        val intent = Intent(requireActivity(), MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
     }
 
     private fun searchClearText() {
