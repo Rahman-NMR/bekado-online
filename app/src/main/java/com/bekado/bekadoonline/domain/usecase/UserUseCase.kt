@@ -19,7 +19,7 @@ interface UserUseCase {
     fun executeRemoveListener()
 
     fun executeLoginAuthManual(email: String, password: String, response: (Boolean) -> Unit)
-    fun executeLoginAuthWithGoogle(idToken: String?, response: (Boolean) -> Unit)
+    fun executeLoginAuthWithGoogle(data: Intent?, response: (Boolean) -> Unit)
     fun executeIntentGoogleSignIn(): Intent
     fun executeRegisterAuth(email: String, password: String, nama: String, noHp: String, response: (Boolean) -> Unit)
     fun executeAutoRegisterUserToRtdb(response: (Boolean) -> Unit)

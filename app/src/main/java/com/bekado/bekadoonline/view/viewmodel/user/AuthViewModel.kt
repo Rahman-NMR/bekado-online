@@ -12,8 +12,8 @@ class AuthViewModel(private val userUseCase: UserUseCase) : ViewModel() {
         userUseCase.executeLoginAuthManual(email, password, response)
     }
 
-    fun loginAuthWithGoogle(idToken: String?, response: (Boolean) -> Unit) {
-        userUseCase.executeLoginAuthWithGoogle(idToken, response)
+    fun loginAuthWithGoogle(data: Intent?, response: (Boolean) -> Unit) {
+        userUseCase.executeLoginAuthWithGoogle(data, response)
     }
 
     fun registerAuth(email: String, password: String, nama: String, noHp: String, response: (Boolean) -> Unit) {

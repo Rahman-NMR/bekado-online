@@ -30,7 +30,6 @@ class UbahPasswordActivity : AppCompatActivity() {
             konfirmasiPassword.addTextChangedListener(pwTextWatcher)
 
             appBar.setNavigationOnClickListener { finish() }
-
             btnKonfirmasi.setOnClickListener {
                 if (HelperConnection.isConnected(this@UbahPasswordActivity)) {
                     if (outlinePasswordSekarang.helperText == null &&

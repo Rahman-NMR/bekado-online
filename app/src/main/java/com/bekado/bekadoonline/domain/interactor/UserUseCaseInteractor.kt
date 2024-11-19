@@ -47,8 +47,8 @@ class UserUseCaseInteractor(
         userRepository.loginManual(email, password, response)
     }
 
-    override fun executeLoginAuthWithGoogle(idToken: String?, response: (Boolean) -> Unit) {
-        userRepository.loginGoogle(idToken, response)
+    override fun executeLoginAuthWithGoogle(data: Intent?, response: (Boolean) -> Unit) {
+        userRepository.loginGoogle(data, response)
     }
 
     override fun executeIntentGoogleSignIn(): Intent {

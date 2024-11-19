@@ -19,8 +19,6 @@ import com.bekado.bekadoonline.view.ui.MainActivity
 import com.bekado.bekadoonline.view.viewmodel.user.AuthViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 
 class LoginActivity : AppCompatActivity() {
@@ -39,16 +37,15 @@ class LoginActivity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             loadingAuthUI(true)
             val data: Intent? = result.data
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
 
-            if (task.isSuccessful)
-                try {
-                    val account = task.getResult(ApiException::class.java)
-                    loginAuthWithGoogle(account.idToken)
-                } catch (_: ApiException) {
+            authViewModel.loginAuthWithGoogle(data) { isSuccessful ->
+                if (isSuccessful) signInSuccess()
+                else {
+                    showToast(getString(R.string.gagal_login_google), this)
+                    userViewModel.clearAkunData()
                     loadingAuthUI(false)
                 }
-            else loadingAuthUI(false)
+            }
         }
     }
 
@@ -85,17 +82,6 @@ class LoginActivity : AppCompatActivity() {
         btnLupaPassword.setOnClickListener { startActivity(Intent(this@LoginActivity, LupaPasswordActivity::class.java)) }
         googleAutoLogin.setOnClickListener {
             if (HelperConnection.isConnected(this@LoginActivity)) signInClient.launch(authViewModel.launchSignInClient())
-        }
-    }
-
-    private fun loginAuthWithGoogle(idToken: String?) {
-        authViewModel.loginAuthWithGoogle(idToken) { isSuccessful ->
-            if (isSuccessful) signInSuccess()
-            else {
-                showToast(getString(R.string.gagal_login_google), this)
-                userViewModel.clearAkunData()
-                loadingAuthUI(false)
-            }
         }
     }
 

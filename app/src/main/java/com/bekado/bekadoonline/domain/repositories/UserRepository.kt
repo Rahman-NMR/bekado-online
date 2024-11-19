@@ -16,7 +16,7 @@ interface UserRepository {
     fun removeListener()
 
     fun loginManual(email: String, password: String, response: (Boolean) -> Unit)
-    fun loginGoogle(idToken: String?, response: (Boolean) -> Unit)
+    fun loginGoogle(data: Intent?, response: (Boolean) -> Unit)
     fun intentGoogleSignIn(): Intent
     fun registerAuth(email: String, password: String, nama: String, noHp: String, response: (Boolean) -> Unit)
     fun autoRegisterUserToRtdb(response: (Boolean) -> Unit)

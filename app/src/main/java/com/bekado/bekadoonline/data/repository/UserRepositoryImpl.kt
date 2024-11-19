@@ -10,6 +10,7 @@ import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.RES_MI
 import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.RES_DIFFRNT
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -86,13 +87,23 @@ class UserRepositoryImpl(
             }.addOnFailureListener { response.invoke(false) }
     }
 
-    override fun loginGoogle(idToken: String?, response: (Boolean) -> Unit) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) response.invoke(true)
-                else response.invoke(false)
-            }.addOnFailureListener { response.invoke(false) }
+    override fun loginGoogle(data: Intent?, response: (Boolean) -> Unit) {
+        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+
+        if (task.isSuccessful) {
+            try {
+                val account = task.getResult(ApiException::class.java)
+                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+
+                auth.signInWithCredential(credential)
+                    .addOnCompleteListener { tasks ->
+                        if (tasks.isSuccessful) response.invoke(true)
+                        else response.invoke(false)
+                    }.addOnFailureListener { response.invoke(false) }
+            } catch (_: ApiException) {
+                response.invoke(false)
+            }
+        } else response.invoke(false)
     }
 
     override fun intentGoogleSignIn(): Intent = gsiClient.signInIntent
