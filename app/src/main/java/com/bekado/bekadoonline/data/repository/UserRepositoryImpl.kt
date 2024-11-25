@@ -169,4 +169,26 @@ class UserRepositoryImpl(
                 else response.invoke(false)
             }?.addOnFailureListener { response.invoke(false) }
     }
+
+    override fun reAuthenticate(password: String, response: (Boolean, Boolean) -> Unit) {
+        val currentUser = getCurrentUser()
+        val email = currentUser?.email
+
+        if (!email.isNullOrEmpty()) {
+            val credential = EmailAuthProvider.getCredential(email, password)
+            currentUser.reauthenticate(credential).addOnCompleteListener { reAuth ->
+                if (reAuth.isSuccessful) response.invoke(true, true)
+                else response.invoke(true, false)
+            }.addOnFailureListener { response.invoke(true, false) }
+        } else response.invoke(false, false)
+    }
+
+    override fun updatePassword(newPassword: String, response: (Boolean) -> Unit) {
+        val currentUser = getCurrentUser()
+
+        currentUser?.updatePassword(newPassword)?.addOnCompleteListener { update ->
+            if (update.isSuccessful) response.invoke(true)
+            else response.invoke(false)
+        }?.addOnFailureListener { response.invoke(false) }
+    }
 }

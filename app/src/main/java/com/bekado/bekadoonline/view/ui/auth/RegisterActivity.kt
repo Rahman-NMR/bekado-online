@@ -14,12 +14,12 @@ import androidx.core.view.isVisible
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityRegisterBinding
 import com.bekado.bekadoonline.helper.Helper.showToast
+import com.bekado.bekadoonline.helper.Helper.snackbarActionClose
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.view.ui.MainActivity
 import com.bekado.bekadoonline.view.viewmodel.user.AuthViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
-import com.google.android.material.snackbar.Snackbar
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
@@ -70,33 +70,36 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun ActivityRegisterBinding.actionUI() {
         btnRegister.setOnClickListener {
-            val email = binding.emailDaftar.text.toString().trim()
-            val password = binding.passwordDaftar.text.toString()
-            val nama = binding.namaDaftar.text.toString().trim()
-            val noHp = binding.nohpDaftar.text.toString().trim()
+            val email = emailDaftar.text.toString().trim()
+            val password = passwordDaftar.text.toString()
+            val password2 = konfirmasiPasswordDaftar.text.toString()
+            val nama = namaDaftar.text.toString().trim()
+            val noHp = nohpDaftar.text.toString().trim()
 
             if (HelperConnection.isConnected(this@RegisterActivity)) {
-                if (binding.outlineNamaDaftar.helperText == null
-                    && binding.outlineNohpDaftar.helperText == null
-                    && binding.outlineEmailDaftar.helperText == null
-                    && binding.outlinePasswordDaftar.helperText == null
-                    && binding.outlineKonfirmasiPasswordDaftar.helperText == null
-                ) {
-                    val passwordInput = binding.passwordDaftar.text
-                    val konfirmPasswordInput = binding.konfirmasiPasswordDaftar.text
+                val outlineHelper =
+                    listOf(outlineNamaDaftar, outlineNohpDaftar, outlineEmailDaftar, outlinePasswordDaftar, outlineKonfirmasiPasswordDaftar)
 
-                    if (konfirmPasswordInput.toString() != passwordInput.toString()) {
-                        val snackbar = Snackbar.make(binding.root, getString(R.string.password_berbeda), Snackbar.LENGTH_LONG)
-                        snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                    } else registerAuth(email, password, nama, noHp)
-                } else {
-                    val snackbar = Snackbar.make(binding.root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
-                    snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                }
+                if (outlineHelper.all { it.helperText == null }) inputValidation(nama, noHp, email, password, password2)
+                else snackbarActionClose(root, getString(R.string.pastikan_no_error))
             }
         }
         googleAutoLogin.setOnClickListener {
             if (HelperConnection.isConnected(this@RegisterActivity)) signInClient.launch(authViewModel.launchSignInClient())
+        }
+    }
+
+    private fun ActivityRegisterBinding.inputValidation(nama: String, noHp: String, email: String, password: String, password2: String) {
+        when {
+            nama.isEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.nama)))
+            noHp.isNotEmpty() && noHp.length < 9 -> snackbarActionClose(root, getString(R.string.min_9_angka))
+            email.isEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.email)))
+            password.isEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.password)))
+            password2.isEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.konfirmasi_password)))
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> snackbarActionClose(root, getString(R.string.email_invalid))
+            password.length < 8 -> snackbarActionClose(root, getString(R.string.min_8_char))
+            password != password2 -> snackbarActionClose(root, getString(R.string.password_berbeda))
+            else -> registerAuth(email, password, nama, noHp)
         }
     }
 
@@ -173,31 +176,37 @@ class RegisterActivity : AppCompatActivity() {
             val passwordInput = binding.passwordDaftar.text
             val konfirmPasswordInput = binding.konfirmasiPasswordDaftar.text
 
-            if (s == noHpInput) {
-                if (noHpInput.isNullOrEmpty()) binding.outlineNohpDaftar.helperText = null
-                else {
-                    if (noHpInput.length < 9) binding.outlineNohpDaftar.helperText = getString(R.string.min_9_angka)
-                    else binding.outlineNohpDaftar.helperText = null
+            when (s) {
+                noHpInput -> {
+                    binding.outlineNohpDaftar.helperText = when {
+                        noHpInput.isNullOrEmpty() -> null
+                        noHpInput.length < 9 -> getString(R.string.min_9_angka)
+                        else -> null
+                    }
                 }
-            } else if (s == emailInput) {
-                if (emailInput.isNullOrEmpty()) binding.outlineEmailDaftar.helperText = null
-                else {
-                    if (!Patterns.EMAIL_ADDRESS.matcher(s.toString()).matches())
-                        binding.outlineEmailDaftar.helperText = getString(R.string.email_invalid)
-                    else binding.outlineEmailDaftar.helperText = null
+
+                emailInput -> {
+                    binding.outlineEmailDaftar.helperText = when {
+                        emailInput.isNullOrEmpty() -> null
+                        !Patterns.EMAIL_ADDRESS.matcher(s.toString()).matches() -> getString(R.string.email_invalid)
+                        else -> null
+                    }
                 }
-            } else if (s == passwordInput) {
-                if (passwordInput.isNullOrEmpty()) binding.outlinePasswordDaftar.helperText = null
-                else {
-                    if (passwordInput.toString().length < 8) binding.outlinePasswordDaftar.helperText = getString(R.string.min_8_char)
-                    else binding.outlinePasswordDaftar.helperText = null
+
+                passwordInput -> {
+                    binding.outlinePasswordDaftar.helperText = when {
+                        passwordInput.isNullOrEmpty() -> null
+                        passwordInput.length < 8 -> getString(R.string.min_8_char)
+                        else -> null
+                    }
                 }
-            } else if (s == konfirmPasswordInput) {
-                if (konfirmPasswordInput.isNullOrEmpty()) binding.outlineKonfirmasiPasswordDaftar.helperText = null
-                else {
-                    if (konfirmPasswordInput.toString() != passwordInput.toString())
-                        binding.outlineKonfirmasiPasswordDaftar.helperText = getString(R.string.password_berbeda)
-                    else binding.outlineKonfirmasiPasswordDaftar.helperText = null
+
+                konfirmPasswordInput -> {
+                    binding.outlineKonfirmasiPasswordDaftar.helperText = when {
+                        konfirmPasswordInput.isNullOrEmpty() -> null
+                        konfirmPasswordInput.toString() != passwordInput.toString() -> getString(R.string.password_berbeda)
+                        else -> null
+                    }
                 }
             }
         }

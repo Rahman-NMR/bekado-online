@@ -23,4 +23,6 @@ interface UserRepository {
 
     fun linkToGoogle(data: Intent?, response: (Boolean, String) -> Unit)
     fun linkCredentials(credential: AuthCredential, response: (Boolean) -> Unit)
+    fun reAuthenticate(password: String, response: (Boolean, Boolean) -> Unit)
+    fun updatePassword(newPassword: String, response: (Boolean) -> Unit)
 }

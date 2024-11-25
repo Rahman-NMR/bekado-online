@@ -31,4 +31,14 @@ class AuthViewModel(private val userUseCase: UserUseCase) : ViewModel() {
     fun linkCredentials(credential: AuthCredential, response: (Boolean) -> Unit) {
         userUseCase.executeLinkCredentials(credential, response)
     }
+
+    fun reAuthenticate(currentPassword: String?, inputNotEmpty: (Boolean) -> Unit, response: (Boolean, Boolean) -> Unit) {
+        if (!currentPassword.isNullOrEmpty()) userUseCase.executeReAuthenticate(currentPassword, response)
+        else inputNotEmpty.invoke(false)
+    }
+
+    fun updatePassword(newPassword: String?, inputNotEmpty: (Boolean) -> Unit, response: (Boolean) -> Unit) {
+        if (!newPassword.isNullOrEmpty()) userUseCase.executeUpdatePassword(newPassword, response)
+        else inputNotEmpty.invoke(false)
+    }
 }

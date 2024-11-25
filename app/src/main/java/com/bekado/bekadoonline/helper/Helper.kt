@@ -11,6 +11,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.bekado.bekadoonline.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import kotlin.math.atan2
@@ -49,6 +50,18 @@ object Helper {
         val spanCount = (screenWidth / columnWidthPx).toInt()
 
         return if (spanCount > 0) spanCount else 1
+    }
+
+    fun snackbarActionClose(view: View, string: String) {
+        val snackbar = Snackbar.make(view, string, Snackbar.LENGTH_LONG)
+        snackbar.setAction("Tutup") { snackbar.dismiss() }.show()
+    }
+
+    fun snackbarAction(view: View, string: String, actionText: String, anchorView: View? = null, actionListener: () -> Unit) {
+        val snackbar = Snackbar.make(view, string, Snackbar.LENGTH_SHORT)
+        snackbar.setAction(actionText) { actionListener() }.show()
+        anchorView?.let { snackbar.anchorView = it }
+        snackbar.show()
     }
 
     fun showToast(message: String, context: Context) {

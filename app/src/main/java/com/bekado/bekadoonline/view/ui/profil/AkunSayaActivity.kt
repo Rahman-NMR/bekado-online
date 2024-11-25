@@ -224,8 +224,8 @@ class AkunSayaActivity : AppCompatActivity() {
                 pathDb == "nama" && editText.text.length > 30 -> showToast(getString(R.string.terlalu_panjang, string), this)
                 pathDb == "noHp" && editText.text.length < 9 -> showToast(getString(R.string.terlalu_singkat, string), this)
                 else -> userUpdateViewModel.updateDataAkun(pathDb, value) { isSuccessful ->
-                    if (isSuccessful) showToast("$string ${getString(R.string.berhasil_mengubah)}", this)
-                    else showToast("$string ${getString(R.string.gagal_mengubah)}", this)
+                    if (isSuccessful) showToast(getString(R.string.berhasil_diperbarui, string), this)
+                    else showToast(getString(R.string.gagal_memperbarui_x, string), this)
                 }
             }
         } else showToast(getString(R.string.tidak_dapat_kosong, string), this)

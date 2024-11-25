@@ -19,8 +19,6 @@
     <string name="pass_salah">Password salah</string>
     <string name="gagal_daftar_akun">Gagal mendaftarkan akun</string>
     <string name="berhasil_diupload">berhasil diupload</string>
-    <string name="berhasil_mengubah">berhasil diubah</string>
-    <string name="gagal_mengubah">tidak berhasil diubah</string>
     <string name="tidak_dapat_kosong">%1$s tidak dapat kosong</string>
     <string name="terlalu_singkat">%1$s terlalu singkat</string>
     <string name="terlalu_panjang">%1$s terlalu panjang</string>
@@ -32,6 +30,7 @@
     <string name="syarat_checkout">Minimal pembelanjaan Rp50.000</string>
     <string name="berhasil_ditambahkan">%1$s berhasil ditambahkan</string>
     <string name="berhasil_diperbarui">%1$s berhasil diperbarui</string>
+    <string name="gagal_memperbarui_x">Gagal memperbarui %1$s</string>
     <string name="gagal_menambahkan_x_baru">Gagal menambahkan %1$s baru</string>
     <string name="tautan_reset_pw_sukses">Tautan reset password dikirim ke email Anda</string>
     <string name="masalah_database">Terjadi masalah pada database</string>
@@ -57,6 +56,7 @@
     <string name="miscast_google_akun">Terjadi kesalahan saat memilih akun Google</string>
     <string name="x_masih_kosong">%1$s masih kosong</string>
     <string name="press_back_again">Tekan sekali lagi untuk keluar</string>
+    <string name="need_permission_location">Diperlukan izin akses lokasi</string>
 
     <!--    button-->
     <string name="login">Login</string>
@@ -91,8 +91,8 @@
 
     <!--    helper text-->
     <string name="email_invalid">Email tidak sesuai format</string>
-    <string name="min_8_char">Minimal 8 karakter</string>
-    <string name="min_9_angka">Minimal 9 angka</string>
+    <string name="min_8_char">Password minimal 8 karakter</string>
+    <string name="min_9_angka">Nomor telepon minimal 9 angka</string>
     <string name="password_berbeda">Password berbeda</string>
     <string name="kode_pos_invalid">Kode pos invalid</string>
     <string name="alamat_terlalu_singkat">Alamat terlalu singkat</string>
@@ -156,7 +156,7 @@
     <string name="hapus_produk_dipilih">Semua produk yang dipilih akan dihapus dari Keranjang</string>
     <string name="msg_alamat">Perubahan alamat akan dibatalkan. Semua perubahan tidak akan disimpan</string>
     <string name="msg_konf_pesanan">Pesanan akan ditambahkan ke daftar transaksi.</string>
-    <string name="kirim_tautan_ke_email">Tautan akan di kirim ke email</string>
+    <string name="kirim_tautan_ke_email">Tautan akan di kirim ke email %1$s</string>
     <string name="sts_psnsn_ubah_mjd">Status pesanan akan diubah menjadi %1$s</string>
     <string name="msg_del_kategori">Kategori %1$s akan dihapus secara permanen bersama dengan daftar produk didalamnya.</string>
 

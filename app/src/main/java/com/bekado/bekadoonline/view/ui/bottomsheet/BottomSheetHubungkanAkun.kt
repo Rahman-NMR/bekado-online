@@ -7,11 +7,10 @@ import android.util.Patterns
 import android.view.LayoutInflater
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.BottomsheetHubungkanAkunBinding
-import com.bekado.bekadoonline.helper.Helper.showToast
+import com.bekado.bekadoonline.helper.Helper.snackbarActionClose
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.snackbar.Snackbar
 
 class BottomSheetHubungkanAkun(
     private val context: Context,
@@ -42,29 +41,24 @@ class BottomSheetHubungkanAkun(
 
                 if (HelperConnection.isConnected(context)) {
                     when {
-                        emailV.isEmpty() -> showToast(
-                            context.getString(R.string.x_masih_kosong, context.getString(R.string.email)),
-                            context
-                        )
+                        emailV.isEmpty() -> {
+                            snackbarActionClose(root, context.getString(R.string.x_masih_kosong, context.getString(R.string.email)))
+                        }
 
-                        passwordV.isEmpty() -> showToast(
-                            context.getString(R.string.x_masih_kosong, context.getString(R.string.password)),
-                            context
-                        )
+                        passwordV.isEmpty() -> {
+                            snackbarActionClose(root, context.getString(R.string.x_masih_kosong, context.getString(R.string.password)))
+                        }
 
                         !Patterns.EMAIL_ADDRESS.matcher(emailV).matches() -> {
-                            val snackbar = Snackbar.make(root, context.getString(R.string.email_invalid), Snackbar.LENGTH_LONG)
-                            snackbar.setAction("Oke") { snackbar.dismiss() }.show()
+                            snackbarActionClose(root, context.getString(R.string.email_invalid))
                         }
 
                         passwordV.length < 8 -> {
-                            val snackbar = Snackbar.make(root, context.getString(R.string.min_8_char), Snackbar.LENGTH_LONG)
-                            snackbar.setAction("Oke") { snackbar.dismiss() }.show()
+                            snackbarActionClose(root, context.getString(R.string.min_8_char))
                         }
 
                         outlinePasswordVerif.helperText != null || outlineEmailVerif.helperText != null -> {
-                            val snackbar = Snackbar.make(root, context.getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
-                            snackbar.setAction("Oke") { snackbar.dismiss() }.show()
+                            snackbarActionClose(root, context.getString(R.string.pastikan_no_error))
                         }
 
                         else -> {

@@ -104,4 +104,12 @@ class UserUseCaseInteractor(
     override fun executeLinkCredentials(credential: AuthCredential, response: (Boolean) -> Unit) {
         userRepository.linkCredentials(credential, response)
     }
+
+    override fun executeReAuthenticate(currentPassword: String, response: (Boolean, Boolean) -> Unit) {
+        userRepository.reAuthenticate(currentPassword, response)
+    }
+
+    override fun executeUpdatePassword(newPassword: String, response: (Boolean) -> Unit) {
+        userRepository.updatePassword(newPassword, response)
+    }
 }

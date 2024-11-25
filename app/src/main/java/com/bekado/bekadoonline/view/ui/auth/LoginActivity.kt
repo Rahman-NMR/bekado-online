@@ -14,12 +14,12 @@ import androidx.core.view.isVisible
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityLoginBinding
 import com.bekado.bekadoonline.helper.Helper.showToast
+import com.bekado.bekadoonline.helper.Helper.snackbarActionClose
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.view.ui.MainActivity
 import com.bekado.bekadoonline.view.viewmodel.user.AuthViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
-import com.google.android.material.snackbar.Snackbar
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -71,17 +71,23 @@ class LoginActivity : AppCompatActivity() {
             val password = binding.passwordLogin.text.toString()
 
             if (HelperConnection.isConnected(this@LoginActivity)) {
-                if (binding.outlineEmailLogin.helperText == null && binding.outlinePasswordLogin.helperText == null)
-                    loginAuthManual(email, password)
-                else {
-                    val snackbar = Snackbar.make(binding.root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
-                    snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                }
+                if (outlineEmailLogin.helperText == null && outlinePasswordLogin.helperText == null) inputValidation(email, password)
+                else snackbarActionClose(root, getString(R.string.pastikan_no_error))
             }
         }
         btnLupaPassword.setOnClickListener { startActivity(Intent(this@LoginActivity, LupaPasswordActivity::class.java)) }
         googleAutoLogin.setOnClickListener {
             if (HelperConnection.isConnected(this@LoginActivity)) signInClient.launch(authViewModel.launchSignInClient())
+        }
+    }
+
+    private fun ActivityLoginBinding.inputValidation(email: String, password: String) {
+        when {
+            email.isEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.email)))
+            password.isEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.password)))
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> snackbarActionClose(root, getString(R.string.email_invalid))
+            passwordLogin.length() < 8 -> snackbarActionClose(root, getString(R.string.min_8_char))
+            else -> loginAuthManual(email, password)
         }
     }
 
@@ -145,18 +151,21 @@ class LoginActivity : AppCompatActivity() {
         }
 
         override fun afterTextChanged(s: Editable?) {
-            if (s == binding.emailLogin.text) {
-                if (binding.emailLogin.text.isNullOrEmpty()) binding.outlineEmailLogin.helperText = null
-                else {
-                    if (!Patterns.EMAIL_ADDRESS.matcher(s.toString()).matches())
-                        binding.outlineEmailLogin.helperText = getString(R.string.email_invalid)
-                    else binding.outlineEmailLogin.helperText = null
+            when (s) {
+                binding.emailLogin.text -> {
+                    binding.outlineEmailLogin.helperText = when {
+                        binding.emailLogin.text.isNullOrEmpty() -> null
+                        !Patterns.EMAIL_ADDRESS.matcher(s.toString()).matches() -> getString(R.string.email_invalid)
+                        else -> null
+                    }
                 }
-            } else if (s == binding.passwordLogin.text) {
-                if (binding.passwordLogin.text.isNullOrEmpty()) binding.outlinePasswordLogin.helperText = null
-                else {
-                    if (binding.passwordLogin.length() < 8) binding.outlinePasswordLogin.helperText = getString(R.string.min_8_char)
-                    else binding.outlinePasswordLogin.helperText = null
+
+                binding.passwordLogin.text -> {
+                    binding.outlinePasswordLogin.helperText = when {
+                        binding.passwordLogin.text.isNullOrEmpty() -> null
+                        binding.passwordLogin.length() < 8 -> getString(R.string.min_8_char)
+                        else -> null
+                    }
                 }
             }
         }

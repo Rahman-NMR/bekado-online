@@ -18,13 +18,14 @@ import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityAlamatBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.showToast
+import com.bekado.bekadoonline.helper.Helper.snackbarAction
+import com.bekado.bekadoonline.helper.Helper.snackbarActionClose
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.view.viewmodel.user.AlamatViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.snackbar.Snackbar
 import java.util.Locale
 
 class AlamatActivity : AppCompatActivity() {
@@ -48,7 +49,7 @@ class AlamatActivity : AppCompatActivity() {
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permission ->
         when {
             permission[ACCESS_FINE_LOCATION] ?: false || permission[ACCESS_COARSE_LOCATION] ?: false -> getLocationCoordinate()
-            else -> showToast("Diperlukan izin akses lokasi", this@AlamatActivity)
+            else -> showToast(getString(R.string.need_permission_location), this@AlamatActivity)
         }
     }
 
@@ -79,15 +80,10 @@ class AlamatActivity : AppCompatActivity() {
             btnGetTitikLokasi.setOnClickListener { if (HelperConnection.isConnected(this@AlamatActivity)) getLocationCoordinate() }
             btnSimpanPerubahan.setOnClickListener {
                 if (HelperConnection.isConnected(this@AlamatActivity)) {
-                    if (outlineNamaAlamat.helperText == null
-                        && outlineNohpAlamat.helperText == null
-                        && outlineAlamat.helperText == null
-                        && outlineKodePos.helperText == null
-                    ) validateAlamat()
-                    else {
-                        val snackbar = Snackbar.make(root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
-                        snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                    }
+                    val outlineHelper = listOf(outlineNamaAlamat, outlineNohpAlamat, outlineAlamat, outlineKodePos)
+
+                    if (outlineHelper.all { it.helperText == null }) validateAlamat()
+                    else snackbarActionClose(root, getString(R.string.pastikan_no_error))
                 }
             }
         }
@@ -95,26 +91,12 @@ class AlamatActivity : AppCompatActivity() {
 
     private fun ActivityAlamatBinding.validateAlamat() {
         when {
-            namaAlamat.text.isNullOrEmpty() -> showToast(
-                getString(R.string.tidak_dapat_kosong, getString(R.string.nama_penerima)),
-                this@AlamatActivity
-            )
+            namaAlamat.text.isNullOrEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.nama_penerima)))
+            nohpAlamat.text.isNullOrEmpty() ->
+                snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.nomor_telepon_penerima)))
 
-            nohpAlamat.text.isNullOrEmpty() -> showToast(
-                getString(R.string.tidak_dapat_kosong, getString(R.string.nomor_telepon_penerima)),
-                this@AlamatActivity
-            )
-
-            alamat.text.isNullOrEmpty() -> showToast(
-                getString(R.string.tidak_dapat_kosong, getString(R.string.alamat_lengkap)),
-                this@AlamatActivity
-            )
-
-            kodePos.text.isNullOrEmpty() -> showToast(
-                getString(R.string.tidak_dapat_kosong, getString(R.string.kode_pos)),
-                this@AlamatActivity
-            )
-
+            alamat.text.isNullOrEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.alamat_lengkap)))
+            kodePos.text.isNullOrEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.kode_pos)))
             else -> saveAlamat()
         }
     }
@@ -205,8 +187,7 @@ class AlamatActivity : AppCompatActivity() {
     }
 
     private fun snackbarAdress(text: String) {
-        val snackbar = Snackbar.make(binding.root, text, Snackbar.LENGTH_SHORT)
-        snackbar.setAction("Kembali") { finish() }.show()
+        snackbarAction(binding.root, text, "Kembali", null) { finish() }
     }
 
     private val alamatTextWatcher: TextWatcher = object : TextWatcher {
@@ -227,23 +208,29 @@ class AlamatActivity : AppCompatActivity() {
             val alamatInput = binding.alamat.text
             val kodePosInput = binding.kodePos.text
 
-            if (s == noHpInput) {
-                if (noHpInput.isNullOrEmpty()) binding.outlineNohpAlamat.helperText = null
-                else {
-                    if (noHpInput.length < 9) binding.outlineNohpAlamat.helperText = getString(R.string.min_9_angka)
-                    else binding.outlineNohpAlamat.helperText = null
+            when (s) {
+                noHpInput -> {
+                    binding.outlineNohpAlamat.helperText = when {
+                        noHpInput.isNullOrEmpty() -> null
+                        noHpInput.length < 9 -> getString(R.string.min_9_angka)
+                        else -> null
+                    }
                 }
-            } else if (s == alamatInput) {
-                if (alamatInput.isNullOrEmpty()) binding.outlineAlamat.helperText = null
-                else {
-                    if (alamatInput.toString().length < 15) binding.outlineAlamat.helperText = getString(R.string.alamat_terlalu_singkat)
-                    else binding.outlineAlamat.helperText = null
+
+                alamatInput -> {
+                    binding.outlineAlamat.helperText = when {
+                        alamatInput.isNullOrEmpty() -> null
+                        alamatInput.length < 15 -> getString(R.string.alamat_terlalu_singkat)
+                        else -> null
+                    }
                 }
-            } else if (s == kodePosInput) {
-                if (kodePosInput.isNullOrEmpty()) binding.outlineKodePos.helperText = null
-                else {
-                    if (kodePosInput.toString().length < 4) binding.outlineKodePos.helperText = getString(R.string.kode_pos_invalid)
-                    else binding.outlineKodePos.helperText = null
+
+                kodePosInput -> {
+                    binding.outlineKodePos.helperText = when {
+                        kodePosInput.isNullOrEmpty() -> null
+                        kodePosInput.toString().length < 4 -> getString(R.string.kode_pos_invalid)
+                        else -> null
+                    }
                 }
             }
 

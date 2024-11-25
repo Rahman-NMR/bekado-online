@@ -35,4 +35,6 @@ interface UserUseCase {
 
     fun executeLinkToGoogle(data: Intent?, response: (Boolean, String) -> Unit)
     fun executeLinkCredentials(credential: AuthCredential, response: (Boolean) -> Unit)
+    fun executeReAuthenticate(currentPassword: String, response: (Boolean, Boolean) -> Unit)
+    fun executeUpdatePassword(newPassword: String, response: (Boolean) -> Unit)
 }

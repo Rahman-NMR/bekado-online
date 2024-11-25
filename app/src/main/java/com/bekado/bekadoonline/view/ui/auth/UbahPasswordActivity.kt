@@ -4,25 +4,29 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import androidx.activity.viewModels
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityUbahPasswordBinding
 import com.bekado.bekadoonline.helper.Helper.showToast
+import com.bekado.bekadoonline.helper.Helper.snackbarActionClose
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.FirebaseAuth
+import com.bekado.bekadoonline.view.viewmodel.user.AuthViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
+import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 
 class UbahPasswordActivity : AppCompatActivity() {
     private lateinit var binding: ActivityUbahPasswordBinding
-    private lateinit var auth: FirebaseAuth
+
+    private val userViewModel: UserViewModel by viewModels { UserViewModelFactory.getInstance(this) }
+    private val authViewModel: AuthViewModel by viewModels { UserViewModelFactory.getInstance(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUbahPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         supportActionBar?.hide()
-        auth = FirebaseAuth.getInstance()
+
+        dataAkunHandler()
 
         with(binding) {
             passwordSekarang.addTextChangedListener(pwTextWatcher)
@@ -31,39 +35,58 @@ class UbahPasswordActivity : AppCompatActivity() {
 
             appBar.setNavigationOnClickListener { finish() }
             btnKonfirmasi.setOnClickListener {
-                if (HelperConnection.isConnected(this@UbahPasswordActivity)) {
-                    if (outlinePasswordSekarang.helperText == null &&
-                        outlinePasswordBaru.helperText == null &&
-                        outlineKonfirmasiPassword.helperText == null
-                    ) {
-                        val passwordInput = passwordBaru.text
-                        val konfirmPasswordInput = konfirmasiPassword.text
+                val password0 = passwordSekarang.text
+                val password1 = passwordBaru.text
+                val password2 = konfirmasiPassword.text
 
-                        if (konfirmPasswordInput.toString() != passwordInput.toString()) {
-                            val snackbar = Snackbar.make(root, getString(R.string.password_berbeda), Snackbar.LENGTH_LONG)
-                            snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                        } else ubahPassword()
-                    } else {
-                        val snackbar = Snackbar.make(root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
-                        snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                    }
+                if (HelperConnection.isConnected(this@UbahPasswordActivity)) {
+                    val outlineHelper = listOf(outlinePasswordSekarang, outlinePasswordBaru, outlineKonfirmasiPassword)
+
+                    if (outlineHelper.any { it.helperText == null }) inputValidation(password0, password1, password2)
+                    else snackbarActionClose(root, getString(R.string.pastikan_no_error))
                 }
             }
         }
     }
 
-    private fun ubahPassword() {
-        val user = auth.currentUser
-        if (user != null && user.email != null) {
-            val credential = EmailAuthProvider.getCredential(user.email!!, binding.passwordSekarang.text.toString())
+    private fun ActivityUbahPasswordBinding.inputValidation(password0: Editable?, password1: Editable?, password2: Editable?) {
+        when {
+            password0.isNullOrEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.password)))
+            password1.isNullOrEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.password)))
+            password2.isNullOrEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.konfirmasi_password)))
+            password0.length < 8 -> snackbarActionClose(root, getString(R.string.min_8_char))
+            password1.length < 8 -> snackbarActionClose(root, getString(R.string.min_8_char))
+            password1.toString() != password2.toString() -> snackbarActionClose(root, getString(R.string.password_berbeda))
+            else -> ubahPassword()
+        }
+    }
 
-            user.reauthenticate(credential).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    showToast("${getString(R.string.password)} ${getString(R.string.berhasil_mengubah)}", this)
-                    user.updatePassword(binding.passwordBaru.text.toString())
-                        .addOnCompleteListener { task -> if (task.isSuccessful) finish() }
-                } else showToast(getString(R.string.pass_salah), this)
+    private fun ubahPassword() {
+        authViewModel.reAuthenticate(binding.passwordSekarang.text.toString(), { inputNotEmpty ->
+            if (!inputNotEmpty) showToast(getString(R.string.tidak_dapat_kosong, getString(R.string.password)), this)
+        }, { dataExist, isSuccessful ->
+            when {
+                dataExist && isSuccessful -> {
+                    authViewModel.updatePassword(binding.passwordBaru.text.toString(), { inputNotEmpty ->
+                        if (!inputNotEmpty) showToast(getString(R.string.tidak_dapat_kosong, getString(R.string.password_baru)), this)
+                    }, { isUpdated ->
+                        if (isUpdated) {
+                            showToast(getString(R.string.berhasil_diperbarui, getString(R.string.password)), this)
+                            finish()
+                        } else showToast(getString(R.string.gagal_memperbarui_x, getString(R.string.password)), this)
+                    })
+                }
+
+                !dataExist && !isSuccessful -> showToast(getString(R.string.masalah_database), this)
+                else -> showToast(getString(R.string.pass_salah), this)
             }
+        })
+
+    }
+
+    private fun dataAkunHandler() {
+        userViewModel.getDataAkun().observe(this) { akun ->
+            if (akun == null) finish()
         }
     }
 
@@ -83,24 +106,29 @@ class UbahPasswordActivity : AppCompatActivity() {
             val passwordBaruInput = binding.passwordBaru.text
             val konfirmPasswordInput = binding.konfirmasiPassword.text
 
-            if (s == passwordSkrngInput) {
-                if (passwordSkrngInput.isNullOrEmpty()) binding.outlinePasswordSekarang.helperText = null
-                else {
-                    if (passwordSkrngInput.toString().length < 8) binding.outlinePasswordSekarang.helperText = getString(R.string.min_8_char)
-                    else binding.outlinePasswordSekarang.helperText = null
+            when (s) {
+                passwordSkrngInput -> {
+                    binding.outlinePasswordSekarang.helperText = when {
+                        passwordSkrngInput.isNullOrEmpty() -> null
+                        passwordSkrngInput.toString().length < 8 -> getString(R.string.min_8_char)
+                        else -> null
+                    }
                 }
-            } else if (s == passwordBaruInput) {
-                if (passwordBaruInput.isNullOrEmpty()) binding.outlinePasswordBaru.helperText = null
-                else {
-                    if (passwordBaruInput.toString().length < 8) binding.outlinePasswordBaru.helperText = getString(R.string.min_8_char)
-                    else binding.outlinePasswordBaru.helperText = null
+
+                passwordBaruInput -> {
+                    binding.outlinePasswordBaru.helperText = when {
+                        passwordBaruInput.isNullOrEmpty() -> null
+                        passwordBaruInput.toString().length < 8 -> getString(R.string.min_8_char)
+                        else -> null
+                    }
                 }
-            } else if (s == konfirmPasswordInput) {
-                if (konfirmPasswordInput.isNullOrEmpty()) binding.outlineKonfirmasiPassword.helperText = null
-                else {
-                    if (konfirmPasswordInput.toString() != passwordBaruInput.toString())
-                        binding.outlineKonfirmasiPassword.helperText = getString(R.string.password_berbeda)
-                    else binding.outlineKonfirmasiPassword.helperText = null
+
+                konfirmPasswordInput -> {
+                    binding.outlineKonfirmasiPassword.helperText = when {
+                        konfirmPasswordInput.isNullOrEmpty() -> null
+                        konfirmPasswordInput.toString() != passwordBaruInput.toString() -> getString(R.string.password_berbeda)
+                        else -> null
+                    }
                 }
             }
         }

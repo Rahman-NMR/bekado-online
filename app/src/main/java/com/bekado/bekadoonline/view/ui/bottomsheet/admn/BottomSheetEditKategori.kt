@@ -84,7 +84,7 @@ class BottomSheetEditKategori(
         if (editText.isNotEmpty()) {
             kategoriListViewModel.updateNamaKategori(idKategori, editText.toString().trim()) { isSucessful ->
                 if (isSucessful) showToast(context.getString(R.string.berhasil_diperbarui, namaKategori), context)
-                else showToast("$namaKategori ${context.getString(R.string.gagal_mengubah)}", context)
+                else showToast(context.getString(R.string.gagal_memperbarui_x, namaKategori), context)
             }
         } else showToast(context.getString(R.string.tidak_dapat_kosong, namaKategori), context)
     }

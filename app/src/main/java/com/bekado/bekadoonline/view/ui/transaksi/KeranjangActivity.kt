@@ -13,6 +13,7 @@ import com.bekado.bekadoonline.databinding.ActivityKeranjangBinding
 import com.bekado.bekadoonline.helper.Helper
 import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.Helper.showToast
+import com.bekado.bekadoonline.helper.Helper.snackbarAction
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.view.adapter.AdapterKeranjang
@@ -21,7 +22,6 @@ import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModel
 import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModelFactory
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
-import com.google.android.material.snackbar.Snackbar
 
 class KeranjangActivity : AppCompatActivity() {
     private lateinit var binding: ActivityKeranjangBinding
@@ -137,11 +137,7 @@ class KeranjangActivity : AppCompatActivity() {
         cartViewModel.deleteThisProduk(itemKeranjang.produkModel?.idProduk) { isSuccessful: Boolean ->
             if (isSuccessful) {
                 val textSnackbar = "${itemKeranjang.produkModel?.namaProduk} dihapus dari keranjang"
-                val snackbar = Snackbar.make(binding.root, textSnackbar, Snackbar.LENGTH_SHORT)
-
-                snackbar.anchorView = binding.llContainerPesanan
-                snackbar.setAction("Batalkan") { cartViewModel.cancelAction(itemKeranjang) }
-                snackbar.show()
+                snackbarAction(binding.root, textSnackbar, "Batalkan", binding.llContainerPesanan) { cartViewModel.cancelAction(itemKeranjang) }
             } else showToast(getString(R.string.gagal_hapus_produk), this)
         }
     }

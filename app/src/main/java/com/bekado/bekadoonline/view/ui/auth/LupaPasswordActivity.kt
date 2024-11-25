@@ -1,17 +1,17 @@
 package com.bekado.bekadoonline.view.ui.auth
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Patterns
+import androidx.appcompat.app.AppCompatActivity
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityLupaPasswordBinding
 import com.bekado.bekadoonline.helper.Helper.showAlertDialog
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.Helper.showToastL
+import com.bekado.bekadoonline.helper.Helper.snackbarActionClose
 import com.bekado.bekadoonline.helper.HelperConnection
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
 class LupaPasswordActivity : AppCompatActivity() {
@@ -30,33 +30,34 @@ class LupaPasswordActivity : AppCompatActivity() {
             emailLupapw.addTextChangedListener(forgetTextWatcher)
 
             btnResetPassword.setOnClickListener {
-                if (outlineEmailLupapw.helperText == null) {
-                    val emailTxt = emailLupapw.text
-                    if (emailTxt.isNullOrEmpty())
-                        showToast(getString(R.string.tidak_dapat_kosong, getString(R.string.email)), this@LupaPasswordActivity)
-                    else showAlrtDialog(emailTxt)
-                } else {
-                    val snackbar = Snackbar.make(binding.root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
-                    snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                }
+                val emailTxt = emailLupapw.text
+
+                if (outlineEmailLupapw.helperText == null) inputValidation(emailTxt)
+                else snackbarActionClose(root, getString(R.string.pastikan_no_error))
             }
+        }
+    }
+
+    private fun ActivityLupaPasswordBinding.inputValidation(emailTxt: Editable?) {
+        when {
+            emailTxt.isNullOrEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.email)))
+            !Patterns.EMAIL_ADDRESS.matcher(emailTxt.toString()).matches() -> snackbarActionClose(root, getString(R.string.email_invalid))
+            else -> showAlrtDialog(emailTxt)
         }
     }
 
     private fun showAlrtDialog(emailTxt: Editable) {
         showAlertDialog(
             getString(R.string.reset_password) + "?",
-            getString(R.string.kirim_tautan_ke_email) + " " + emailTxt.toString(),
+            getString(R.string.kirim_tautan_ke_email, emailTxt.toString()),
             getString(R.string.reset),
             this@LupaPasswordActivity,
             getColor(R.color.blue_grey_700)
-        ) { if (HelperConnection.isConnected(this)) resetPassword() }
+        ) { if (HelperConnection.isConnected(this)) resetPassword(emailTxt) }
     }
 
-    private fun resetPassword() {
-        val emailReset = binding.emailLupapw.text.toString().trim()
-
-        auth.sendPasswordResetEmail(emailReset).addOnCompleteListener { task ->
+    private fun resetPassword(emailReset: Editable) {
+        auth.sendPasswordResetEmail(emailReset.toString().trim()).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 showToastL(getString(R.string.tautan_reset_pw_sukses), this)
                 finish()
@@ -73,11 +74,10 @@ class LupaPasswordActivity : AppCompatActivity() {
         }
 
         override fun afterTextChanged(s: Editable?) {
-            if (binding.emailLupapw.text.isNullOrEmpty()) binding.outlineEmailLupapw.helperText = null
-            else {
-                if (!Patterns.EMAIL_ADDRESS.matcher(s.toString()).matches())
-                    binding.outlineEmailLupapw.helperText = getString(R.string.email_invalid)
-                else binding.outlineEmailLupapw.helperText = null
+            binding.outlineEmailLupapw.helperText = when {
+                binding.emailLupapw.text.isNullOrEmpty() -> getString(R.string.tidak_dapat_kosong, getString(R.string.email))
+                !Patterns.EMAIL_ADDRESS.matcher(s.toString()).matches() -> getString(R.string.email_invalid)
+                else -> null
             }
         }
     }

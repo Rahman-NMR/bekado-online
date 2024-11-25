@@ -18,6 +18,7 @@ import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.databinding.ActivityProdukAddUpdateBinding
 import com.bekado.bekadoonline.helper.Helper.showAlertDialog
 import com.bekado.bekadoonline.helper.Helper.showToast
+import com.bekado.bekadoonline.helper.Helper.snackbarActionClose
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.constval.VariableConstant
 import com.bekado.bekadoonline.helper.constval.VariableConstant.Companion.EXTRA_ID_KATEGORI
@@ -30,7 +31,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.github.dhaval2404.imagepicker.ImagePicker
-import com.google.android.material.snackbar.Snackbar
 import java.io.File
 
 class ProdukAddUpdateActivity : AppCompatActivity() {
@@ -103,12 +103,8 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
                 btnSimpanPerubahan.text = if (produk != null) getString(R.string.simpan_perubahan) else getString(R.string.tambah_produk)
                 btnSimpanPerubahan.setOnClickListener {
                     if (HelperConnection.isConnected(this@ProdukAddUpdateActivity))
-                        if (outlineNamaProduk.helperText == null && outlineHargaProduk.helperText == null) {
-                            validateNull(produk)
-                        } else {
-                            val snackbar = Snackbar.make(root, getString(R.string.pastikan_no_error), Snackbar.LENGTH_LONG)
-                            snackbar.setAction("Oke") { snackbar.dismiss() }.show()
-                        }
+                        if (outlineNamaProduk.helperText == null && outlineHargaProduk.helperText == null) inputValidation(produk)
+                        else snackbarActionClose(root, getString(R.string.pastikan_no_error))
                 }
                 kategoriDropdown.setOnItemClickListener { parent, _, position, _ ->
                     val selectedNamaKategori = parent.getItemAtPosition(position) as String
@@ -192,19 +188,11 @@ class ProdukAddUpdateActivity : AppCompatActivity() {
         binding.btnSimpanPerubahan.isEnabled = true
     }
 
-    private fun ActivityProdukAddUpdateBinding.validateNull(produk: ProdukModel?) {
+    private fun ActivityProdukAddUpdateBinding.inputValidation(produk: ProdukModel?) {
         when {
-            namaProduk.text.isNullOrEmpty() -> showToast(
-                getString(R.string.tidak_dapat_kosong, getString(R.string.nama_produk)),
-                this@ProdukAddUpdateActivity
-            )
-
-            hargaProduk.text.isNullOrEmpty() -> showToast(
-                getString(R.string.tidak_dapat_kosong, getString(R.string.harga_produk)),
-                this@ProdukAddUpdateActivity
-            )
-
-            idKategori.isNullOrEmpty() -> showToast(getString(R.string.kategori_unselected), this@ProdukAddUpdateActivity)
+            namaProduk.text.isNullOrEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.nama_produk)))
+            hargaProduk.text.isNullOrEmpty() -> snackbarActionClose(root, getString(R.string.tidak_dapat_kosong, getString(R.string.harga_produk)))
+            idKategori.isNullOrEmpty() -> snackbarActionClose(root, getString(R.string.kategori_unselected))
             else -> uploadToDatabase(produk)
         }
     }
