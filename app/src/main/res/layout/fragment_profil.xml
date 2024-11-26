@@ -100,7 +100,7 @@
                         android:gravity="center"
                         android:text="@string/strip"
                         android:textColor="@color/grey_700"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <com.google.android.flexbox.FlexboxLayout
                         android:id="@+id/flexbox_layout"
@@ -116,10 +116,7 @@
                             style="@style/badge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:backgroundTint="@color/verified"
                             android:text="@string/google_verified"
-                            app:drawableStartCompat="@drawable/icon_baseline_verified_24"
-                            app:drawableTint="@color/white"
                             tools:visibility="visible" />
 
                         <TextView
@@ -127,10 +124,7 @@
                             style="@style/badge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:backgroundTint="@color/verified"
                             android:text="@string/email_verified"
-                            app:drawableStartCompat="@drawable/icon_baseline_verified_24"
-                            app:drawableTint="@color/white"
                             tools:visibility="visible" />
                     </com.google.android.flexbox.FlexboxLayout>
                 </LinearLayout>
