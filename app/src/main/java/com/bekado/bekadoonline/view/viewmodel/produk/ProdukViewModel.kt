@@ -11,6 +11,15 @@ class ProdukViewModel(private val produkUseCase: ProductUseCase) : ViewModel() {
     fun getAllProduk(): LiveData<ArrayList<ProdukModel>?> = produkUseCase.executeGetAllDataProduk()
     fun filterByKategori(): LiveData<ArrayList<ButtonModel>?> = produkUseCase.executeFilterByKategori()
 
+    fun searchProduk(dataProduk: ArrayList<ProdukModel>, searchText: String): ArrayList<ProdukModel> {
+        return dataProduk.filter { data ->
+            val textToSearch = searchText.lowercase()
+
+            data.namaProduk.toString().contains(textToSearch, ignoreCase = true) ||
+                    data.hargaProduk.toString().contains(textToSearch, ignoreCase = true)
+        } as ArrayList<ProdukModel>
+    }
+
     override fun onCleared() {
         super.onCleared()
         produkUseCase.executeRemoveListener()

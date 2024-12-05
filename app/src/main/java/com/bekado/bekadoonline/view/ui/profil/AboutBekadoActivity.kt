@@ -1,16 +1,19 @@
 package com.bekado.bekadoonline.view.ui.profil
 
 import android.os.Bundle
-import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.databinding.ActivityAboutBekadoBinding
+import com.bekado.bekadoonline.view.viewmodel.others.AboutBekadoViewModel
+import com.bekado.bekadoonline.view.viewmodel.others.ViewModelFactory
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.google.firebase.firestore.FirebaseFirestore
 
 class AboutBekadoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAboutBekadoBinding
+    private val viewModel: AboutBekadoViewModel by viewModels { ViewModelFactory.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,33 +22,25 @@ class AboutBekadoActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         binding.appBar.setNavigationOnClickListener { finish() }
-        with(binding) { getDataToko() }
+        with(binding) { showDataStore() }
     }
 
-    private fun ActivityAboutBekadoBinding.getDataToko() {
-        FirebaseFirestore.getInstance()
-            .collection("bekado")
-            .document("aboutBekado").get()
-            .addOnSuccessListener {
-                Glide.with(this@AboutBekadoActivity).load(it.get("fotoToko").toString())
-                    .apply(RequestOptions()).centerCrop()
-                    .placeholder(R.drawable.img_placeholder)
-                    .error(R.drawable.img_error)
-                    .into(fotoToko)
-                kontakToko.text = it.get("kontakPerson").toString()
-                alamatToko.text = it.get("lokasiToko").toString()
-                namaToko.text = it.get("namaToko").toString()
-                jamToko.text = it.get("operasionalToko").toString()
+    private fun ActivityAboutBekadoBinding.showDataStore() {
+        viewModel.getDataToko { data, isSuccess ->
+            Glide.with(this@AboutBekadoActivity).load(data.foto)
+                .apply(RequestOptions()).centerCrop()
+                .placeholder(R.drawable.img_placeholder)
+                .error(R.drawable.img_error)
+                .into(fotoToko)
+            kontakToko.text = data.kontak?.ifEmpty { getString(R.string.tidak_ada_data) }
+            alamatToko.text = data.alamat?.ifEmpty { getString(R.string.tidak_ada_data) }
+            namaToko.text = data.nama?.ifEmpty { getString(R.string.tidak_ada_data) }
+            jamToko.text = data.operasional?.ifEmpty { getString(R.string.tidak_ada_data) }
 
-                layoutFotoBekado.visibility = View.VISIBLE
-                layoutInfoBekado.visibility = View.VISIBLE
-                progressbarFotoBekado.visibility = View.GONE
-                progressbarInfoBekado.visibility = View.GONE
-            }.addOnFailureListener {
-                layoutFotoBekado.visibility = View.GONE
-                layoutInfoBekado.visibility = View.GONE
-                progressbarFotoBekado.visibility = View.VISIBLE
-                progressbarInfoBekado.visibility = View.VISIBLE
-            }
+            layoutFotoBekado.isVisible = isSuccess
+            layoutInfoBekado.isVisible = isSuccess
+            progressbarFotoBekado.isVisible = !isSuccess
+            progressbarInfoBekado.isVisible = !isSuccess
+        }
     }
 }

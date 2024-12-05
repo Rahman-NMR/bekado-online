@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -69,7 +70,7 @@ class BerandaFragment : Fragment() {
 
         with(binding) {
             swipeRefresh.setOnRefreshListener {
-                if (HelperConnection.isConnected(requireContext())) sortAndFilter()
+                if (HelperConnection.isConnected(requireContext())) showProduk()
                 binding.swipeRefresh.isRefreshing = false
             }
             btnSort.setOnClickListener { openBottomSheetSort() }
@@ -91,7 +92,7 @@ class BerandaFragment : Fragment() {
 
         sortBottomSheet.dialog.setOnDismissListener {
             sortFilter = sortBottomSheet.sortFilter
-            if (HelperConnection.isConnected(requireContext())) sortAndFilter()
+            if (HelperConnection.isConnected(requireContext())) showProduk()
         }
     }
 
@@ -148,9 +149,7 @@ class BerandaFragment : Fragment() {
                 adapterButton = AdapterButton(dataButton) { button ->
                     if (button.isActive) {
                         activeCategory = button.idKategori.ifEmpty { "" }
-
-                        if (button.idKategori.isEmpty()) getAllProduk()
-                        else getProdukFiltered(button.idKategori)
+                        showProduk()
                     }
                 }
                 binding.rvButtonSelector.adapter = adapterButton
@@ -186,12 +185,7 @@ class BerandaFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 val searchText = newText ?: ""
-                val searchList = dataProduk.filter { data ->
-                    val textToSearch = searchText.lowercase()
-
-                    data.namaProduk.toString().contains(textToSearch, ignoreCase = true) ||
-                            data.hargaProduk.toString().contains(textToSearch, ignoreCase = true)
-                } as ArrayList<ProdukModel>
+                val searchList = productViewModel.searchProduk(dataProduk, searchText.lowercase())
 
                 if (HelperConnection.isConnected(requireContext())) {
                     if (searchList.isEmpty()) {
@@ -214,23 +208,11 @@ class BerandaFragment : Fragment() {
         binding.searchProduk.setOnQueryTextListener(search)
     }
 
-    private fun getAllProduk() {
-        searchClearText()
-
-        productViewModel.getAllProduk().value?.let {
-            val sortedProduk = it.toMutableList()
-            sortProduk(sortedProduk as ArrayList<ProdukModel>, sortFilter)
-            adapterProduk.submitList(sortedProduk)
-            searchProduk(sortedProduk)
-            emptyConditionLayout(sortedProduk)
-        }
-    }
-
-    private fun getProdukFiltered(idKategori: String) {
+    private fun showProduk() {
         searchClearText()
 
         productViewModel.getAllProduk().value?.let { dataProduk ->
-            val filteredProduk = dataProduk.filter { it.idKategori == idKategori }
+            val filteredProduk = if (activeCategory.isNullOrEmpty()) dataProduk else dataProduk.filter { it.idKategori == activeCategory }
             val sortedProduk = filteredProduk.toMutableList()
             sortProduk(sortedProduk as ArrayList<ProdukModel>, sortFilter)
 
@@ -240,14 +222,9 @@ class BerandaFragment : Fragment() {
         }
     }
 
-    private fun sortAndFilter() {
-        if (activeCategory.isNullOrEmpty()) getAllProduk()
-        else getProdukFiltered(activeCategory!!)
-    }
-
     private fun emptyConditionLayout(produk: List<ProdukModel>) {
-        binding.produkKosong.visibility = if (produk.isEmpty()) View.VISIBLE else View.GONE
-        binding.rvProduk.visibility = if (produk.isEmpty()) View.GONE else View.VISIBLE
+        binding.produkKosong.isVisible = produk.isEmpty()
+        binding.rvProduk.isGone = produk.isEmpty()
         if (produk.isEmpty()) emptyTextProduk()
     }
 
@@ -281,7 +258,7 @@ class BerandaFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        sortAndFilter()
+        showProduk()
     }
 
     companion object {

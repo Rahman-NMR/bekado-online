@@ -9,6 +9,7 @@ import com.bekado.bekadoonline.data.repository.KategoriRepositoryImpl
 import com.bekado.bekadoonline.data.repository.ProductRepositoryImpl
 import com.bekado.bekadoonline.data.repository.ProdukListRepositoryImpl
 import com.bekado.bekadoonline.data.repository.ProdukRepositoryImpl
+import com.bekado.bekadoonline.data.repository.ZZZSimpleRepository
 import com.bekado.bekadoonline.data.repository.TrxDetailRepositoryImpl
 import com.bekado.bekadoonline.data.repository.TrxRepositoryImpl
 import com.bekado.bekadoonline.data.repository.UserRepositoryImpl
@@ -33,6 +34,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
 object Injection {
@@ -43,6 +45,7 @@ object Injection {
 
     private fun auth() = FirebaseAuth.getInstance()
     private fun db() = FirebaseDatabase.getInstance()
+    private fun firestore() = FirebaseFirestore.getInstance()
     private fun storage() = FirebaseStorage.getInstance()
     private fun gsiClient(context: Context) = GoogleSignIn.getClient(context, clientGoogle(context))
 
@@ -125,4 +128,6 @@ object Injection {
             produkRepository = produk
         )
     }
+
+    fun provideUseCase() = ZZZSimpleRepository(firestore())
 }
