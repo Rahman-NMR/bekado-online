@@ -185,7 +185,7 @@ class BerandaFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 val searchText = newText ?: ""
-                val searchList = productViewModel.searchProduk(dataProduk, searchText.lowercase())
+                val searchList = productViewModel.searchProduk(dataProduk, searchText)
 
                 if (HelperConnection.isConnected(requireContext())) {
                     if (searchList.isEmpty()) {

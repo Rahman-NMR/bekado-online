@@ -106,43 +106,38 @@ class ProdukViewModelTest {
         assertNull(actualKategori?.get(1)?.namaKategori)
     }
 
+    private val dummyProduk = arrayListOf(
+        ProdukModel(namaProduk = "Produk A", hargaProduk = 10000),
+        ProdukModel(namaProduk = "Produk B", hargaProduk = 20000),
+        ProdukModel(namaProduk = "Produk C", hargaProduk = 11000),
+        ProdukModel(namaProduk = "Produk D", hargaProduk = 21000)
+    )
+
     @Test
-    fun `when searchProduk is called, should return matching queries`() {
-        val dummyProduk = arrayListOf(
-            ProdukModel(namaProduk = "Produk A", hargaProduk = 10000),
-            ProdukModel(namaProduk = "Produk B", hargaProduk = 20000)
-        )
-        val searchText = "Produk"
+    fun `when searchProduk is called, should not null and return queries`() {
+        val searchText = "100"
         val searchResult = produkViewModel.searchProduk(dummyProduk, searchText)
 
-        assertEquals(2, searchResult.size)
-        assertEquals(dummyProduk, searchResult)
-        assertEquals(dummyProduk[1].namaProduk, searchResult[1].namaProduk)
+        assertNotNull(searchResult)
+        assertEquals(3, searchResult.size)
     }
 
     @Test
-    fun `when searchProduk is called, should return matching query`() {
-        val dataProduk = arrayListOf(
-            ProdukModel(namaProduk = "Produk A", hargaProduk = 10000),
-            ProdukModel(namaProduk = "Produk B", hargaProduk = 20000)
-        )
-
+    fun `when searchProduk is called, should not null and return matching query`() {
         val searchText = "Produk A"
-        val searchResult = produkViewModel.searchProduk(dataProduk, searchText)
+        val searchResult = produkViewModel.searchProduk(dummyProduk, searchText)
 
+        assertNotNull(searchResult)
         assertEquals(1, searchResult.size)
         assertEquals(searchText, searchResult[0].namaProduk)
     }
 
     @Test
-    fun `when searchProduk is called, should return no matching query`() {
-        val dataProduk = arrayListOf(
-            ProdukModel(namaProduk = "Produk A", hargaProduk = 10000),
-            ProdukModel(namaProduk = "Produk B", hargaProduk = 20000)
-        )
-        val searchText = "Produk C"
-        val searchResult = produkViewModel.searchProduk(dataProduk, searchText)
+    fun `when searchProduk is called, should not null and return no matching query`() {
+        val searchText = "Product"
+        val searchResult = produkViewModel.searchProduk(dummyProduk, searchText)
 
+        assertNotNull(searchResult)
         assertEquals(0, searchResult.size)
     }
 }
