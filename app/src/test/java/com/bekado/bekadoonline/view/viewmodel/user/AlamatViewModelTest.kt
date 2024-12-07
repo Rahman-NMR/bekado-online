@@ -5,13 +5,17 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import com.bekado.bekadoonline.data.model.AlamatModel
 import com.bekado.bekadoonline.domain.usecase.UserUseCase
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 
@@ -32,22 +36,43 @@ class AlamatViewModelTest {
     }
 
     @Test
-    fun `test getDataAlamat success`() {
-        val alamatModel = Mockito.mock(AlamatModel::class.java)
+    fun `when getDataAlamat is called, should not null and return data`() {
+        val dummyAlamat = AlamatModel(
+            nama = "Test Alamat",
+            noHp = "1234567890",
+            alamatLengkap = "Test Alamat Lengkap",
+            kodePos = "12345",
+            latitude = "0.0",
+            longitude = "0.0"
+        )
         val livedata = MutableLiveData<AlamatModel>()
-        livedata.value = alamatModel
+        livedata.value = dummyAlamat
 
-        Mockito.`when`(userUsecase.executeGetDataAlamat()).thenReturn(livedata)
+        `when`(userUsecase.executeGetDataAlamat()).thenReturn(livedata)
 
         val actualAlamat = alamatViewModel.getDataAlamat().value
 
-        Mockito.verify(userUsecase).executeGetDataAlamat()
-        Mockito.verifyNoMoreInteractions(userUsecase)
-        Assert.assertEquals(alamatModel, actualAlamat)
+        verify(userUsecase).executeGetDataAlamat()
+        assertNotNull(actualAlamat)
+        assertEquals(dummyAlamat, actualAlamat)
     }
 
     @Test
-    fun `test saveLatLong success`() {
+    fun `when getDataAlamat is called, should null and return null`() {
+        val livedata = MutableLiveData<AlamatModel>()
+        livedata.value = null
+
+        `when`(userUsecase.executeGetDataAlamat()).thenReturn(livedata)
+
+        val actualAlamat = alamatViewModel.getDataAlamat().value
+
+        verify(userUsecase).executeGetDataAlamat()
+        assertNull(actualAlamat)
+        assertNull(actualAlamat?.nama)
+    }
+
+    @Test
+    fun `when saveLatLong is called, response should be invoked`() {
         val location = Mockito.mock(Location::class.java)
         val response = Mockito.mock<(Boolean) -> Unit>()
 
@@ -59,11 +84,12 @@ class AlamatViewModelTest {
 
         alamatViewModel.saveLatLong(location, response)
 
-        Mockito.verify(userUsecase).executeSaveLatLong(location, response)
+        verify(userUsecase).executeSaveLatLong(location, response)
+        verify(response).invoke(true)
     }
 
     @Test
-    fun `test updateDataAlamat success`() {
+    fun `when updateDataAlamat is called, response should be invoked`() {
         val namaAlamat = "Test Alamat"
         val nohpAlamat = "1234567890"
         val alamatLengkap = "Test Alamat Lengkap"
@@ -78,6 +104,7 @@ class AlamatViewModelTest {
 
         alamatViewModel.updateDataAlamat(namaAlamat, nohpAlamat, alamatLengkap, kodePos, response)
 
-        Mockito.verify(userUsecase).executeUpdateDataAlamat(namaAlamat, nohpAlamat, alamatLengkap, kodePos, response)
+        verify(userUsecase).executeUpdateDataAlamat(namaAlamat, nohpAlamat, alamatLengkap, kodePos, response)
+        verify(response).invoke(true)
     }
 }

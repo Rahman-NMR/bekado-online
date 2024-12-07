@@ -7,6 +7,7 @@ import com.bekado.bekadoonline.data.model.ProdukModel
 import com.bekado.bekadoonline.domain.usecase.ProductUseCase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -16,6 +17,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.verify
 
 @RunWith(MockitoJUnitRunner::class)
 class ProdukViewModelTest {
@@ -34,43 +36,92 @@ class ProdukViewModelTest {
     }
 
     @Test
-    fun `test getDataProduk success`() {
-        val livedata = MutableLiveData<ArrayList<ProdukModel>?>()
-        livedata.value = arrayListOf(
+    fun `when getDataProduk is called, should not null and return data`() {
+        val dummyProduk = arrayListOf(
             ProdukModel(namaProduk = "Produk A", hargaProduk = 10000),
             ProdukModel(namaProduk = "Produk B", hargaProduk = 20000)
         )
+        val livedata = MutableLiveData<ArrayList<ProdukModel>?>()
+        livedata.value = dummyProduk
 
         `when`(productUseCase.executeGetAllDataProduk()).thenReturn(livedata)
 
         val actualProduk = produkViewModel.getAllProduk().value
 
+        verify(productUseCase).executeGetAllDataProduk()
         assertNotNull(actualProduk)
         assertEquals(2, actualProduk?.size)
+        assertEquals(dummyProduk, actualProduk)
     }
 
     @Test
-    fun `test getFilterByKategori success`() {
-        val livedata = MutableLiveData<ArrayList<ButtonModel>?>()
-        livedata.value = arrayListOf(
-            ButtonModel(idKategori = "0", namaKategori = "Semua", isActive = true),
-            ButtonModel(idKategori = "1", namaKategori = "Makanan", isActive = false),
+    fun `when getDataProduk is called, should null and return null`() {
+        val livedata = MutableLiveData<ArrayList<ProdukModel>?>()
+        livedata.value = null
+
+        `when`(productUseCase.executeGetAllDataProduk()).thenReturn(livedata)
+
+        val actualProduk = produkViewModel.getAllProduk().value
+
+        verify(productUseCase).executeGetAllDataProduk()
+        assertNull(actualProduk)
+        assertNull(actualProduk?.get(1)?.namaProduk)
+    }
+
+    @Test
+    fun `when getFilterByKategori is called, should not null and return data is active 1`() {
+        val dummyKategori = arrayListOf(
+            ButtonModel(idKategori = "0", namaKategori = "Semua", isActive = false),
+            ButtonModel(idKategori = "1", namaKategori = "Makanan", isActive = true),
             ButtonModel(idKategori = "2", namaKategori = "Minuman", isActive = false)
         )
+        val livedata = MutableLiveData<ArrayList<ButtonModel>?>()
+        livedata.value = dummyKategori
 
         `when`(productUseCase.executeFilterByKategori()).thenReturn(livedata)
 
         val actualKategori = produkViewModel.filterByKategori().value
         val activeCount = actualKategori?.count { it.isActive }
+        val activeKategori = actualKategori?.find { it.isActive }
 
+        verify(productUseCase).executeFilterByKategori()
         assertNotNull(actualKategori)
         assertTrue(activeCount == 1)
-        assertNotNull(actualKategori)
         assertEquals(3, actualKategori?.size)
+        assertEquals(dummyKategori, actualKategori)
+        assertEquals("Makanan", activeKategori?.namaKategori)
     }
 
     @Test
-    fun `test searchProduk with matching query`() {
+    fun `when getFilterByKategori is called, should null and return null`() {
+        val livedata = MutableLiveData<ArrayList<ButtonModel>?>()
+        livedata.value = null
+
+        `when`(productUseCase.executeFilterByKategori()).thenReturn(livedata)
+
+        val actualKategori = produkViewModel.filterByKategori().value
+
+        verify(productUseCase).executeFilterByKategori()
+        assertNull(actualKategori)
+        assertNull(actualKategori?.get(1)?.namaKategori)
+    }
+
+    @Test
+    fun `when searchProduk is called, should return matching queries`() {
+        val dummyProduk = arrayListOf(
+            ProdukModel(namaProduk = "Produk A", hargaProduk = 10000),
+            ProdukModel(namaProduk = "Produk B", hargaProduk = 20000)
+        )
+        val searchText = "Produk"
+        val searchResult = produkViewModel.searchProduk(dummyProduk, searchText)
+
+        assertEquals(2, searchResult.size)
+        assertEquals(dummyProduk, searchResult)
+        assertEquals(dummyProduk[1].namaProduk, searchResult[1].namaProduk)
+    }
+
+    @Test
+    fun `when searchProduk is called, should return matching query`() {
         val dataProduk = arrayListOf(
             ProdukModel(namaProduk = "Produk A", hargaProduk = 10000),
             ProdukModel(namaProduk = "Produk B", hargaProduk = 20000)
@@ -81,5 +132,17 @@ class ProdukViewModelTest {
 
         assertEquals(1, searchResult.size)
         assertEquals(searchText, searchResult[0].namaProduk)
+    }
+
+    @Test
+    fun `when searchProduk is called, should return no matching query`() {
+        val dataProduk = arrayListOf(
+            ProdukModel(namaProduk = "Produk A", hargaProduk = 10000),
+            ProdukModel(namaProduk = "Produk B", hargaProduk = 20000)
+        )
+        val searchText = "Produk C"
+        val searchResult = produkViewModel.searchProduk(dataProduk, searchText)
+
+        assertEquals(0, searchResult.size)
     }
 }

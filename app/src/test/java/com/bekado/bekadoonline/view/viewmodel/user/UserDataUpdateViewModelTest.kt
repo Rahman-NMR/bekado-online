@@ -1,22 +1,18 @@
 package com.bekado.bekadoonline.view.viewmodel.user
 
 import android.net.Uri
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.bekado.bekadoonline.domain.usecase.UserUseCase
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.verify
 
 @RunWith(MockitoJUnitRunner::class)
 class UserDataUpdateViewModelTest {
-    @get:Rule
-    var instantExecutorRule = InstantTaskExecutorRule()
-
     @Mock
     private lateinit var userUsecase: UserUseCase
 
@@ -29,35 +25,37 @@ class UserDataUpdateViewModelTest {
     }
 
     @Test
-    fun `test updateDataAkun success`() {
-        val pathDb = "testPath"
-        val value = "testValue"
+    fun `when updateDataAkun is called, response should be invoked`() {
+        val pathDb = "database/path"
+        val value = "test value"
         val response = Mockito.mock<(Boolean) -> Unit>()
 
         Mockito.doAnswer { invocation ->
             val responseCallback = invocation.getArgument<(Boolean) -> Unit>(2)
-            responseCallback(false)
+            responseCallback(true)
             null
         }.`when`(userUsecase).executeUpdateDataAkun(pathDb, value, response)
 
         viewModel.updateDataAkun(pathDb, value, response)
 
-        Mockito.verify(userUsecase).executeUpdateDataAkun(pathDb, value, response)
+        verify(userUsecase).executeUpdateDataAkun(pathDb, value, response)
+        Mockito.verify(response).invoke(true)
     }
 
     @Test
-    fun `test updateImageUri success`() {
+    fun `when updateImageUri is called, response should be invoked`() {
         val imageUri = Mockito.mock(Uri::class.java)
         val response = Mockito.mock<(Boolean) -> Unit>()
 
         Mockito.doAnswer { invocation ->
             val responseCallback = invocation.getArgument<(Boolean) -> Unit>(1)
-            responseCallback(false)
+            responseCallback(true)
             null
         }.`when`(userUsecase).executeUpdateImageUri(imageUri, response)
 
         viewModel.updateImageUri(imageUri, response)
 
         Mockito.verify(userUsecase).executeUpdateImageUri(imageUri, response)
+        Mockito.verify(response).invoke(true)
     }
 }

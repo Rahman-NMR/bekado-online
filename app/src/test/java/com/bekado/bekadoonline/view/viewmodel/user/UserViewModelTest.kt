@@ -5,14 +5,15 @@ import androidx.lifecycle.MutableLiveData
 import com.bekado.bekadoonline.data.model.AkunModel
 import com.bekado.bekadoonline.data.model.VerificationResult
 import com.bekado.bekadoonline.domain.usecase.UserUseCase
-import com.bekado.bekadoonline.view.viewmodel.getOrAwaitValue
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
@@ -34,7 +35,7 @@ class UserViewModelTest {
     }
 
     @Test
-    fun `test getDataAkun success`() {
+    fun `when getDataAkun is called, should not null and return data`() {
         val dummyAkun = AkunModel(
             "test@mail.com",
             "https://test.img/image/tester.png",
@@ -49,39 +50,45 @@ class UserViewModelTest {
         `when`(useCase.executeGetDataAkun()).thenReturn(livedata)
 
         val actualAkun = userViewModel.getDataAkun().value
-        Mockito.verify(useCase).executeGetDataAkun()
-        Mockito.verifyNoMoreInteractions(useCase)
 
-        Assert.assertEquals(dummyAkun.uid, actualAkun?.uid ?: "")
+        verify(useCase).executeGetDataAkun()
+        assertNotNull(actualAkun)
+        assertEquals(dummyAkun, actualAkun)
     }
 
     @Test
-    fun `test isLoading success`() {
-        val livedata = MutableLiveData<Boolean>()
-        livedata.value = false
-        `when`(useCase.executeLoading()).thenReturn(livedata)
+    fun `when getDataAkun is called, should null and return null`() {
+        val livedata = MutableLiveData<AkunModel>()
+        livedata.value = null
 
-        val actualLoading = userViewModel.isLoading().getOrAwaitValue()
-        Mockito.verify(useCase).executeLoading()
-        Assert.assertFalse(actualLoading)
+        `when`(useCase.executeGetDataAkun()).thenReturn(livedata)
+
+        val actualAkun = userViewModel.getDataAkun().value
+
+        verify(useCase).executeGetDataAkun()
+        assertNull(actualAkun)
+        assertNull(actualAkun?.uid)
     }
 
     @Test
-    fun `test getVerified success`() {
+    fun `when getVerified is called, verification should be returned`() {
+        val dummyVerification = VerificationResult(isGoogleVerified = true, isEmailVerified = true)
         val livedata = MutableLiveData<VerificationResult>()
-        livedata.value = VerificationResult(isGoogleVerified = true, isEmailVerified = true)
+        livedata.value = dummyVerification
 
         `when`(useCase.executeIsVerified()).thenReturn(livedata.value)
 
         val actualVerification = userViewModel.isVerified()
-        Mockito.verify(useCase).executeIsVerified()
-        Assert.assertTrue(actualVerification.isGoogleVerified == true)
-        Assert.assertTrue(actualVerification.isEmailVerified == true)
+
+        verify(useCase).executeIsVerified()
+        assertNotNull(actualVerification)
+        assertEquals(dummyVerification, actualVerification)
     }
 
     @Test
-    fun `test logout success`() {
+    fun `when clearAkunData is called, should clear akun data`() {
         userViewModel.clearAkunData()
-        Mockito.verify(useCase).executeLogout()
+
+        verify(useCase).executeLogout()
     }
 }

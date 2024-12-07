@@ -9,6 +9,7 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.verify
 
 @RunWith(MockitoJUnitRunner::class)
 class AboutBekadoViewModelTest {
@@ -24,19 +25,25 @@ class AboutBekadoViewModelTest {
     }
 
     @Test
-    fun `test getDataStore success`() {
-        val dummyData = TokoModel()
-        val callback = Mockito.mock<(TokoModel, Boolean) -> Unit>()
+    fun `when getDataStore is called, response should be invoked`() {
+        val dummyData = TokoModel(
+            nama = "Test Toko",
+            alamat = "Test Alamat",
+            kontak = "Test Kontak",
+            operasional = "Test Operasional",
+            foto = "Test Foto"
+        )
+        val response = Mockito.mock<(TokoModel, Boolean) -> Unit>()
 
         Mockito.doAnswer { invocation ->
             val responseCallback = invocation.getArgument<(TokoModel, Boolean) -> Unit>(0)
             responseCallback(dummyData, true)
             null
-        }.`when`(repository).getDataToko(callback)
+        }.`when`(repository).getDataToko(response)
 
-        viewModel.getDataToko(callback)
+        viewModel.getDataToko(response)
 
-        Mockito.verify(callback).invoke(dummyData, true)
-        Mockito.verify(repository).getDataToko(callback)
+        verify(repository).getDataToko(response)
+        verify(response).invoke(dummyData, true)
     }
 }
