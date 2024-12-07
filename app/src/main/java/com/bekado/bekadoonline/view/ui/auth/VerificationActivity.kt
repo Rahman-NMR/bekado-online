@@ -128,8 +128,8 @@ class VerificationActivity : AppCompatActivity() {
     private fun loadingUI(isLoading: Boolean) {
         this@VerificationActivity.isLoading = isLoading
         binding.root.isEnabled = isLoading
-        binding.linkGoogle.isEnabled = isLoading
-        binding.linkEmail.isEnabled = isLoading
+        binding.linkGoogle.isEnabled = !isLoading
+        binding.linkEmail.isEnabled = !isLoading
         binding.progressbarVerif.isVisible = isLoading
     }
 
