@@ -26,10 +26,6 @@ import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 class DetailTransaksiActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailTransaksiBinding
@@ -164,6 +160,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
                 with(binding) {
                     namaUser.text = dataAkun.nama ?: getString(R.string.tidak_ada_data)
                     noHpUser.text = dataAkun.noHp ?: getString(R.string.tidak_ada_data)
+                    noHpUser.isVisible = !dataAkun.noHp.isNullOrEmpty()
 
                     val fotopp = if (dataAkun.fotoProfil.isNullOrEmpty()) null else dataAkun.fotoProfil
                     Glide.with(this@DetailTransaksiActivity).load(fotopp)
@@ -192,7 +189,7 @@ class DetailTransaksiActivity : AppCompatActivity() {
         binding.noPesanan.text = transaksi?.noPesanan ?: getString(R.string.strip)
         binding.tvStatusPesanan.text = transaksi?.statusPesanan ?: getString(R.string.strip)
 
-        val timeBuy = "${convertTstmp(transaksi?.timestamp?.toLong() ?: 0)} WIB"
+        val timeBuy = "${detailTransaksiViewModel.timestampToFormated(transaksi?.timestamp?.toLong() ?: 0)} WIB"
         binding.waktuPembelian.text = timeBuy
     }
 
@@ -215,12 +212,5 @@ class DetailTransaksiActivity : AppCompatActivity() {
             totalBelanjaHarga.text = ttlBlnj
         }
         return metodePembayaran
-    }
-
-    private fun convertTstmp(trxTimestamp: Long): String {
-        val sdfTanggal = SimpleDateFormat("d MMMM yyyy, HH:mm", Locale.getDefault())
-        Calendar.getInstance().timeInMillis = trxTimestamp
-
-        return sdfTanggal.format(Date(trxTimestamp))
     }
 }

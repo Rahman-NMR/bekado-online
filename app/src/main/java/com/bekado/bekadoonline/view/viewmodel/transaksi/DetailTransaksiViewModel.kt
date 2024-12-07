@@ -9,6 +9,10 @@ import com.bekado.bekadoonline.data.model.BuktiPembayaranModel
 import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
 import com.bekado.bekadoonline.data.model.TrxDetailModel
 import com.bekado.bekadoonline.domain.usecase.TrxUseCase
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class DetailTransaksiViewModel(private val trxUseCase: TrxUseCase) : ViewModel() {
     private var pathDetailTrx: String? = ""
@@ -30,6 +34,13 @@ class DetailTransaksiViewModel(private val trxUseCase: TrxUseCase) : ViewModel()
 
     fun updateStatusPesanan(pathDetailTrx: String, selectedStatus: String, selectedParent: String, response: (Boolean) -> Unit) {
         trxUseCase.executeUpdateStatusPesanan(pathDetailTrx, selectedStatus, selectedParent, response)
+    }
+
+    fun timestampToFormated(trxTimestamp: Long): String {
+        val sdfTanggal = SimpleDateFormat("d MMMM yyyy, HH:mm", Locale.getDefault())
+        Calendar.getInstance().timeInMillis = trxTimestamp
+
+        return sdfTanggal.format(Date(trxTimestamp))
     }
 
     override fun onCleared() {

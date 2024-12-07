@@ -81,14 +81,7 @@ class TransaksiFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 val searchText = newText ?: ""
-                val searchList = dataTransaksi.filter { data ->
-                    val textToSearch = searchText.lowercase()
-
-                    data.namaProduk.toString().contains(textToSearch, ignoreCase = true) ||
-                            data.totalBelanja.toString().contains(textToSearch, ignoreCase = true) ||
-                            data.noPesanan.toString().contains(textToSearch, ignoreCase = true) ||
-                            data.statusPesanan.toString().contains(textToSearch, ignoreCase = true)
-                } as ArrayList<TrxListModel>
+                val searchList = transaksiListVM.searchTransaksi(dataTransaksi, searchText)
 
                 if (HelperConnection.isConnected(requireContext())) {
                     if (searchList.isEmpty()) {

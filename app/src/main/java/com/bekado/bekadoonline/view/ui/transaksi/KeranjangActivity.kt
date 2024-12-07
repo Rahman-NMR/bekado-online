@@ -17,9 +17,9 @@ import com.bekado.bekadoonline.helper.Helper.snackbarAction
 import com.bekado.bekadoonline.helper.HelperConnection
 import com.bekado.bekadoonline.helper.itemDecoration.GridSpacing
 import com.bekado.bekadoonline.view.adapter.AdapterKeranjang
-import com.bekado.bekadoonline.view.ui.transaksi.CheckOutActivity.Companion.selectedProduk
 import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModel
 import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModelFactory
+import com.bekado.bekadoonline.view.viewmodel.transaksi.CheckoutViewModel.Companion.selectedProduk
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 

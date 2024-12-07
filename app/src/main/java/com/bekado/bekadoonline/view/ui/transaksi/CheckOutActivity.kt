@@ -7,8 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bekado.bekadoonline.R
 import com.bekado.bekadoonline.data.model.AlamatModel
-import com.bekado.bekadoonline.view.adapter.AdapterCheckout
-import com.bekado.bekadoonline.data.model.CombinedKeranjangModel
+import com.bekado.bekadoonline.data.model.RincianPembayaranModel
 import com.bekado.bekadoonline.data.model.TrxDetailModel
 import com.bekado.bekadoonline.databinding.ActivityCheckOutBinding
 import com.bekado.bekadoonline.helper.Helper
@@ -16,16 +15,17 @@ import com.bekado.bekadoonline.helper.Helper.addcoma3digit
 import com.bekado.bekadoonline.helper.Helper.showToast
 import com.bekado.bekadoonline.helper.Helper.showToastL
 import com.bekado.bekadoonline.helper.HelperConnection
+import com.bekado.bekadoonline.view.adapter.AdapterCheckout
 import com.bekado.bekadoonline.view.ui.profil.AlamatActivity
 import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModel
 import com.bekado.bekadoonline.view.viewmodel.keranjang.KeranjangViewModelFactory
 import com.bekado.bekadoonline.view.viewmodel.transaksi.CheckoutViewModel
+import com.bekado.bekadoonline.view.viewmodel.transaksi.CheckoutViewModel.Companion.selectedProduk
 import com.bekado.bekadoonline.view.viewmodel.transaksi.TransaksiViewModelFactory
 import com.bekado.bekadoonline.view.viewmodel.user.AlamatViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModel
 import com.bekado.bekadoonline.view.viewmodel.user.UserViewModelFactory
 import java.util.Date
-import java.util.Locale
 
 class CheckOutActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCheckOutBinding
@@ -35,15 +35,7 @@ class CheckOutActivity : AppCompatActivity() {
     private val cartViewModel: KeranjangViewModel by viewModels { KeranjangViewModelFactory.getInstance() }
     private val checkoutViewModel: CheckoutViewModel by viewModels { TransaksiViewModelFactory.getInstance() }
 
-    private var ongkir: Long = 0
-    private var jarakToBuyer: Long = 0 //todo: hitung ongkir berdasarkan/dikali jarak
-    private var totalHarga: Long = 0
-    private var totalItem = 0
-    private var totalBelanja: Long = 0
     private var metodePembayaran: String = ""
-
-    private val latiStore = -7.4547115
-    private val longiStore = 109.258109
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +46,6 @@ class CheckOutActivity : AppCompatActivity() {
         dataAkunHandler()
         setupDaftarProduk()
         dataAlamatHandler()
-        setupDisplayHarga()
 
         binding.appBar.setNavigationOnClickListener { finish() }
         binding.btnUbahAlamat.setOnClickListener { startActivity(Intent(this@CheckOutActivity, AlamatActivity::class.java)) }
@@ -67,19 +58,17 @@ class CheckOutActivity : AppCompatActivity() {
     }
 
     private fun dataAlamatHandler() {
+        val rincian = checkoutViewModel.rincianHarga(selectedProduk, 0)
+
         addressViewModel.getDataAlamat().observe(this) { alamatModel ->
-            val nama = alamatModel?.nama
-            val noHp = alamatModel?.noHp
-            val alamatLengkap = alamatModel?.alamatLengkap
-            val kodePos = alamatModel?.kodePos
             val latitude = alamatModel?.latitude
             val longitude = alamatModel?.longitude
 
+            setupDisplayHarga(rincian)
             updateRincianHarga(true, latitude, longitude)
             toogleButton(latitude, longitude)
-            setupUIalamatPenerima(nama, noHp, alamatLengkap, kodePos, latitude, longitude)
-            binding.ongkirTxt.text = setupCalcJarak(latitude, longitude)
-            validateBeforeConfirm(nama, noHp, alamatLengkap, kodePos, latitude, longitude)
+            alamatModel?.let { model -> setupUIalamatPenerima(model) }
+            alamatModel?.let { model -> validateBeforeConfirm(model, rincian) }
         }
         addressViewModel.isLoading().observe(this) { isLoading ->
             if (isLoading) {
@@ -100,50 +89,39 @@ class CheckOutActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupUIalamatPenerima(nama: String?, noHp: String?, alamatLengkap: String?, kodePos: String?, latitude: String?, longitude: String?) {
+    private fun setupUIalamatPenerima(alamat: AlamatModel) {
         binding.namaNohp.text = when {
-            nama?.isNotEmpty() == true && noHp?.isNotEmpty() == true -> "$nama - $noHp"
-            nama?.isNotEmpty() == true -> nama
-            noHp?.isNotEmpty() == true -> noHp
+            !alamat.nama.isNullOrEmpty() && !alamat.noHp.isNullOrEmpty() -> "${alamat.nama} - ${alamat.noHp}"
+            !alamat.nama.isNullOrEmpty() -> alamat.nama
+            !alamat.noHp.isNullOrEmpty() -> alamat.noHp
             else -> getString(R.string.tidak_ada_data)
         }
         binding.alamat.text = when {
-            alamatLengkap?.isNotEmpty() == true && kodePos?.isNotEmpty() == true -> "$alamatLengkap, $kodePos"
-            alamatLengkap?.isNotEmpty() == true -> "$alamatLengkap"
-            kodePos?.isNotEmpty() == true -> "$kodePos"
+            !alamat.alamatLengkap.isNullOrEmpty() && !alamat.kodePos.isNullOrEmpty() -> "${alamat.alamatLengkap}, ${alamat.kodePos}"
+            !alamat.alamatLengkap.isNullOrEmpty() -> "${alamat.alamatLengkap}"
+            !alamat.kodePos.isNullOrEmpty() -> "${alamat.kodePos}"
             else -> getString(R.string.tidak_ada_data)
         }
 
-        val endDrawable = if (latitude?.isNotEmpty() == true && longitude?.isNotEmpty() == true) R.drawable.icon_round_task_alt_24 else 0
+        val endDrawable = if (!alamat.latitude.isNullOrEmpty() && !alamat.longitude.isNullOrEmpty()) R.drawable.icon_round_task_alt_24 else 0
         binding.alamat.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, endDrawable, 0)
     }
 
-    private fun setupCalcJarak(latitude: String?, longitude: String?): String {
-        if (latitude?.isNotEmpty() == true && longitude?.isNotEmpty() == true) {
-            val distance = Helper.calcDistance(latitude.toDouble(), longitude.toDouble(), latiStore, longiStore)
-            val jarakPerKM = String.format(Locale.getDefault(), "%.0f", distance)
-            val jarakTxt =
-                if (distance < 1) String.format(Locale.getDefault(), "%.0f m", distance * 1000)
-                else String.format(Locale.getDefault(), "%.1f km", distance)
-
-            jarakToBuyer = jarakPerKM.toLong() // TODO: release jarak dari toko ke pembeli. kejauhan = skip
-            return "${getString(R.string.total_ongkos_kirim)} ($jarakTxt)"
-        } else return getString(R.string.total_ongkos_kirim)
+    private fun setupHitungJarak(latitude: String?, longitude: String?): String {
+        return "${getString(R.string.total_ongkos_kirim)} " +
+                if (!latitude.isNullOrEmpty() && !longitude.isNullOrEmpty()) {
+                    "(${checkoutViewModel.hitungJarak(latitude, longitude)}"
+                } else ""
     }
 
-    private fun setupDisplayHarga() {
-        totalHarga = selectedProduk.sumOf {
-            val hargaInt = it.produkModel?.hargaProduk ?: 0
-            val jumlahHarga = it.keranjangModel?.jumlahProduk ?: 0
-            hargaInt * jumlahHarga
-        }
-        totalItem = selectedProduk.count()
-
-        val itemTxt = "${getString(R.string.total_harga)} ($totalItem produk)"
-        val hargaTxt = "Rp${addcoma3digit(totalHarga)}"
+    private fun setupDisplayHarga(rincian: RincianPembayaranModel) {
+        val itemTxt = "${getString(R.string.total_harga)} (${rincian.totalItem} produk)"
+        val hargaTxt = "Rp${addcoma3digit(rincian.totalHarga)}"
+        val belanjaTxt = if (rincian.totalBelanja > 0) "Rp${addcoma3digit(rincian.totalHarga + rincian.ongkir)}" else "Gratis"
 
         binding.xProduk.text = itemTxt
         binding.totalHarga.text = hargaTxt
+        binding.totalBelanjaHarga.text = belanjaTxt
     }
 
     private fun setupDaftarProduk() {
@@ -156,32 +134,30 @@ class CheckOutActivity : AppCompatActivity() {
     }
 
     private fun updateRincianHarga(transfer: Boolean, latitude: String?, longitude: String?) {
-        totalBelanja = totalHarga + ongkir
-        val belanjaTxt = if (totalBelanja > 0) "Rp${addcoma3digit(totalHarga + ongkir)}" else "Gratis"
-        val ongkirTxt = if (latitude?.isNotEmpty() == true && longitude?.isNotEmpty() == true) "Gratis" else getString(R.string.strip)
+        val ongkirTxt = if (!latitude.isNullOrEmpty() && !longitude.isNullOrEmpty()) "Gratis" else getString(R.string.strip)
         metodePembayaran = if (transfer) getString(R.string.transfer) else getString(R.string.cod)
 
-        binding.totalBelanjaHarga.text = belanjaTxt
+        binding.ongkirTxt.text = setupHitungJarak(latitude, longitude)
         binding.ongkirHarga.text = ongkirTxt
         binding.pembayaranMetodeTxt.text = metodePembayaran
     }
 
-    private fun validateBeforeConfirm(nama: String?, noHp: String?, alamatFull: String?, kodePos: String?, lati: String?, longi: String?) {
+    private fun validateBeforeConfirm(alamatModel: AlamatModel, rincian: RincianPembayaranModel) {
         binding.btnKonfirmasiPesanan.setOnClickListener {
             if (HelperConnection.isConnected(this)) {
-                if (lati?.isNotEmpty() == true && longi?.isNotEmpty() == true &&
-                    nama?.isNotEmpty() == true && noHp?.isNotEmpty() == true &&
-                    alamatFull?.isNotEmpty() == true && kodePos?.isNotEmpty() == true
+                if (!alamatModel.latitude.isNullOrEmpty() && !alamatModel.longitude.isNullOrEmpty() &&
+                    !alamatModel.nama.isNullOrEmpty() && !alamatModel.noHp.isNullOrEmpty() &&
+                    !alamatModel.alamatLengkap.isNullOrEmpty() && !alamatModel.kodePos.isNullOrEmpty()
                 ) {
                     if (metodePembayaran.isNotEmpty()) {
-                        if (totalBelanja >= 50000) {
+                        if (rincian.totalBelanja >= 50000) {
                             Helper.showAlertDialog(
                                 getString(R.string.konfirmasi_pesanan_),
                                 getString(R.string.msg_konf_pesanan),
                                 getString(R.string.konfirmasi),
                                 this@CheckOutActivity,
                                 getColor(R.color.blue_grey_700)
-                            ) { addTransaksi(nama, noHp, alamatFull, kodePos, lati, longi) }
+                            ) { addTransaksi(alamatModel, rincian) }
                         } else showToastL(getString(R.string.syarat_checkout), this@CheckOutActivity)
                     } else showToast(getString(R.string.metode_pembayaran_unselected), this@CheckOutActivity)
                 } else showToast(getString(R.string.alamat_uncompleate), this@CheckOutActivity)
@@ -189,15 +165,9 @@ class CheckOutActivity : AppCompatActivity() {
         }
     }
 
-    private fun generateIdPesanan(currentTime: String): String {
-        val idPesanan = "$totalItem$currentTime"
-        val timestampCrop = idPesanan.chunked(4).joinToString("/")
-        return "INV/$timestampCrop"
-    }
-
-    private fun addTransaksi(nama: String, noHp: String, alamatFull: String, kodePos: String, lati: String, longi: String) {
+    private fun addTransaksi(alamatModel: AlamatModel, rincian: RincianPembayaranModel) {
         val currentTime = Date().time.toString()
-        val noPesanan = generateIdPesanan(currentTime)
+        val noPesanan = checkoutViewModel.generateIdPesanan(currentTime, rincian.totalItem)
         val statusPesananByMetode =
             if (metodePembayaran == getString(R.string.transfer)) getString(R.string.status_menunggu_pembayaran)
             else getString(R.string.status_menunggu_konfirmasi)
@@ -205,21 +175,20 @@ class CheckOutActivity : AppCompatActivity() {
         val produkMap = mutableMapOf<String, Any>()
         mapOfProdukList(produkMap)
 
-        val alamatData = AlamatModel(nama, noHp, alamatFull, kodePos, lati, longi)
         val transaksiData = TrxDetailModel(
             currency = "Rp",
             metodePembayaran = metodePembayaran,
             noPesanan = noPesanan,
-            ongkir = ongkir,
+            ongkir = rincian.ongkir,
             parentStatus = getString(R.string.key_antrian),
             statusPesanan = statusPesananByMetode,
             timestamp = currentTime,
-            totalBelanja = totalBelanja,
-            totalHarga = totalHarga,
-            totalItem = totalItem.toLong()
+            totalBelanja = rincian.totalBelanja,
+            totalHarga = rincian.totalHarga,
+            totalItem = rincian.totalItem.toLong()
         )
 
-        checkoutViewModel.addNewTransaksi(transaksiData, alamatData, produkMap, totalBelanja) { isSuccessful ->
+        checkoutViewModel.addNewTransaksi(transaksiData, alamatModel, produkMap, rincian.totalBelanja) { isSuccessful ->
             if (isSuccessful) {
                 actionSuccessListener()
                 showToastL(getString(R.string.pesanan_baru_berhasil), this)
@@ -262,9 +231,5 @@ class CheckOutActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (selectedProduk.isEmpty()) finish()
-    }
-
-    companion object {
-        var selectedProduk = ArrayList<CombinedKeranjangModel>()
     }
 }
