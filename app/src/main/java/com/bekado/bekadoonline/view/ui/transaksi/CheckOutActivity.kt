@@ -110,7 +110,7 @@ class CheckOutActivity : AppCompatActivity() {
     private fun setupHitungJarak(latitude: String?, longitude: String?): String {
         return "${getString(R.string.total_ongkos_kirim)} " +
                 if (!latitude.isNullOrEmpty() && !longitude.isNullOrEmpty()) {
-                    "(${checkoutViewModel.hitungJarak(latitude, longitude)}"
+                    "(${checkoutViewModel.hitungJarak(latitude, longitude)})"
                 } else ""
     }
 
